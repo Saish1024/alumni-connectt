@@ -37,7 +37,9 @@ const getEvents = async (req, res) => {
     try {
         const { type } = req.query;
         const filter = type ? { type } : {};
-        const events = await Event.find(filter).populate('organizer', 'name email profileImage');
+        const events = await Event.find(filter)
+            .populate('organizer', 'name email profileImage')
+            .populate('attendees', 'name email profileImage');
         res.status(200).json(events);
     } catch (error) {
         res.status(500).json({ error: error.message });

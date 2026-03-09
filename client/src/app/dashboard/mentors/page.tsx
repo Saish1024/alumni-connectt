@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Search, Star, Check, X, Loader2 } from 'lucide-react';
 import { users as apiUsers } from '@/lib/api';
+import { useRouter } from 'next/navigation';
 
 export default function MentorsPage() {
     const [mentors, setMentors] = useState<any[]>([]);
@@ -10,6 +11,7 @@ export default function MentorsPage() {
     const [search, setSearch] = useState('');
     const [bookModal, setBookModal] = useState<null | any>(null);
     const [bookingDone, setBookingDone] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         const fetchMentors = async () => {
@@ -123,10 +125,10 @@ export default function MentorsPage() {
                                 <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/20 border border-green-400/30 flex items-center justify-center mx-auto mb-4">
                                     <Check className="w-8 h-8 text-green-600" />
                                 </div>
-                                <h3 className="text-xl font-[800] text-slate-900 dark:text-white mb-2">Session Requested! 🎉</h3>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">Your session request has been sent. Visit the Sessions page to track it.</p>
-                                <button onClick={() => setBookModal(null)} className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-[700] hover:scale-[1.02] transition-all shadow-md">
-                                    Done
+                                <h3 className="text-xl font-[800] text-slate-900 dark:text-white mb-2">Ready to Book? 📅</h3>
+                                <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">Head over to your Mentoring Sessions page to see and book {bookModal.name}'s available time slots.</p>
+                                <button onClick={() => router.push('/dashboard/sessions')} className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-[700] hover:scale-[1.02] transition-all shadow-md">
+                                    View Available Slots
                                 </button>
                             </div>
                         ) : (
@@ -172,7 +174,7 @@ export default function MentorsPage() {
                                 <button
                                     onClick={() => setBookingDone(true)}
                                     className="w-full mt-5 py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-[700] rounded-xl hover:scale-[1.02] transition-all shadow-lg shadow-indigo-500/20">
-                                    Confirm Booking
+                                    Check Availability
                                 </button>
                             </>
                         )}

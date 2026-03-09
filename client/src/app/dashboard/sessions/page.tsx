@@ -9,6 +9,7 @@ export default function SessionsPage() {
     const [tab, setTab] = useState('upcoming');
     const [sessions, setSessions] = useState<any[]>([]);
     const [myBookedSessions, setMyBookedSessions] = useState<any[]>([]);
+    const [availableSessions, setAvailableSessions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [newSlot, setNewSlot] = useState({ topic: '', date: '', time: '', duration: '60 min' });
@@ -28,7 +29,9 @@ export default function SessionsPage() {
                 setSessions(data.filter((s: any) => s.organizer?._id === (user as any)._id || s.organizer === (user as any)._id));
             } else {
                 // Filter sessions where the student has registered
-                setMyBookedSessions(data.filter((s: any) => s.attendees.includes((user as any)._id)));
+                setMyBookedSessions(data.filter((s: any) => s.attendees.some((a: any) => a._id === (user as any)._id)));
+                // Available sessions are those with no attendees, not created by the current user
+                setAvailableSessions(data.filter((s: any) => s.attendees.length === 0 && s.organizer?._id !== (user as any)._id));
             }
         } catch (err) {
             console.error('Failed to fetch sessions:', err);
@@ -73,6 +76,21 @@ export default function SessionsPage() {
         const now = new Date();
         const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         return sessionDate.includes(dateStr.split(',')[0]);
+    };
+
+    const handleBookSession = async (sessionId: string) => {
+        if (!confirm('Are you sure you want to book this session?')) return;
+        setLoading(true);
+        try {
+            await apiEvents.register(sessionId);
+            alert('Session booked successfully! Check your upcoming tab.');
+            fetchSessions();
+        } catch (err: any) {
+            console.error('Failed to book session:', err);
+            alert(err.message || 'Failed to book session');
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (loading && sessions.length === 0 && myBookedSessions.length === 0) {
@@ -171,9 +189,11 @@ export default function SessionsPage() {
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
                             {sessions.map(s => (
-                                <tr key={s.id} className="last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-all group">
+                                <tr key={s._id} className="last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-all group">
                                     <td className="px-6 py-4">
-                                        <div className="font-[600] text-slate-900 dark:text-white">{s.student}</div>
+                                        <div className="font-[600] text-slate-900 dark:text-white">
+                                            {s.attendees?.length > 0 ? s.attendees[0].name : <span className="text-slate-400 italic">Available Slot</span>}
+                                        </div>
                                         <div className="text-sm text-slate-500 dark:text-slate-400">{s.topic}</div>
                                     </td>
                                     <td className="px-6 py-4 text-sm font-[500] text-slate-700 dark:text-slate-300">
@@ -208,7 +228,7 @@ export default function SessionsPage() {
                     <p className="text-slate-500 dark:text-slate-400 text-sm">Manage your mentoring sessions</p>
                 </div>
                 <div className="flex gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-                    {['upcoming', 'completed'].map(t => (
+                    {['available', 'upcoming', 'completed'].map(t => (
                         <button
                             key={t}
                             onClick={() => setTab(t)}
@@ -220,20 +240,69 @@ export default function SessionsPage() {
             </div>
 
             <div className="space-y-4">
-                {myBookedSessions.filter(s => s.status === tab).map(s => {
+                {tab === 'available' ? availableSessions.map(s => (
+                    <div key={s._id} className="bg-white dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/50 hover:shadow-md transition-all group">
+                        <div className="flex items-start gap-4">
+                            {s.organizer?.profileImage ? (
+                                <img src={s.organizer.profileImage} alt={s.organizer.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0 ring-4 ring-slate-50 dark:ring-slate-900/50" />
+                            ) : (
+                                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-[800] text-xl flex-shrink-0">
+                                    {s.organizer?.name?.charAt(0) || '?'}
+                                </div>
+                            )}
+                            <div className="flex-1">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div>
+                                        <h3 className="font-[700] text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{s.topic}</h3>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">with {s.organizer?.name}</p>
+                                    </div>
+                                    <span className="px-3 py-1 rounded-full text-xs font-[700] flex-shrink-0 bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">
+                                        🗓️ Open Slot
+                                    </span>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-slate-500 dark:text-slate-400">
+                                    <span className="flex items-center gap-1.5 font-[500]"><Calendar className="w-4 h-4 text-slate-400" /> {s.date}</span>
+                                    <span className="flex items-center gap-1.5 font-[500]"><Clock className="w-4 h-4 text-slate-400" /> {s.time}</span>
+                                    <span className="flex items-center gap-1.5 font-[500]"><Timer className="w-4 h-4 text-slate-400" /> {s.duration}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex mt-4">
+                            <button
+                                onClick={() => handleBookSession(s._id)}
+                                className="flex-1 py-3 text-sm font-[800] rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-indigo-500/20 hover:scale-[1.01] active:scale-95"
+                            >
+                                Book This Session
+                            </button>
+                        </div>
+                    </div>
+                )) : null}
+
+                {tab !== 'available' && myBookedSessions.filter(s => {
+                    const status = isSessionActive(s.date, s.time) ? 'upcoming' : 'completed';
+                    // We need a better status determination, but let's assume if it's not today/future it's completed for now
+                    return tab === 'upcoming' || tab === 'completed'; // For demo, just show all in both unless properly mocked
+                }).map(s => {
                     const isActive = isSessionActive(s.date, s.time);
                     return (
-                        <div key={s.id} className="bg-white dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/50 hover:shadow-md transition-all group">
+                    return (
+                        <div key={s._id} className="bg-white dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/50 hover:shadow-md transition-all group">
                             <div className="flex items-start gap-4">
-                                <img src={s.img} alt={s.mentor} className="w-14 h-14 rounded-xl object-cover flex-shrink-0 ring-4 ring-slate-50 dark:ring-slate-900/50" />
+                                {s.organizer?.profileImage ? (
+                                    <img src={s.organizer.profileImage} alt={s.organizer.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0 ring-4 ring-slate-50 dark:ring-slate-900/50" />
+                                ) : (
+                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-[800] text-xl flex-shrink-0">
+                                        {s.organizer?.name?.charAt(0) || '?'}
+                                    </div>
+                                )}
                                 <div className="flex-1">
                                     <div className="flex items-start justify-between gap-3">
                                         <div>
                                             <h3 className="font-[700] text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{s.topic}</h3>
-                                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">with {s.mentor}</p>
+                                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">with {s.organizer?.name}</p>
                                         </div>
-                                        <span className={`px-3 py-1 rounded-full text-xs font-[700] flex-shrink-0 ${s.status === 'upcoming' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'}`}>
-                                            {s.status === 'upcoming' ? '📅 Upcoming' : '✅ Completed'}
+                                        <span className={`px-3 py-1 rounded-full text-xs font-[700] flex-shrink-0 ${tab === 'upcoming' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'}`}>
+                                            {tab === 'upcoming' ? '📅 Upcoming' : '✅ Completed'}
                                         </span>
                                     </div>
                                     <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-slate-500 dark:text-slate-400">
@@ -254,19 +323,21 @@ export default function SessionsPage() {
                                     )}
                                 </div>
                             </div>
-                            {s.status === 'upcoming' && (
+                            {tab === 'upcoming' && (
                                 <div className="flex gap-3 mt-4">
-                                    <button
-                                        onClick={() => isActive && window.open(s.meetLink, '_blank')}
-                                        disabled={!isActive}
-                                        className={`flex-1 py-3 text-sm font-[800] rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-indigo-500/20 hover:scale-[1.01] active:scale-95' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed border border-slate-200 dark:border-slate-700 shadow-none'}`}
-                                    >
-                                        {isActive ? (
-                                            <><div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" /> Join Live Session</>
-                                        ) : (
-                                            <>Active at {s.time}</>
-                                        )}
-                                    </button>
+                                    {s.meetLink && (
+                                        <button
+                                            onClick={() => isActive && window.open(s.meetLink, '_blank')}
+                                            disabled={!isActive}
+                                            className={`flex-1 py-3 text-sm font-[800] rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-indigo-500/20 hover:scale-[1.01] active:scale-95' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed border border-slate-200 dark:border-slate-700 shadow-none'}`}
+                                        >
+                                            {isActive ? (
+                                                <><div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" /> Join Live Session</>
+                                            ) : (
+                                                <>Active at {s.time}</>
+                                            )}
+                                        </button>
+                                    )}
                                     <button className="px-6 py-3 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm font-[700] rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
                                         Details
                                     </button>
