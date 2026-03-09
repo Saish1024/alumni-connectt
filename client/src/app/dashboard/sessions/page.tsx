@@ -285,7 +285,6 @@ export default function SessionsPage() {
                 }).map(s => {
                     const isActive = isSessionActive(s.date, s.time);
                     return (
-                    return (
                         <div key={s._id} className="bg-white dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/50 hover:shadow-md transition-all group">
                             <div className="flex items-start gap-4">
                                 {s.organizer?.profileImage ? (
