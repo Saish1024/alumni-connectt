@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Calendar, Video, MapPin, Users, Clock, Check, Loader2 } from 'lucide-react';
