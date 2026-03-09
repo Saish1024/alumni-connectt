@@ -1,0 +1,89 @@
+# 🚀 Alumni Connect Setup & Deployment Guide
+
+This guide walks you through deploying your application for free to the public internet. 
+
+---
+
+## Step 1: Push Code to GitHub
+Both Render and Vercel pull your code directly from GitHub.
+1. Go to [GitHub.com](https://github.com) and create a new private repository called `alumni-connect`
+2. Open a terminal in `C:\Users\saish\Alumni Connect` and run:
+```bash
+git init
+git add .
+git commit -m "Initial commit for deployment"
+git branch -M main
+git remote add origin https://github.com/YOUR_GITHUB_USERNAME/alumni-connect.git
+git push -u origin main
+```
+
+---
+
+## Step 2: Setup MongoDB Atlas (Cloud Database)
+Currently, you are using local MongoDB. You need a cloud database for production.
+1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register) and sign up.
+2. Create a **Free Shared Cluster** (M0).
+3. Under **Database Access**, create a user (e.g., username: `admin`, password: `yourPassword123`).
+4. Under **Network Access**, click "Add IP Address" and allow access from anywhere (`0.0.0.0/0`).
+5. Click **Connect** → **Drivers** and copy your Connection String. It will look like this:
+   `mongodb+srv://admin:yourPassword123@cluster0.xxxxx.mongodb.net/alumni-connect?retryWrites=true&w=majority`
+
+---
+
+## Step 3: Deploy Backend on Render.com
+1. Go to [Render.com](https://render.com) and sign in with GitHub.
+2. Click **New +** → **Web Service**.
+3. Connect your GitHub repository (`alumni-connect`).
+4. Set the following details:
+   * **Root Directory**: `server`
+   * **Environment**: `Node`
+   * **Build Command**: `npm install`
+   * **Start Command**: `npm start`
+5. Scroll down to **Environment Variables** and add:
+   * `NODE_ENV` = `production`
+   * `MONGODB_URI` = `(Paste the connection string from Step 2)`
+   * `JWT_SECRET` = `(Type any random long string, e.g., my_super_secret_jwt_key_2026)`
+   * `JWT_EXPIRES_IN` = `7d`
+   * `GOOGLE_CLIENT_ID` = `your_google_client_id`
+   * `GOOGLE_CLIENT_SECRET` = `your_google_client_secret`
+6. Click **Create Web Service**. 
+7. Once deployed, copy the **Render URL** (e.g., `https://alumni-connect-backend.onrender.com`).
+
+---
+
+## Step 4: Add Frontend URL to Backend
+Wait! Render needs to know what your Vercel URL will be. Since we haven't deployed Vercel yet, you'll update this *after* Step 5.
+1. In Render, go to your Web Service → **Environment**.
+2. Add a new variable:
+   * `CLIENT_URL` = `https://alumni-connect-[yourname].vercel.app` (You'll get this URL in the next step).
+
+---
+
+## Step 5: Deploy Frontend on Vercel
+1. Go to [Vercel.com](https://vercel.com) and sign in with GitHub.
+2. Click **Add New** → **Project**.
+3. Import your `alumni-connect` repository.
+4. Set the **Root Directory** to `client` by clicking Edit next to it.
+5. Expand the **Environment Variables** section and add:
+   * `NEXT_PUBLIC_API_URL` = `https://your-backend-url.onrender.com/api` (The URL you copied in Step 3 + `/api`)
+6. Click **Deploy**. Vercel will build your Next.js app.
+7. Once finished, copy your final Vercel URL (e.g., `https://alumni-connect-tau.vercel.app`).
+
+---
+
+## Step 6: Finalizing Connections
+1. **Google OAuth Config**: Go to your [Google Cloud Console](https://console.cloud.google.com/), open your OAuth Client ID settings, and update the **Authorized redirect URIs** to point to your new Render backend URL:
+   `https://your-backend-url.onrender.com/api/auth/google/callback`
+2. **Backend CORS Setup**: Go back to Render → Environment Variables and make sure `CLIENT_URL` is exactly your new Vercel URL (no trailing slash).
+3. **Admin Account**: You need an admin account in your new remote database! You can't use the local `create-admin.js` script pointing to the cloud.
+   * Open Postman (or use Thunder Client in VS Code).
+   * Send a `POST` request to `https://your-backend-url.onrender.com/api/auth/register` with exactly this JSON body to create the first admin:
+     ```json
+     {
+       "name": "Super Admin",
+       "email": "admin@connect.com",
+       "password": "strongPassword123",
+       "role": "admin"
+     }
+     ```
+   * *Note: Normally admins are created directly in DB, but if you don't have MongoDB Compass setup, registering the first user and then going into Atlas UI to manually toggle `isApproved: true` and `role: "admin"` is the easiest way.*

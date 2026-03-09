@@ -1,0 +1,14 @@
+{
+    "name": "alumni-connect",
+    "version": "1.0.0",
+    "description": "Alumni Connect Portal - Full Stack Application",
+    "scripts": {
+        "dev:client": "npm run dev --prefix client",
+        "dev:server": "npm run dev --prefix server",
+        "install:all": "npm install --prefix client && npm install --prefix server",
+        "start": "npm run dev:client"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+}
