@@ -3,10 +3,5 @@
     "buildCommand": "npm run build",
     "outputDirectory": ".next",
     "installCommand": "npm install",
-    "devCommand": "npm run dev",
-    "env": {
-        "VITE_API_URL": {
-            "description": "Backend API URL from Render.com (e.g. https://alumni-connect-backend.onrender.com/api)"
-        }
-    }
+    "devCommand": "npm run dev"
 }

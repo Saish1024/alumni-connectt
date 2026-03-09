@@ -38,7 +38,7 @@ export default function SessionsPage() {
     };
 
     const handleAuthorizeGoogle = () => {
-        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
         window.location.href = `${baseUrl}/auth/google?userId=${(user as any)?._id || (user as any)?.id}`;
     };
 
