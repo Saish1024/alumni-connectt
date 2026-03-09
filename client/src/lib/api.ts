@@ -3,7 +3,7 @@
  * Central utility for all backend API calls
  */
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
 
@@ -83,7 +83,7 @@ export const upload = {
 
         // Use custom fetch without JSON Content-Type
         const token = getToken();
-        return fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/upload/profile-image`, {
+        return fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/upload/profile-image`, {
             method: 'POST',
             headers: token ? { 'Authorization': `Bearer ${token}` } : {},
             body: formData,
