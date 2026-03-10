@@ -10,6 +10,7 @@ export default function SessionsPage() {
     const [sessions, setSessions] = useState<any[]>([]);
     const [myBookedSessions, setMyBookedSessions] = useState<any[]>([]);
     const [availableSessions, setAvailableSessions] = useState<any[]>([]);
+    const [pendingRequests, setPendingRequests] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [newSlot, setNewSlot] = useState({ topic: '', date: '', time: '', duration: '60 min' });
@@ -26,12 +27,15 @@ export default function SessionsPage() {
             const data = await apiEvents.listSessions();
             if ((user as any).role === 'alumni') {
                 // Filter sessions where the current user is the organizer
-                setSessions(data.filter((s: any) => s.organizer?._id === (user as any)._id || s.organizer === (user as any)._id));
+                // 'upcoming' or 'pending' or 'completed'
+                const mySessions = data.filter((s: any) => s.organizer?._id === (user as any)._id || s.organizer === (user as any)._id);
+                setSessions(mySessions.filter((s: any) => s.status !== 'pending' && s.status !== 'rejected'));
+                setPendingRequests(mySessions.filter((s: any) => s.status === 'pending'));
             } else {
                 // Filter sessions where the student has registered
                 setMyBookedSessions(data.filter((s: any) => s.attendees.some((a: any) => a._id === (user as any)._id)));
-                // Available sessions are those with no attendees, not created by the current user
-                setAvailableSessions(data.filter((s: any) => s.attendees.length === 0 && s.organizer?._id !== (user as any)._id));
+                // Available sessions are those with no attendees, not created by the current user, and status is NOT pending/rejected (though available slots won't be pending usually)
+                setAvailableSessions(data.filter((s: any) => s.attendees.length === 0 && s.organizer?._id !== (user as any)._id && s.status === 'upcoming'));
             }
         } catch (err) {
             console.error('Failed to fetch sessions:', err);
@@ -100,6 +104,40 @@ export default function SessionsPage() {
         }
     };
 
+    const handleAcceptRequest = async (id: string) => {
+        if (!isGoogleAuthorized) {
+            alert('Please authorize Google Calendar first to generate a Meet link.');
+            handleAuthorizeGoogle();
+            return;
+        }
+        setLoading(true);
+        try {
+            await apiEvents.acceptSession(id);
+            alert('Session accepted! Google Meet link has been generated.');
+            fetchSessions();
+        } catch (err: any) {
+            console.error('Failed to accept session:', err);
+            alert(err.message || 'Failed to accept session');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRejectRequest = async (id: string) => {
+        if (!confirm('Are you sure you want to reject this request?')) return;
+        setLoading(true);
+        try {
+            await apiEvents.rejectSession(id);
+            alert('Session rejected.');
+            fetchSessions();
+        } catch (err: any) {
+            console.error('Failed to reject session:', err);
+            alert(err.message || 'Failed to reject session');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     if (loading && sessions.length === 0 && myBookedSessions.length === 0) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
@@ -130,6 +168,19 @@ export default function SessionsPage() {
                             <Plus className="w-4 h-4" /> Add Slot
                         </button>
                     </div>
+                </div>
+
+                <div className="flex gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit mb-6">
+                    {['upcoming', 'requests', 'completed'].map(t => (
+                        <button
+                            key={t}
+                            onClick={() => setTab(t)}
+                            className={`px-4 py-2 rounded-lg text-sm font-[600] capitalize transition-all ${tab === t ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-50 dark:text-slate-400'}`}>
+                            {t} {t === 'requests' && pendingRequests.length > 0 && (
+                                <span className="ml-1 px-1.5 py-0.5 bg-red-500 text-white text-[10px] rounded-full animate-pulse">{pendingRequests.length}</span>
+                            )}
+                        </button>
+                    ))}
                 </div>
 
                 {showForm && (
@@ -192,18 +243,21 @@ export default function SessionsPage() {
                             <tr>
                                 <th className="px-6 py-4 text-xs font-[700] text-slate-500 uppercase tracking-wider">Student / Topic</th>
                                 <th className="px-6 py-4 text-xs font-[700] text-slate-500 uppercase tracking-wider">When</th>
-                                <th className="px-6 py-4 text-xs font-[700] text-slate-500 uppercase tracking-wider">Meet Link</th>
+                                {tab !== 'requests' && <th className="px-6 py-4 text-xs font-[700] text-slate-500 uppercase tracking-wider">Meet Link</th>}
                                 <th className="px-6 py-4 text-xs font-[700] text-slate-500 uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                            {sessions.map(s => (
+                            {(tab === 'requests' ? pendingRequests : sessions.filter(s => {
+                                const isActive = isSessionActive(s.date, s.time);
+                                return tab === 'upcoming' ? isActive || new Date(`${s.date} ${s.time}`) > new Date() : !isActive && new Date(`${s.date} ${s.time}`) < new Date();
+                            })).map(s => (
                                 <tr key={s._id} className="last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-all group">
                                     <td className="px-6 py-4">
                                         <div className="font-[600] text-slate-900 dark:text-white">
-                                            {s.attendees?.length > 0 ? s.attendees[0].name : <span className="text-slate-400 italic">Available Slot</span>}
+                                            {s.attendees?.length > 0 ? (s.attendees[0].name || s.attendees[0]) : <span className="text-slate-400 italic">Available Slot</span>}
                                         </div>
-                                        <div className="text-sm text-slate-500 dark:text-slate-400">{s.topic}</div>
+                                        <div className="text-sm text-slate-500 dark:text-slate-400">{s.topic || s.title}</div>
                                     </td>
                                     <td className="px-6 py-4 text-sm font-[500] text-slate-700 dark:text-slate-300">
                                         <div>{new Date(s.date).toLocaleDateString() !== 'Invalid Date' && s.date.includes('-') ? new Date(s.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : s.date}</div>
@@ -211,19 +265,45 @@ export default function SessionsPage() {
                                             {s.time.includes(':') && s.time.length <= 5 ? new Date(`2000-01-01T${s.time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : s.time} ({s.duration})
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4">
-                                        <a href={s.meetLink} target="_blank" className="text-xs text-indigo-600 dark:text-indigo-400 font-[700] hover:underline flex items-center gap-1.5 ring-1 ring-indigo-500/20 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-1 rounded-md w-fit">
-                                            <Video className="w-3 h-3" /> Meet Link
-                                        </a>
-                                    </td>
+                                    {tab !== 'requests' && (
+                                        <td className="px-6 py-4">
+                                            {s.meetLink ? (
+                                                <a href={s.meetLink} target="_blank" className="text-xs text-indigo-600 dark:text-indigo-400 font-[700] hover:underline flex items-center gap-1.5 ring-1 ring-indigo-500/20 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-1 rounded-md w-fit">
+                                                    <Video className="w-3 h-3" /> Meet Link
+                                                </a>
+                                            ) : (
+                                                <span className="text-xs text-slate-400 italic">Not generated</span>
+                                            )}
+                                        </td>
+                                    )}
                                     <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"><Edit2 className="w-4 h-4 text-slate-400 hover:text-indigo-500" /></button>
-                                            <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"><Trash2 className="w-4 h-4 text-slate-400 hover:text-red-500" /></button>
-                                        </div>
+                                        {tab === 'requests' ? (
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => handleAcceptRequest(s._id)}
+                                                    className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-[700] rounded-lg hover:bg-indigo-700 transition-all shadow-sm">
+                                                    Accept
+                                                </button>
+                                                <button
+                                                    onClick={() => handleRejectRequest(s._id)}
+                                                    className="px-3 py-1.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-[700] rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                                                    Reject
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"><Edit2 className="w-4 h-4 text-slate-400 hover:text-indigo-500" /></button>
+                                                <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"><Trash2 className="w-4 h-4 text-slate-400 hover:text-red-500" /></button>
+                                            </div>
+                                        )}
                                     </td>
                                 </tr>
                             ))}
+                            {tab === 'requests' && pendingRequests.length === 0 && (
+                                <tr>
+                                    <td colSpan={3} className="px-6 py-12 text-center text-slate-400 italic">No pending requests</td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -239,7 +319,7 @@ export default function SessionsPage() {
                     <p className="text-slate-500 dark:text-slate-400 text-sm">Manage your mentoring sessions</p>
                 </div>
                 <div className="flex gap-2 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-                    {['available', 'upcoming', 'completed'].map(t => (
+                    {['available', 'upcoming', 'pending', 'completed'].map(t => (
                         <button
                             key={t}
                             onClick={() => setTab(t)}
@@ -290,9 +370,11 @@ export default function SessionsPage() {
                 )) : null}
 
                 {tab !== 'available' && myBookedSessions.filter(s => {
-                    const status = isSessionActive(s.date, s.time) ? 'upcoming' : 'completed';
-                    // We need a better status determination, but let's assume if it's not today/future it's completed for now
-                    return tab === 'upcoming' || tab === 'completed'; // For demo, just show all in both unless properly mocked
+                    const isActive = isSessionActive(s.date, s.time);
+                    if (tab === 'pending') return s.status === 'pending';
+                    if (tab === 'upcoming') return s.status === 'upcoming' && (isActive || new Date(`${s.date} ${s.time}`) > new Date());
+                    if (tab === 'completed') return s.status === 'completed' || (!isActive && new Date(`${s.date} ${s.time}`) < new Date() && s.status === 'upcoming');
+                    return false;
                 }).map(s => {
                     const isActive = isSessionActive(s.date, s.time);
                     return (
@@ -311,8 +393,8 @@ export default function SessionsPage() {
                                             <h3 className="font-[700] text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{s.topic}</h3>
                                             <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">with {s.organizer?.name}</p>
                                         </div>
-                                        <span className={`px-3 py-1 rounded-full text-xs font-[700] flex-shrink-0 ${tab === 'upcoming' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'}`}>
-                                            {tab === 'upcoming' ? '📅 Upcoming' : '✅ Completed'}
+                                        <span className={`px-3 py-1 rounded-full text-xs font-[700] flex-shrink-0 ${s.status === 'pending' ? 'bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' : tab === 'upcoming' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'}`}>
+                                            {s.status === 'pending' ? '⏳ Pending' : tab === 'upcoming' ? '📅 Upcoming' : '✅ Completed'}
                                         </span>
                                     </div>
                                     <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-slate-500 dark:text-slate-400">

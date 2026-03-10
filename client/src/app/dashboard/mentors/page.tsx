@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react';
 import { Search, Star, Check, X, Loader2 } from 'lucide-react';
-import { users as apiUsers } from '@/lib/api';
+import { users as apiUsers, events as apiEvents } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 
 export default function MentorsPage() {
@@ -11,6 +11,8 @@ export default function MentorsPage() {
     const [search, setSearch] = useState('');
     const [bookModal, setBookModal] = useState<null | any>(null);
     const [bookingDone, setBookingDone] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [form, setForm] = useState({ date: '', time: '10:00 AM', topic: '' });
     const router = useRouter();
 
     useEffect(() => {
@@ -26,6 +28,26 @@ export default function MentorsPage() {
         };
         fetchMentors();
     }, []);
+
+    const handleRequestSession = async () => {
+        if (!form.date || !form.topic) return alert('Please fill in all fields');
+        setSubmitting(true);
+        try {
+            await apiEvents.requestSession({
+                mentorId: bookModal._id,
+                date: form.date,
+                time: form.time,
+                topic: form.topic,
+                duration: '60 min'
+            });
+            setBookingDone(true);
+        } catch (err: any) {
+            console.error('Failed to request session:', err);
+            alert(err.message || 'Failed to request session');
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     const filtered = mentors.filter(m => {
         if (search && !m.name?.toLowerCase().includes(search.toLowerCase()) &&
@@ -107,7 +129,11 @@ export default function MentorsPage() {
                                 <span className="text-sm font-[700] px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400">🆓 Free</span>
                             </div>
                             <button
-                                onClick={() => { setBookModal(m); setBookingDone(false); }}
+                                onClick={() => {
+                                    setBookModal(m);
+                                    setBookingDone(false);
+                                    setForm({ date: '', time: '10:00 AM', topic: '' });
+                                }}
                                 className="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-[700] rounded-xl hover:scale-[1.02] transition-all shadow-md shadow-indigo-500/20">
                                 Book Session
                             </button>
@@ -125,10 +151,10 @@ export default function MentorsPage() {
                                 <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/20 border border-green-400/30 flex items-center justify-center mx-auto mb-4">
                                     <Check className="w-8 h-8 text-green-600" />
                                 </div>
-                                <h3 className="text-xl font-[800] text-slate-900 dark:text-white mb-2">Ready to Book? 📅</h3>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">Head over to your Mentoring Sessions page to see and book {bookModal.name}'s available time slots.</p>
-                                <button onClick={() => router.push('/dashboard/sessions')} className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-[700] hover:scale-[1.02] transition-all shadow-md">
-                                    View Available Slots
+                                <h3 className="text-xl font-[800] text-slate-900 dark:text-white mb-2">Session Requested! 🎉</h3>
+                                <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">Your request has been sent to {bookModal.name}. Visit your Sessions page to track its status.</p>
+                                <button onClick={() => { setBookModal(null); router.push('/dashboard/sessions'); }} className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-[700] hover:scale-[1.02] transition-all shadow-md">
+                                    View Pending Requests
                                 </button>
                             </div>
                         ) : (
@@ -151,30 +177,29 @@ export default function MentorsPage() {
                                 <div className="space-y-4">
                                     <div>
                                         <label className="block text-sm font-[600] text-slate-700 dark:text-slate-300 mb-2">Select Date</label>
-                                        <input type="date" id="sessionDate" className="w-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
+                                        <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} id="sessionDate" className="w-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-[600] text-slate-700 dark:text-slate-300 mb-2">Select Time</label>
-                                        <select id="sessionTime" className="w-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
-                                            {['10:00 AM', '11:00 AM', '2:00 PM', '4:00 PM', '6:00 PM', '8:00 PM'].map(t => (
-                                                <option key={t} value={t}>{t}</option>
-                                            ))}
-                                        </select>
+                                        <input type="time" value={form.time} onChange={e => setForm({ ...form, time: e.target.value })} id="sessionTime" className="w-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30" />
                                     </div>
                                     <div>
                                         <label className="block text-sm font-[600] text-slate-700 dark:text-slate-300 mb-2">Topic / Goals</label>
                                         <textarea
                                             rows={3}
                                             id="sessionTopic"
+                                            value={form.topic}
+                                            onChange={e => setForm({ ...form, topic: e.target.value })}
                                             placeholder="What do you want to discuss?"
                                             className="w-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 resize-none"
                                         />
                                     </div>
                                 </div>
                                 <button
-                                    onClick={() => setBookingDone(true)}
-                                    className="w-full mt-5 py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-[700] rounded-xl hover:scale-[1.02] transition-all shadow-lg shadow-indigo-500/20">
-                                    Check Availability
+                                    onClick={handleRequestSession}
+                                    disabled={submitting}
+                                    className="w-full mt-5 py-3.5 flex justify-center items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-[700] rounded-xl hover:scale-[1.02] transition-all shadow-lg shadow-indigo-500/20 disabled:opacity-70 disabled:hover:scale-100">
+                                    {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Request Session'}
                                 </button>
                             </>
                         )}

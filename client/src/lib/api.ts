@@ -128,6 +128,18 @@ export const events = {
             method: 'POST',
             body: JSON.stringify({ ...data, type: 'session' }),
         }),
+
+    requestSession: (data: Record<string, any>) =>
+        request<any>('/events/request', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        }),
+
+    acceptSession: (id: string) =>
+        request<any>(`/events/${id}/accept`, { method: 'PUT' }),
+
+    rejectSession: (id: string) =>
+        request<any>(`/events/${id}/reject`, { method: 'PUT' }),
 };
 
 // ─── Posts / Feed ─────────────────────────────────────────────────────────────
