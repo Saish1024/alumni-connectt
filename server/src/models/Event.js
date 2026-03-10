@@ -9,6 +9,7 @@ const eventSchema = new mongoose.Schema({
     location: { type: String },
     type: { type: String, enum: ['event', 'session'], default: 'event' },
     paymentType: { type: String, enum: ['free', 'paid'], default: 'free' },
+    amount: { type: Number, default: 0 },
     status: { type: String, enum: ['pending', 'upcoming', 'completed', 'rejected'], default: 'upcoming' },
     category: { type: String },
     meetLink: { type: String },

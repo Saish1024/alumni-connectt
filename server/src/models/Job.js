@@ -10,6 +10,7 @@ const jobSchema = new mongoose.Schema({
     salary: { type: String },
     type: { type: String, default: 'Full-time' },
     deadline: { type: String },
+    applicationLink: { type: String },
     postedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     applicants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     createdAt: { type: Date, default: Date.now }

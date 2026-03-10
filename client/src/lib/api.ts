@@ -112,6 +112,10 @@ export const jobs = {
         request<any>(`/jobs/${id}/apply`, { method: 'POST' }),
 };
 
+export const alumni = {
+    getStats: () => request<any>('/alumni/stats'),
+};
+
 // ─── Events ───────────────────────────────────────────────────────────────────
 
 export const events = {

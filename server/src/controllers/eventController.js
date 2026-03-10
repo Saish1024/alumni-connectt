@@ -24,6 +24,7 @@ const createEvent = async (req, res) => {
 
         const event = new Event({
             ...req.body,
+            amount: req.body.amount || 0,
             meetLink,
             organizer: req.user._id
         });
@@ -122,6 +123,7 @@ const requestSession = async (req, res) => {
             duration: duration || '60 min',
             type: 'session',
             paymentType: paymentType || 'free',
+            amount: req.body.amount || 0,
             status: 'pending',
             organizer: mentorId, // The alumni
             attendees: [req.user._id] // The student requesting
