@@ -63,6 +63,7 @@ app.use('/api/posts', require('./routes/postRoutes'));
 app.use('/api/messages', require('./routes/messageRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/upload', require('./routes/uploadRoutes'));
+app.use('/api/resumes', require('./routes/resumeReviewRoutes'));
 
 // 404 handler
 app.use((req, res) => {

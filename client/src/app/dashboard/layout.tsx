@@ -2,7 +2,7 @@
 import DashboardLayout from '@/components/DashboardLayout';
 import { useAuth } from '@/context/AuthContext';
 import {
-    Home, Users, Briefcase, BookOpen, MessageCircle, Star, Target, Calendar, Settings, Trophy
+    Home, Users, Briefcase, BookOpen, MessageCircle, Star, Target, Calendar, Settings, Trophy, FileText
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -43,6 +43,7 @@ export default function DashboardLayoutWrapper({
             { icon: Briefcase, label: 'Job Portal', href: '/dashboard/jobs' },
             { icon: BookOpen, label: 'Quizzes / Tests', href: '/dashboard/tests' },
             { icon: MessageCircle, label: 'Messages', href: '/dashboard/sessions', badge: 3 },
+            { icon: FileText, label: 'Resume Review', href: '/dashboard/resumes' },
             { icon: Calendar, label: 'Events', href: '/dashboard/events' },
             { icon: Star, label: 'Leaderboard', href: '/dashboard/leaderboard' },
             { icon: Users, label: 'Community', href: '/dashboard/community' },
@@ -51,7 +52,7 @@ export default function DashboardLayoutWrapper({
             { icon: Home, label: 'Overview', href: '/dashboard' },
             { icon: Calendar, label: 'Mentoring Sessions', href: '/dashboard/sessions' },
             { icon: Star, label: 'Earnings & Payouts', href: '/dashboard/earnings' },
-            { icon: MessageCircle, label: 'Resume Reviews', href: '/dashboard/reviews' },
+            { icon: FileText, label: 'Resume Reviews', href: '/dashboard/resumes' },
             { icon: Briefcase, label: 'Post Job/Referral', href: '/dashboard/jobs' },
             { icon: Target, label: 'Stats & Reputation', href: '/dashboard/stats' },
             { icon: Trophy, label: 'Certifications', href: '/dashboard/certifications' },

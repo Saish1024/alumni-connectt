@@ -175,6 +175,26 @@ export const messages = {
         }),
 };
 
+// ─── Resume Review ────────────────────────────────────────────────────────────
+
+export const resumes = {
+    request: (data: { alumniId: string; resumeUrl: string; resumeName: string }) =>
+        request<any>('/resumes/request', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        }),
+
+    listForAlumni: () => request<any[]>('/resumes/alumni'),
+
+    listForStudent: () => request<any[]>('/resumes/student'),
+
+    submitFeedback: (id: string, feedback: string) =>
+        request<any>(`/resumes/${id}/feedback`, {
+            method: 'PUT',
+            body: JSON.stringify({ feedback }),
+        }),
+};
+
 // ─── Health ───────────────────────────────────────────────────────────────────
 
 export const health = {
