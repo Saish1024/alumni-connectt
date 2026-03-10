@@ -81,7 +81,7 @@ export default function AlumniOverview() {
                     { label: 'Sessions Done', value: topStats.sessionsDone.toString(), change: `${topStats.monthlySessions} this month`, icon: Video, color: 'from-blue-500 to-cyan-600', bg: 'bg-blue-50 dark:bg-blue-900/10' },
                     { label: 'Avg Rating', value: `${topStats.avgRating.toFixed(1)} ⭐`, change: `${topStats.ratingCount} reviews`, icon: Star, color: 'from-amber-500 to-orange-600', bg: 'bg-amber-50 dark:bg-amber-900/10' },
                     { label: 'Students Helped', value: topStats.studentsHelped.toString(), change: `From ${topStats.collegesHelped} colleges`, icon: Users, color: 'from-purple-500 to-violet-600', bg: 'bg-purple-50 dark:bg-purple-900/10' },
-                ].map(({ label, value, change, icon: Icon, color, bg }) => (
+                ].map(({ label, value, change, icon: Icon, color, bg }: any) => (
                     <div key={label} className={`${bg} rounded-2xl p-5 border border-slate-200 dark:border-slate-700/50 hover:shadow-md transition-all`}>
                         <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center mb-3 shadow-md`}>
                             <Icon className="w-5 h-5 text-white" />
@@ -127,7 +127,7 @@ export default function AlumniOverview() {
                             <ResponsiveContainer width="100%" height={140}>
                                 <PieChart>
                                     <Pie data={topicData} cx="50%" cy="50%" innerRadius={40} outerRadius={65} paddingAngle={3} dataKey="value">
-                                        {topicData.map((_, i) => <Cell key={`alumni-topic-${i}`} fill={topicColors[i % topicColors.length]} stroke="transparent" />)}
+                                        {topicData.map((_: any, i: number) => <Cell key={`alumni-topic-${i}`} fill={topicColors[i % topicColors.length]} stroke="transparent" />)}
                                     </Pie>
                                     <Tooltip contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '12px', color: '#fff' }} />
                                 </PieChart>
