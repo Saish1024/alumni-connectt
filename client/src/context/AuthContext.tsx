@@ -18,6 +18,13 @@ interface User {
     linkedin?: string
     skills?: string[]
     isApproved?: boolean
+    googleTokens?: {
+        access_token?: string
+        refresh_token?: string
+    }
+    totalRating?: number
+    ratingCount?: number
+    averageRating?: number
 }
 
 interface AuthContextType {

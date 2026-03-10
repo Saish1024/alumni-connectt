@@ -144,7 +144,7 @@ export default function DirectoryPage() {
                                     <h3 className="text-lg font-bold group-hover:text-primary transition-colors line-clamp-1">{person.name}</h3>
                                     <div className="flex items-center gap-1 bg-amber-500/10 px-1.5 py-0.5 rounded text-amber-500 text-[10px] font-bold">
                                         <Star className="w-2.5 h-2.5 fill-amber-500" />
-                                        {person.averageRating?.toFixed(1) || '0.0'}
+                                        {(person as any).averageRating?.toFixed(1) || '0.0'}
                                     </div>
                                 </div>
                                 <p className="text-sm text-gray-400 font-medium line-clamp-1">

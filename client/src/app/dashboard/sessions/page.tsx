@@ -451,7 +451,7 @@ export default function SessionsPage() {
                                     {s.rating && (
                                         <div className="flex items-center gap-1 mt-2">
                                             {Array(5).fill(0).map((_, i) => (
-                                                <Star key={i} className={`w-3.5 h-3.5 ${i < s.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200 dark:text-slate-600'}`} />
+                                                <Star key={i} className={`w-3.5 h-3.5 ${i < (s as any).rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200 dark:text-slate-600'}`} />
                                             ))}
                                             <span className="text-[10px] text-slate-400 ml-1 font-[600] uppercase">Feedback Provided</span>
                                         </div>
@@ -459,13 +459,13 @@ export default function SessionsPage() {
                                 </div>
                             </div>
                             <div className="flex gap-3 mt-4">
-                                {tab === 'completed' && (
+                                {(tab as string) === 'completed' && (
                                     <div className="flex-1">
-                                        {s.ratings?.some((r: any) => r.studentId === (user as any)._id || r.studentId?._id === (user as any)._id) ? (
+                                        {(s as any).ratings?.some((r: any) => r.studentId === (user as any)._id || r.studentId?._id === (user as any)._id) ? (
                                             <div className="flex flex-col items-center justify-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
                                                 <div className="flex gap-1 mb-1">
                                                     {Array(5).fill(0).map((_, i) => {
-                                                        const userRating = s.ratings.find((r: any) => r.studentId === (user as any)._id || r.studentId?._id === (user as any)._id)?.score;
+                                                        const userRating = (s as any).ratings.find((r: any) => r.studentId === (user as any)._id || r.studentId?._id === (user as any)._id)?.score;
                                                         return <Star key={i} className={`w-3.5 h-3.5 ${i < userRating ? 'fill-amber-400 text-amber-400' : 'text-slate-200 dark:text-slate-600'}`} />;
                                                     })}
                                                 </div>
@@ -481,7 +481,7 @@ export default function SessionsPage() {
                                         )}
                                     </div>
                                 )}
-                                {tab === 'upcoming' && s.meetLink && (
+                                {(tab as string) === 'upcoming' && s.meetLink && (
                                     <button
                                         onClick={() => isActive && handleJoinSession(s)}
                                         disabled={!isActive}
