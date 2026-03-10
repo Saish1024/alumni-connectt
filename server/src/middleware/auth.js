@@ -28,4 +28,9 @@ const checkRole = (roles) => {
     };
 };
 
-module.exports = { auth, checkRole };
+module.exports = {
+    auth,
+    checkRole,
+    protect: auth, // Alias for newer routes
+    authorize: checkRole // Alias for newer routes
+};
