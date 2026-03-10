@@ -80,16 +80,28 @@ export default function SessionsPage() {
         }
     };
 
-    const isSessionActive = (sessionDate: string, sessionTime: string) => {
-        const now = new Date();
-        const todayStr = now.toISOString().split('T')[0]; // "YYYY-MM-DD"
+    const getSessionStatus = (session: any) => {
+        if (session.status === 'completed') return 'completed';
 
-        // Handle both old formats (Mar 15, 2026) and new formats (2026-03-15)
-        if (sessionDate.includes('-')) {
-            return sessionDate === todayStr;
-        } else {
-            const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            return sessionDate.includes(dateStr.split(',')[0]);
+        try {
+            const now = new Date();
+            let start: Date;
+            if (session.date.includes('-')) {
+                start = new Date(`${session.date}T${session.time || '00:00'}:00`);
+            } else {
+                start = new Date(`${session.date} ${session.time || '00:00'}`);
+            }
+
+            if (isNaN(start.getTime())) return session.status || 'upcoming';
+
+            const durationMin = parseInt(session.duration) || 60;
+            const end = new Date(start.getTime() + durationMin * 60000);
+
+            if (now < start) return 'upcoming';
+            if (now >= start && now <= end) return 'live';
+            return 'completed';
+        } catch (e) {
+            return session.status || 'upcoming';
         }
     };
 
@@ -292,8 +304,8 @@ export default function SessionsPage() {
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
                             {(tab === 'requests' ? pendingRequests : sessions.filter(s => {
-                                const isActive = isSessionActive(s.date, s.time);
-                                return tab === 'upcoming' ? isActive || new Date(`${s.date} ${s.time}`) > new Date() : !isActive && new Date(`${s.date} ${s.time}`) < new Date();
+                                const currentStatus = getSessionStatus(s);
+                                return tab === 'upcoming' ? currentStatus !== 'completed' : currentStatus === 'completed';
                             })).map(s => (
                                 <tr key={s._id} className="last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-all group">
                                     <td className="px-6 py-4">
@@ -413,13 +425,14 @@ export default function SessionsPage() {
                 )) : null}
 
                 {tab !== 'available' && myBookedSessions.filter(s => {
-                    const isActive = isSessionActive(s.date, s.time);
+                    const currentStatus = getSessionStatus(s);
                     if (tab === 'pending') return s.status === 'pending';
-                    if (tab === 'upcoming') return s.status === 'upcoming' && (isActive || new Date(`${s.date} ${s.time}`) > new Date());
-                    if (tab === 'completed') return s.status === 'completed' || (!isActive && new Date(`${s.date} ${s.time}`) < new Date() && s.status === 'upcoming');
+                    if (tab === 'upcoming') return currentStatus !== 'completed' && s.status !== 'pending';
+                    if (tab === 'completed') return currentStatus === 'completed';
                     return false;
                 }).map(s => {
-                    const isActive = isSessionActive(s.date, s.time);
+                    const currentStatus = getSessionStatus(s);
+                    const isActive = currentStatus === 'live';
                     return (
                         <div key={s._id} className="bg-white dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/50 hover:shadow-md transition-all group">
                             <div className="flex items-start gap-4">

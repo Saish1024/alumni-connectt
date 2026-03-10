@@ -69,14 +69,43 @@ export default function TestsPage() {
         return () => clearInterval(timer);
     }, [current, phase]);
 
-    const handleNext = (ans: number | null) => {
+    const handleNext = async (ans: number | null) => {
         const newAnswers = [...answers, ans !== undefined ? ans : selected];
         setAnswers(newAnswers);
         setSelected(null);
+
         if (current + 1 >= questions.length) {
             setPhase('results');
-            const correct = newAnswers.filter((a, i) => a === questions[i].correct).length;
-            if (correct / questions.length >= 0.8) setShowBadge(true);
+            const finalScore = newAnswers.filter((a, i) => a === questions[i].correct).length;
+            if (finalScore / questions.length >= 0.8) setShowBadge(true);
+
+            // Save result to database
+            try {
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+                const token = localStorage.getItem('token');
+
+                await fetch(`${baseUrl}/quizzes/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        topic,
+                        difficulty,
+                        score: finalScore,
+                        totalQuestions: questions.length,
+                        answers: questions.map((q, idx) => ({
+                            q: q.q,
+                            selected: newAnswers[idx],
+                            correct: q.correct
+                        }))
+                    })
+                });
+                console.log('Quiz attempt saved successfully');
+            } catch (err) {
+                console.error('Failed to save quiz attempt:', err);
+            }
         } else {
             setCurrent(c => c + 1);
         }

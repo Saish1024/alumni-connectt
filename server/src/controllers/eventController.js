@@ -37,28 +37,37 @@ const createEvent = async (req, res) => {
 const refreshSessionStatuses = async () => {
     try {
         const now = new Date();
-        const upcomingSessions = await Event.find({
+        // Check sessions that are not already completed or rejected
+        const activeSessions = await Event.find({
             type: 'session',
-            status: 'upcoming'
+            status: { $in: ['upcoming', 'pending'] }
         });
 
-        for (const session of upcomingSessions) {
-            // Parse date and time
-            let startDateTime;
-            if (session.date.includes('-')) {
-                // "2026-03-15T10:20:00"
-                startDateTime = new Date(`${session.date}T${session.time}:00`);
-            } else {
-                startDateTime = new Date(`${session.date} ${session.time}`);
-            }
+        for (const session of activeSessions) {
+            try {
+                let startDateTime;
+                if (session.date.includes('-')) {
+                    // "2026-03-10" or "2026-03-10T..."
+                    const datePart = session.date.includes('T') ? session.date.split('T')[0] : session.date;
+                    const timePart = session.time || '00:00';
+                    startDateTime = new Date(`${datePart}T${timePart}:00`);
+                } else {
+                    // "Mar 10, 2026"
+                    startDateTime = new Date(`${session.date} ${session.time || '00:00'}`);
+                }
 
-            const durationMin = parseInt(session.duration) || 60;
-            const endDateTime = new Date(startDateTime.getTime() + durationMin * 60000);
+                if (isNaN(startDateTime.getTime())) continue;
 
-            if (now > endDateTime) {
-                session.status = 'completed';
-                await session.save();
-                console.log(`✅ Session ${session._id} marked as completed automatically.`);
+                const durationMin = parseInt(session.duration) || 60;
+                const endDateTime = new Date(startDateTime.getTime() + durationMin * 60000);
+
+                if (now > endDateTime) {
+                    session.status = 'completed';
+                    await session.save();
+                    console.log(`✅ Session ${session._id} marked as completed automatically (Date: ${session.date}, Time: ${session.time})`);
+                }
+            } catch (err) {
+                console.error(`Failed to refresh status for session ${session._id}:`, err);
             }
         }
     } catch (err) {

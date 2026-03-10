@@ -25,23 +25,41 @@ export default function FacultyMentoringPage() {
         }
     };
 
-    const isSessionActive = (sessionDate: string, sessionTime: string) => {
-        const now = new Date();
-        const todayStr = now.toISOString().split('T')[0];
-        if (sessionDate.includes('-')) {
-            return sessionDate === todayStr;
+    const getSessionStatus = (session: any) => {
+        if (session.status === 'completed') return 'completed';
+
+        try {
+            const now = new Date();
+            // Parse start date/time
+            let start: Date;
+            if (session.date.includes('-')) {
+                // ISO format: 2026-03-15
+                start = new Date(`${session.date}T${session.time || '00:00'}:00`);
+            } else {
+                // Formatted: Mar 10, 2026
+                start = new Date(`${session.date} ${session.time || '00:00'}`);
+            }
+
+            if (isNaN(start.getTime())) return session.status || 'upcoming';
+
+            const durationMin = parseInt(session.duration) || 60;
+            const end = new Date(start.getTime() + durationMin * 60000);
+
+            if (now < start) return 'upcoming';
+            if (now >= start && now <= end) return 'live';
+            return 'completed';
+        } catch (e) {
+            return session.status || 'upcoming';
         }
-        const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        return sessionDate.includes(dateStr.split(',')[0]);
     };
 
     const filteredSessions = sessions.filter(s => {
-        const isActive = isSessionActive(s.date, s.time);
+        const liveStatus = getSessionStatus(s);
 
         // Tab filtering
-        if (tab === 'live' && !isActive) return false;
-        if (tab === 'upcoming' && (isActive || s.status === 'completed')) return false;
-        if (tab === 'completed' && s.status !== 'completed' && (isActive || new Date(`${s.date} ${s.time}`) > new Date())) return false;
+        if (tab === 'live' && liveStatus !== 'live') return false;
+        if (tab === 'upcoming' && liveStatus !== 'upcoming') return false;
+        if (tab === 'completed' && liveStatus !== 'completed') return false;
 
         // Search filtering
         if (searchQuery) {

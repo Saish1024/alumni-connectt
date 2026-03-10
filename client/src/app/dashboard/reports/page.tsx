@@ -14,7 +14,7 @@ export default function ReportsPage() {
 
     const reportOptions: Record<string, string[]> = {
         'Date Range': ['Last 7 Days', 'Last 30 Days', 'Last 3 Months', 'Last 6 Months', 'Last Year', 'All Time'],
-        'Report Type': ['Student Performance', 'Quiz Analytics', 'Mentoring Summary', 'Certifications', 'Placement & Jobs', 'Community Engagement'],
+        'Report Type': ['Student Performance', 'Quiz Analytics', 'Mentoring Summary', 'Placement & Jobs', 'Community Engagement'],
         'Department': ['All Departments', 'Computer Science', 'Information Technology', 'Electronics & Comm.', 'Mechanical', 'Civil', 'Business Admin.'],
         'Year': ['All Years', '1st Year', '2nd Year', '3rd Year', '4th Year', 'Alumni']
     };
@@ -41,7 +41,6 @@ export default function ReportsPage() {
                     { title: 'Monthly Student Performance Report', desc: 'Detailed performance analytics for all students', icon: '📊', date: 'Mar 2026', size: '2.4 MB' },
                     { title: 'Quiz Completion Report', desc: 'Topic-wise quiz attempt and pass rate analysis', icon: '📝', date: 'Mar 2026', size: '1.8 MB' },
                     { title: 'Mentoring Sessions Summary', desc: 'All mentoring sessions by student and alumni', icon: '🎯', date: 'Feb 2026', size: '3.1 MB' },
-                    { title: 'Certification Status Report', desc: 'All pending and approved certifications', icon: '🏅', date: 'Mar 2026', size: '0.9 MB' },
                     { title: 'Placement & Jobs Report', desc: 'Job applications, referrals, and placements', icon: '💼', date: 'Feb 2026', size: '1.5 MB' },
                     { title: 'Community Engagement Report', desc: 'Posts, interactions, and event participation', icon: '🤝', date: 'Feb 2026', size: '2.2 MB' },
                 ].map(r => (

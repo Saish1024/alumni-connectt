@@ -64,6 +64,9 @@ app.use('/api/messages', require('./routes/messageRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/upload', require('./routes/uploadRoutes'));
 app.use('/api/resumes', require('./routes/resumeReviewRoutes'));
+app.use('/api/quizzes', require('./routes/quizRoutes'));
+app.use('/api/competitions', require('./routes/competitionRoutes'));
+app.use('/api/faculty', require('./routes/facultyRoutes'));
 
 // 404 handler
 app.use((req, res) => {
