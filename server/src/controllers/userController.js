@@ -101,4 +101,38 @@ const getPendingUsers = async (req, res) => {
     }
 };
 
-module.exports = { getUsers, getUserById, updateProfile, approveUser, deleteUser, getPendingUsers };
+// PUT /api/users/:id - Admin: update any user profile
+const adminUpdateUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        const { name, email, role, password, batchYear, company, jobTitle, location, bio, linkedin, industry, isApproved } = req.body;
+
+        if (name) user.name = name;
+        if (email) user.email = email;
+        if (role) user.role = role;
+        if (batchYear) user.batchYear = batchYear;
+        if (company) user.company = company;
+        if (jobTitle) user.jobTitle = jobTitle;
+        if (location) user.location = location;
+        if (bio) user.bio = bio;
+        if (linkedin) user.linkedin = linkedin;
+        if (industry) user.industry = industry;
+        if (isApproved !== undefined) user.isApproved = isApproved;
+
+        // If password is provided, set it (pre-save hook will hash it)
+        if (password) user.password = password;
+
+        await user.save();
+
+        const updatedUser = user.toObject();
+        delete updatedUser.password;
+
+        res.status(200).json({ message: 'User updated successfully', user: updatedUser });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = { getUsers, getUserById, updateProfile, approveUser, deleteUser, getPendingUsers, adminUpdateUser };

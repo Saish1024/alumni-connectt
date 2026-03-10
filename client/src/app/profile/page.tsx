@@ -7,7 +7,7 @@ import { Input } from '@/components/Input'
 import { users as usersApi, upload } from '@/lib/api'
 import {
     MapPin, Briefcase, GraduationCap, Linkedin, Edit3,
-    Users, Mail, ExternalLink, BookOpen, Loader2, X, Check
+    Users, Mail, ExternalLink, BookOpen, Loader2, X, Check, Star
 } from 'lucide-react'
 
 export default function ProfilePage() {
@@ -121,9 +121,21 @@ export default function ProfilePage() {
                                         {user.role}
                                     </span>
                                 </div>
-                                <p className="text-slate-500 dark:text-slate-400 mt-1 font-[500]">
-                                    {user.currentPosition || 'Professional'} {user.currentCompany ? `@ ${user.currentCompany}` : ''}
-                                </p>
+                                <div className="flex items-center gap-4 mt-1">
+                                    <p className="text-slate-500 dark:text-slate-400 font-[500]">
+                                        {user.currentPosition || 'Professional'} {user.currentCompany ? `@ ${user.currentCompany}` : ''}
+                                    </p>
+                                    {user.role === 'alumni' && (
+                                        <>
+                                            <span className="text-slate-300">|</span>
+                                            <div className="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded-lg border border-amber-100 dark:border-amber-800/50">
+                                                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                                                <span className="text-sm font-[800] text-amber-600 dark:text-amber-400">{user.averageRating?.toFixed(1) || '0.0'}</span>
+                                                <span className="text-[10px] text-amber-600/60 dark:text-amber-400/60 font-[600]">({user.ratingCount || 0} reviews)</span>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         </div>
 

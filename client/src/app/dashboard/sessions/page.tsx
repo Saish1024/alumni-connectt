@@ -13,8 +13,11 @@ export default function SessionsPage() {
     const [pendingRequests, setPendingRequests] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
-    const [newSlot, setNewSlot] = useState({ topic: '', date: '', time: '', duration: '60 min' });
+    const [newSlot, setNewSlot] = useState({ topic: '', date: '', time: '', duration: '60 min', paymentType: 'free' });
     const [isGoogleAuthorized, setIsGoogleAuthorized] = useState((user as any)?.googleTokens?.access_token ? true : false);
+
+    // Rating State
+    const [ratingModal, setRatingModal] = useState<{ open: boolean, sessionId: string, score: number, feedback: string }>({ open: false, sessionId: '', score: 5, feedback: '' });
 
     useEffect(() => {
         fetchSessions();
@@ -33,9 +36,9 @@ export default function SessionsPage() {
                 setPendingRequests(mySessions.filter((s: any) => s.status === 'pending'));
             } else {
                 // Filter sessions where the student has registered
-                setMyBookedSessions(data.filter((s: any) => s.attendees.some((a: any) => a._id === (user as any)._id)));
+                setMyBookedSessions(data.filter((s: any) => s.attendees.some((a: any) => a._id === (user as any)._id || a === (user as any)._id)));
                 // Available sessions are those with no attendees, not created by the current user, and status is NOT pending/rejected (though available slots won't be pending usually)
-                setAvailableSessions(data.filter((s: any) => s.attendees.length === 0 && s.organizer?._id !== (user as any)._id && s.status === 'upcoming'));
+                setAvailableSessions(data.filter((s: any) => (s.attendees?.length || 0) === 0 && s.organizer?._id !== (user as any)._id && s.status === 'upcoming'));
             }
         } catch (err) {
             console.error('Failed to fetch sessions:', err);
@@ -60,13 +63,14 @@ export default function SessionsPage() {
                 date: newSlot.date,
                 time: newSlot.time,
                 duration: newSlot.duration,
+                paymentType: newSlot.paymentType,
                 type: 'session',
                 description: `Mentoring session for ${newSlot.topic}`
             };
 
             await apiEvents.createSession(sessionData);
             setShowForm(false);
-            setNewSlot({ topic: '', date: '', time: '', duration: '60 min' });
+            setNewSlot({ topic: '', date: '', time: '', duration: '60 min', paymentType: 'free' });
             fetchSessions(); // Refresh list
         } catch (err) {
             console.error('Failed to create session:', err);
@@ -118,6 +122,34 @@ export default function SessionsPage() {
         } catch (err: any) {
             console.error('Failed to accept session:', err);
             alert(err.message || 'Failed to accept session');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleJoinSession = async (session: any) => {
+        try {
+            // Track attendance on backend
+            await apiEvents.attend(session._id);
+        } catch (err) {
+            console.error('Failed to track attendance:', err);
+        } finally {
+            // Open the meet link regardless
+            window.open(session.meetLink, '_blank');
+        }
+    };
+
+    const handleSubmitRating = async () => {
+        if (!ratingModal.sessionId) return;
+        setLoading(true);
+        try {
+            await apiEvents.rate(ratingModal.sessionId, ratingModal.score, ratingModal.feedback);
+            alert('Feedback submitted! Thank you.');
+            setRatingModal({ open: false, sessionId: '', score: 5, feedback: '' });
+            fetchSessions();
+        } catch (err: any) {
+            console.error('Failed to submit rating:', err);
+            alert(err.message || 'Failed to submit feedback');
         } finally {
             setLoading(false);
         }
@@ -225,6 +257,17 @@ export default function SessionsPage() {
                                     <option>30 min</option>
                                     <option>45 min</option>
                                     <option>60 min</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-[600] text-slate-700 dark:text-slate-300 mb-2">Payment Type</label>
+                                <select
+                                    value={newSlot.paymentType}
+                                    onChange={(e) => setNewSlot({ ...newSlot, paymentType: e.target.value })}
+                                    className="w-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-xl px-4 py-2.5"
+                                >
+                                    <option value="free">Free</option>
+                                    <option value="paid">Paid</option>
                                 </select>
                             </div>
                         </div>
@@ -401,8 +444,8 @@ export default function SessionsPage() {
                                         <span className="flex items-center gap-1.5 font-[500]"><Calendar className="w-4 h-4 text-slate-400" /> {s.date.includes('-') ? new Date(s.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : s.date}</span>
                                         <span className="flex items-center gap-1.5 font-[500]"><Clock className="w-4 h-4 text-slate-400" /> {s.time.includes(':') && s.time.length <= 5 ? new Date(`2000-01-01T${s.time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : s.time}</span>
                                         <span className="flex items-center gap-1.5 font-[500]"><Timer className="w-4 h-4 text-slate-400" /> {s.duration}</span>
-                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-[800] uppercase tracking-wider ${s.type === 'free' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'}`}>
-                                            {s.type === 'free' ? 'FREE' : 'PAID'}
+                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-[800] uppercase tracking-wider ${s.paymentType === 'free' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'}`}>
+                                            {s.paymentType === 'paid' ? 'PAID' : 'FREE'}
                                         </span>
                                     </div>
                                     {s.rating && (
@@ -415,30 +458,108 @@ export default function SessionsPage() {
                                     )}
                                 </div>
                             </div>
-                            {tab === 'upcoming' && (
-                                <div className="flex gap-3 mt-4">
-                                    {s.meetLink && (
-                                        <button
-                                            onClick={() => isActive && window.open(s.meetLink, '_blank')}
-                                            disabled={!isActive}
-                                            className={`flex-1 py-3 text-sm font-[800] rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-indigo-500/20 hover:scale-[1.01] active:scale-95' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed border border-slate-200 dark:border-slate-700 shadow-none'}`}
-                                        >
-                                            {isActive ? (
-                                                <><div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" /> Join Live Session</>
-                                            ) : (
-                                                <>Active at {s.time}</>
-                                            )}
-                                        </button>
-                                    )}
+                            <div className="flex gap-3 mt-4">
+                                {tab === 'completed' && (
+                                    <div className="flex-1">
+                                        {s.ratings?.some((r: any) => r.studentId === (user as any)._id || r.studentId?._id === (user as any)._id) ? (
+                                            <div className="flex flex-col items-center justify-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
+                                                <div className="flex gap-1 mb-1">
+                                                    {Array(5).fill(0).map((_, i) => {
+                                                        const userRating = s.ratings.find((r: any) => r.studentId === (user as any)._id || r.studentId?._id === (user as any)._id)?.score;
+                                                        return <Star key={i} className={`w-3.5 h-3.5 ${i < userRating ? 'fill-amber-400 text-amber-400' : 'text-slate-200 dark:text-slate-600'}`} />;
+                                                    })}
+                                                </div>
+                                                <span className="text-[10px] text-slate-400 font-[700] uppercase tracking-tighter">Feedback Submitted</span>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => setRatingModal({ open: true, sessionId: s._id, score: 5, feedback: '' })}
+                                                className="w-full py-3 bg-white dark:bg-slate-700 text-slate-700 dark:text-white border-2 border-slate-200 dark:border-slate-600 text-sm font-[800] rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <Star className="w-4 h-4 text-amber-500" /> Give Feedback
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                                {tab === 'upcoming' && s.meetLink && (
+                                    <button
+                                        onClick={() => isActive && handleJoinSession(s)}
+                                        disabled={!isActive}
+                                        className={`flex-1 py-3 text-sm font-[800] rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-indigo-500/20 hover:scale-[1.01] active:scale-95' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed border border-slate-200 dark:border-slate-700 shadow-none'}`}
+                                    >
+                                        {isActive ? (
+                                            <><div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" /> Join Live Session</>
+                                        ) : (
+                                            <>Active at {s.time}</>
+                                        )}
+                                    </button>
+                                )}
+                                {tab !== 'completed' && (
                                     <button className="px-6 py-3 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm font-[700] rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
                                         Details
                                     </button>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
                     );
                 })}
             </div>
+
+            {/* Rating Modal */}
+            {
+                ratingModal.open && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+                        <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-8 shadow-2xl animate-in zoom-in-95 duration-200">
+                            <div className="text-center mb-6">
+                                <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Star className="w-8 h-8 text-amber-500 fill-amber-500" />
+                                </div>
+                                <h3 className="text-xl font-[800] text-slate-900 dark:text-white">Rate Your Session</h3>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Your feedback helps improve the mentoring quality</p>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div className="flex justify-center gap-2">
+                                    {[1, 2, 3, 4, 5].map(num => (
+                                        <button
+                                            key={num}
+                                            onClick={() => setRatingModal({ ...ratingModal, score: num })}
+                                            className="p-1 transition-transform active:scale-90"
+                                        >
+                                            <Star className={`w-10 h-10 ${num <= ratingModal.score ? 'fill-amber-400 text-amber-400' : 'text-slate-200 dark:text-slate-700'}`} />
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-[700] text-slate-700 dark:text-slate-300">Detailed Feedback (Optional)</label>
+                                    <textarea
+                                        value={ratingModal.feedback}
+                                        onChange={(e) => setRatingModal({ ...ratingModal, feedback: e.target.value })}
+                                        placeholder="How was your session? What did you learn?"
+                                        className="w-full h-32 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 text-sm resize-none focus:ring-2 focus:ring-amber-500 outline-none transition-all"
+                                    />
+                                </div>
+
+                                <div className="flex gap-3 pt-2">
+                                    <button
+                                        onClick={() => setRatingModal({ open: false, sessionId: '', score: 5, feedback: '' })}
+                                        className="flex-1 py-3 text-sm font-[700] text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleSubmitRating}
+                                        className="flex-[2] py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-[800] shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.02]"
+                                    >
+                                        Submit Feedback
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
         </div>
     );
 }

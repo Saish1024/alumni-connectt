@@ -4,7 +4,7 @@ import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
 import { Input } from '@/components/Input'
 import { users as usersApi } from '@/lib/api'
-import { Search, Filter, Linkedin, MapPin, GraduationCap, Loader2, Briefcase, Mail } from 'lucide-react'
+import { Search, Filter, Linkedin, MapPin, GraduationCap, Loader2, Briefcase, Mail, Star } from 'lucide-react'
 
 // Fallback mock data (shown when API has no alumni yet)
 const mockAlumni = [
@@ -103,8 +103,8 @@ export default function DirectoryPage() {
                                 key={industry}
                                 onClick={() => setSelectedIndustry(industry)}
                                 className={`px-4 py-2 rounded-full text-xs font-semibold transition-all border ${selectedIndustry === industry
-                                        ? 'bg-primary border-primary text-white'
-                                        : 'bg-gray-900 border-gray-700 text-gray-400 hover:border-gray-500'
+                                    ? 'bg-primary border-primary text-white'
+                                    : 'bg-gray-900 border-gray-700 text-gray-400 hover:border-gray-500'
                                     }`}
                             >
                                 {industry}
@@ -140,7 +140,13 @@ export default function DirectoryPage() {
                                     {getInitials(person.name)}
                                 </div>
 
-                                <h3 className="text-lg font-bold group-hover:text-primary transition-colors line-clamp-1">{person.name}</h3>
+                                <div className="flex items-center justify-between gap-2">
+                                    <h3 className="text-lg font-bold group-hover:text-primary transition-colors line-clamp-1">{person.name}</h3>
+                                    <div className="flex items-center gap-1 bg-amber-500/10 px-1.5 py-0.5 rounded text-amber-500 text-[10px] font-bold">
+                                        <Star className="w-2.5 h-2.5 fill-amber-500" />
+                                        {person.averageRating?.toFixed(1) || '0.0'}
+                                    </div>
+                                </div>
                                 <p className="text-sm text-gray-400 font-medium line-clamp-1">
                                     {person.currentPosition || 'Alumni'} {person.currentCompany ? `@ ${person.currentCompany}` : ''}
                                 </p>

@@ -8,12 +8,23 @@ const eventSchema = new mongoose.Schema({
     duration: { type: String },
     location: { type: String },
     type: { type: String, enum: ['event', 'session'], default: 'event' },
+    paymentType: { type: String, enum: ['free', 'paid'], default: 'free' },
     status: { type: String, enum: ['pending', 'upcoming', 'completed', 'rejected'], default: 'upcoming' },
     category: { type: String },
     meetLink: { type: String },
     image: { type: String },
     organizer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     attendees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    attendance: [{
+        studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        joinedAt: { type: Date, default: Date.now }
+    }],
+    ratings: [{
+        studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        score: { type: Number, min: 1, max: 5 },
+        feedback: { type: String },
+        createdAt: { type: Date, default: Date.now }
+    }],
     createdAt: { type: Date, default: Date.now }
 });
 

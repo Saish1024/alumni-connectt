@@ -1,13 +1,27 @@
 "use client"
 import { useState, useEffect } from 'react';
-import { Search, Ban, Loader2, RefreshCw } from 'lucide-react';
+import { Search, Ban, Loader2, RefreshCw, Pencil, X, Save, Shield, Key } from 'lucide-react';
 import { users as apiUsers } from '@/lib/api';
+import { Button } from '@/components/Button';
+import { Input } from '@/components/Input';
+import { Card } from '@/components/Card';
 
 export default function UserManagementPage() {
     const [allUsers, setAllUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [roleFilter, setRoleFilter] = useState('all');
+
+    // Edit Modal State
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<any>(null);
+    const [editData, setEditData] = useState({
+        name: '',
+        email: '',
+        role: '',
+        password: '',
+    });
+    const [updateLoading, setUpdateLoading] = useState(false);
 
     useEffect(() => {
         fetchUsers();
@@ -16,7 +30,6 @@ export default function UserManagementPage() {
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            // Fetch approved users with the current role filter
             const params: any = {};
             if (roleFilter !== 'all') params.role = roleFilter;
             const data = await apiUsers.list(params);
@@ -28,7 +41,6 @@ export default function UserManagementPage() {
         }
     };
 
-    // Re-fetch when filter changes
     useEffect(() => {
         fetchUsers();
     }, [roleFilter]);
@@ -47,6 +59,36 @@ export default function UserManagementPage() {
         } catch (err) {
             console.error('Failed to delete user:', err);
             alert('Failed to delete user.');
+        }
+    };
+
+    const openEditModal = (user: any) => {
+        setSelectedUser(user);
+        setEditData({
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            password: '', // Empty by default, only resets if filled
+        });
+        setIsEditModalOpen(true);
+    };
+
+    const handleUpdate = async () => {
+        if (!selectedUser) return;
+        setUpdateLoading(true);
+        try {
+            const updatePayload: any = { ...editData };
+            if (!updatePayload.password) delete updatePayload.password;
+
+            await apiUsers.updateByAdmin(selectedUser._id, updatePayload);
+            setIsEditModalOpen(false);
+            fetchUsers();
+            alert('User updated successfully!');
+        } catch (err: any) {
+            console.error('Failed to update user:', err);
+            alert(err.message || 'Failed to update user.');
+        } finally {
+            setUpdateLoading(false);
         }
     };
 
@@ -69,7 +111,7 @@ export default function UserManagementPage() {
                         className="w-full pl-9 pr-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/30" />
                 </div>
                 <div className="flex gap-2">
-                    {['all', 'student', 'alumni', 'faculty'].map(r => (
+                    {['all', 'student', 'alumni', 'faculty', 'admin'].map(r => (
                         <button key={r} onClick={() => setRoleFilter(r)}
                             className={`px-4 py-2.5 rounded-xl text-sm font-[600] capitalize transition-all ${roleFilter === r ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-md' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'}`}>
                             {r}
@@ -83,7 +125,7 @@ export default function UserManagementPage() {
                     <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
                 </div>
             ) : (
-                <div className="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 overflow-hidden">
+                <div className="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 overflow-hidden shadow-sm">
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
@@ -101,10 +143,10 @@ export default function UserManagementPage() {
                                         <td colSpan={5} className="text-center py-16 text-slate-400 text-sm">No users found.</td>
                                     </tr>
                                 ) : filtered.map(u => (
-                                    <tr key={u._id} className="border-b border-slate-100 dark:border-slate-700/30 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-all">
+                                    <tr key={u._id} className="border-b border-slate-100 dark:border-slate-700/30 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-all group">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-400 to-red-600 flex items-center justify-center text-white font-[700] text-sm">
+                                                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-[700] text-sm shadow-sm group-hover:scale-110 transition-transform">
                                                     {u.name?.charAt(0) || '?'}
                                                 </div>
                                                 <div>
@@ -114,22 +156,28 @@ export default function UserManagementPage() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className={`px-2.5 py-1 rounded-full text-xs font-[700] capitalize ${u.role === 'student' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600' :
+                                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-[800] uppercase tracking-wider ${u.role === 'student' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600' :
                                                 u.role === 'alumni' ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-600' :
                                                     u.role === 'faculty' ? 'bg-green-100 dark:bg-green-900/20 text-green-600' :
-                                                        'bg-orange-100 dark:bg-orange-900/20 text-orange-600'
+                                                        'bg-orange-100 dark:bg-orange-900/20 text-orange-600 shadow-sm'
                                                 }`}>{u.role}</span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300 font-[500]">
                                             {u.role === 'alumni' ? `${u.company || 'N/A'} · ${u.batchYear || ''}` :
                                                 u.role === 'student' ? u.batchYear || 'Current Student' :
-                                                    u.department || 'Faculty'}
+                                                    u.department || 'Staff'}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
+                                        <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 font-[500]">
                                             {new Date(u.createdAt).toLocaleDateString()}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center gap-2 justify-end">
+                                            <div className="flex items-center gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button
+                                                    onClick={() => openEditModal(u)}
+                                                    className="p-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all"
+                                                    title="Edit User">
+                                                    <Pencil className="w-4 h-4 text-indigo-400 hover:text-indigo-600" />
+                                                </button>
                                                 <button
                                                     onClick={() => handleDelete(u._id, u.name)}
                                                     className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
@@ -142,6 +190,85 @@ export default function UserManagementPage() {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit User Modal */}
+            {isEditModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setIsEditModalOpen(false)} />
+
+                    <div className="relative w-full max-w-lg animate-in zoom-in-95 fade-in duration-300">
+                        <Card className="p-0 border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+                            <div className="bg-slate-50 dark:bg-slate-900/50 px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white">
+                                        <Shield className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-[800] text-slate-900 dark:text-white">Edit User Account</h3>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">Managing {selectedUser?.name}</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => setIsEditModalOpen(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all">
+                                    <X className="w-5 h-5 text-slate-400" />
+                                </button>
+                            </div>
+
+                            <div className="p-8 space-y-6">
+                                <div className="grid grid-cols-1 gap-6">
+                                    <Input
+                                        label="Full Name"
+                                        value={editData.name}
+                                        onChange={e => setEditData({ ...editData, name: e.target.value })}
+                                        placeholder="Full Name"
+                                    />
+                                    <Input
+                                        label="Email Address"
+                                        type="email"
+                                        value={editData.email}
+                                        onChange={e => setEditData({ ...editData, email: e.target.value })}
+                                        placeholder="Email Address"
+                                    />
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 ml-1">Account Role</label>
+                                        <select
+                                            value={editData.role}
+                                            onChange={e => setEditData({ ...editData, role: e.target.value })}
+                                            className="w-full h-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                                        >
+                                            <option value="student">Student</option>
+                                            <option value="alumni">Alumni</option>
+                                            <option value="faculty">Faculty</option>
+                                            <option value="admin">Administrator</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="pt-2">
+                                        <div className="flex items-center gap-2 mb-3 ml-1">
+                                            <Key className="w-3.5 h-3.5 text-amber-500" />
+                                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Reset Password</label>
+                                        </div>
+                                        <Input
+                                            type="password"
+                                            value={editData.password}
+                                            onChange={e => setEditData({ ...editData, password: e.target.value })}
+                                            placeholder="Leave blank to keep current password"
+                                        />
+                                        <p className="text-[10px] text-slate-400 mt-2 px-1 leading-relaxed">Admin password reset is immediate. New passwords must be at least 8 characters for security.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="px-8 py-5 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                                <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>Cancel</Button>
+                                <Button onClick={handleUpdate} disabled={updateLoading} className="shadow-lg shadow-indigo-600/20 min-w-32">
+                                    {updateLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4 mr-2" /> Save Changes</>}
+                                </Button>
+                            </div>
+                        </Card>
                     </div>
                 </div>
             )}

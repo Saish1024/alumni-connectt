@@ -5,7 +5,8 @@ const {
     updateProfile,
     approveUser,
     deleteUser,
-    getPendingUsers
+    getPendingUsers,
+    adminUpdateUser
 } = require('../controllers/userController');
 const { auth, checkRole } = require('../middleware/auth');
 
@@ -18,6 +19,7 @@ router.get('/', getUsers); // Alumni directory - list all approved users
 router.get('/pending', auth, checkRole(['admin']), getPendingUsers);
 router.get('/:id', auth, getUserById);
 router.put('/profile', auth, updateProfile);
+router.put('/:id', auth, checkRole(['admin']), adminUpdateUser);
 router.put('/:id/approve', auth, checkRole(['admin']), approveUser);
 router.delete('/:id', auth, checkRole(['admin']), deleteUser);
 

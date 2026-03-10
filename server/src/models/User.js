@@ -18,6 +18,9 @@ const userSchema = new mongoose.Schema({
   isApproved: { type: Boolean, default: false }, // Only relevant for Alumni, must be approved by Admin
   googleTokens: { type: Object, default: {} },
   connections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  totalRating: { type: Number, default: 0 },
+  ratingCount: { type: Number, default: 0 },
+  averageRating: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
 });
 

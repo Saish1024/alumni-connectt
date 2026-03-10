@@ -73,6 +73,12 @@ export const users = {
     delete: (id: string) =>
         request<any>(`/users/${id}`, { method: 'DELETE' }),
 
+    updateByAdmin: (id: string, data: Record<string, any>) =>
+        request<any>(`/users/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+        }),
+
     pending: () => request<any[]>('/users/pending'),
 };
 
@@ -140,6 +146,15 @@ export const events = {
 
     rejectSession: (id: string) =>
         request<any>(`/events/${id}/reject`, { method: 'PUT' }),
+
+    attend: (id: string) =>
+        request<any>(`/events/${id}/attend`, { method: 'POST' }),
+
+    rate: (id: string, score: number, feedback: string) =>
+        request<any>(`/events/${id}/rate`, {
+            method: 'POST',
+            body: JSON.stringify({ score, feedback }),
+        }),
 };
 
 // ─── Posts / Feed ─────────────────────────────────────────────────────────────

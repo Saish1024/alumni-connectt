@@ -1,12 +1,22 @@
 // eventRoutes.js
 const express = require('express');
-const { createEvent, getEvents, registerForEvent, requestSession, acceptSession, rejectSession } = require('../controllers/eventController');
+const {
+    createEvent,
+    getEvents,
+    registerForEvent,
+    requestSession,
+    acceptSession,
+    rejectSession,
+    trackAttendance
+} = require('../controllers/eventController');
 const { auth, checkRole } = require('../middleware/auth');
 const router = express.Router();
 
 router.get('/', auth, getEvents);
 router.post('/', auth, checkRole(['alumni', 'admin']), createEvent);
 router.post('/:id/register', auth, registerForEvent);
+router.post('/:id/attend', auth, trackAttendance);
+router.post('/:id/rate', auth, submitRating);
 
 // Mentoring specific endpoints
 router.post('/request', auth, requestSession);
