@@ -13,6 +13,8 @@ interface User {
     jobTitle?: string
     batchYear?: string
     major?: string
+    department?: string
+    institution?: string
     location?: string
     bio?: string
     linkedin?: string

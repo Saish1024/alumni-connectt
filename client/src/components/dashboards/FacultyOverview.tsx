@@ -53,7 +53,7 @@ export default function FacultyOverview() {
                     <div>
                         <div className="text-white/70 text-sm font-[500] mb-1">Welcome back 👋</div>
                         <h2 className="text-2xl font-[800]">{user?.name || 'Dr. Faculty'}</h2>
-                        <p className="text-white/80 text-sm mt-1">{user?.jobTitle || 'Faculty Member'} · {user?.department || 'Institution'}</p>
+                        <p className="text-white/80 text-sm mt-1">{user?.jobTitle || 'Faculty Member'} · {user?.department || user?.institution || 'Alumni Connect'}</p>
                     </div>
                     <div className="flex gap-3">
                         <button onClick={() => router.push('/dashboard/reports')} className="px-5 py-2.5 bg-white text-green-600 rounded-xl text-sm font-[700] hover:scale-105 transition-all shadow-lg">
