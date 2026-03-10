@@ -7,7 +7,8 @@ const {
     requestSession,
     acceptSession,
     rejectSession,
-    trackAttendance
+    trackAttendance,
+    submitRating
 } = require('../controllers/eventController');
 const { auth, checkRole } = require('../middleware/auth');
 const router = express.Router();
