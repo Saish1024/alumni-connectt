@@ -74,8 +74,15 @@ export default function SessionsPage() {
 
     const isSessionActive = (sessionDate: string, sessionTime: string) => {
         const now = new Date();
-        const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        return sessionDate.includes(dateStr.split(',')[0]);
+        const todayStr = now.toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+        // Handle both old formats (Mar 15, 2026) and new formats (2026-03-15)
+        if (sessionDate.includes('-')) {
+            return sessionDate === todayStr;
+        } else {
+            const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            return sessionDate.includes(dateStr.split(',')[0]);
+        }
     };
 
     const handleBookSession = async (sessionId: string) => {
@@ -110,9 +117,13 @@ export default function SessionsPage() {
                         <p className="text-slate-500 dark:text-slate-400 text-sm">Manage your upcoming mentoring schedule</p>
                     </div>
                     <div className="flex items-center gap-3">
-                        {!isGoogleAuthorized && (
+                        {!isGoogleAuthorized ? (
                             <button onClick={handleAuthorizeGoogle} className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-sm font-[700] rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm">
                                 <Video className="w-4 h-4 text-red-500" /> Authorize Google Calendar
+                            </button>
+                        ) : (
+                            <button onClick={handleAuthorizeGoogle} className="flex items-center gap-2 px-4 py-2.5 bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 text-sm font-[700] rounded-xl hover:bg-green-100 dark:hover:bg-green-900/40 transition-all shadow-sm">
+                                <Video className="w-4 h-4 text-green-500" /> Connected (Click to Reconnect)
                             </button>
                         )}
                         <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-sm font-[700] rounded-xl hover:scale-[1.02] transition-all shadow-md">
@@ -138,21 +149,19 @@ export default function SessionsPage() {
                             <div>
                                 <label className="block text-sm font-[600] text-slate-700 dark:text-slate-300 mb-2">Date</label>
                                 <input
-                                    type="text"
-                                    placeholder="Mar 15, 2026"
+                                    type="date"
                                     value={newSlot.date}
                                     onChange={(e) => setNewSlot({ ...newSlot, date: e.target.value })}
-                                    className="w-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-purple-500 outline-none"
+                                    className="w-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-purple-500 outline-none"
                                 />
                             </div>
                             <div>
                                 <label className="block text-sm font-[600] text-slate-700 dark:text-slate-300 mb-2">Time</label>
                                 <input
-                                    type="text"
-                                    placeholder="5:00 PM"
+                                    type="time"
                                     value={newSlot.time}
                                     onChange={(e) => setNewSlot({ ...newSlot, time: e.target.value })}
-                                    className="w-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-purple-500 outline-none"
+                                    className="w-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-purple-500 outline-none"
                                 />
                             </div>
                             <div>
@@ -197,8 +206,10 @@ export default function SessionsPage() {
                                         <div className="text-sm text-slate-500 dark:text-slate-400">{s.topic}</div>
                                     </td>
                                     <td className="px-6 py-4 text-sm font-[500] text-slate-700 dark:text-slate-300">
-                                        <div>{s.date}</div>
-                                        <div className="text-slate-400 text-xs font-[600] mt-0.5">{s.time} ({s.duration})</div>
+                                        <div>{new Date(s.date).toLocaleDateString() !== 'Invalid Date' && s.date.includes('-') ? new Date(s.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : s.date}</div>
+                                        <div className="text-slate-400 text-xs font-[600] mt-0.5">
+                                            {s.time.includes(':') && s.time.length <= 5 ? new Date(`2000-01-01T${s.time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : s.time} ({s.duration})
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4">
                                         <a href={s.meetLink} target="_blank" className="text-xs text-indigo-600 dark:text-indigo-400 font-[700] hover:underline flex items-center gap-1.5 ring-1 ring-indigo-500/20 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-1 rounded-md w-fit">
@@ -261,8 +272,8 @@ export default function SessionsPage() {
                                     </span>
                                 </div>
                                 <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-slate-500 dark:text-slate-400">
-                                    <span className="flex items-center gap-1.5 font-[500]"><Calendar className="w-4 h-4 text-slate-400" /> {s.date}</span>
-                                    <span className="flex items-center gap-1.5 font-[500]"><Clock className="w-4 h-4 text-slate-400" /> {s.time}</span>
+                                    <span className="flex items-center gap-1.5 font-[500]"><Calendar className="w-4 h-4 text-slate-400" /> {s.date.includes('-') ? new Date(s.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : s.date}</span>
+                                    <span className="flex items-center gap-1.5 font-[500]"><Clock className="w-4 h-4 text-slate-400" /> {s.time.includes(':') && s.time.length <= 5 ? new Date(`2000-01-01T${s.time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : s.time}</span>
                                     <span className="flex items-center gap-1.5 font-[500]"><Timer className="w-4 h-4 text-slate-400" /> {s.duration}</span>
                                 </div>
                             </div>
@@ -305,8 +316,8 @@ export default function SessionsPage() {
                                         </span>
                                     </div>
                                     <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-slate-500 dark:text-slate-400">
-                                        <span className="flex items-center gap-1.5 font-[500]"><Calendar className="w-4 h-4 text-slate-400" /> {s.date}</span>
-                                        <span className="flex items-center gap-1.5 font-[500]"><Clock className="w-4 h-4 text-slate-400" /> {s.time}</span>
+                                        <span className="flex items-center gap-1.5 font-[500]"><Calendar className="w-4 h-4 text-slate-400" /> {s.date.includes('-') ? new Date(s.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : s.date}</span>
+                                        <span className="flex items-center gap-1.5 font-[500]"><Clock className="w-4 h-4 text-slate-400" /> {s.time.includes(':') && s.time.length <= 5 ? new Date(`2000-01-01T${s.time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : s.time}</span>
                                         <span className="flex items-center gap-1.5 font-[500]"><Timer className="w-4 h-4 text-slate-400" /> {s.duration}</span>
                                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-[800] uppercase tracking-wider ${s.type === 'free' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'}`}>
                                             {s.type === 'free' ? 'FREE' : 'PAID'}
