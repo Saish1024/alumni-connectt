@@ -1,18 +1,22 @@
 "use client"
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Users, BookOpen, BarChart2, Loader2, Trophy } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { users as usersApi, quizzes as quizzesApi } from '@/lib/api';
 
 export default function FacultyOverview() {
     const router = useRouter();
     const { user } = useAuth();
     const [stats, setStats] = useState<any>(null);
+    const [leaderboard, setLeaderboard] = useState<any[]>([]);
+    const [gaps, setGaps] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchStats = async () => {
+    const fetchData = async () => {
         try {
+            // Main stats
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
             const token = localStorage.getItem('alumni_token');
             const res = await fetch(`${baseUrl}/faculty/stats`, {
@@ -20,15 +24,23 @@ export default function FacultyOverview() {
             });
             const data = await res.json();
             if (!data.error) setStats(data);
+
+            // Quiz Analytics
+            const lbData = await quizzesApi.getLeaderboard();
+            setLeaderboard(lbData);
+
+            const gapData = await quizzesApi.getGaps();
+            setGaps(gapData);
+
         } catch (err) {
-            console.error('Failed to fetch faculty stats:', err);
+            console.error('Failed to fetch faculty data:', err);
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchStats();
+        fetchData();
     }, []);
 
     if (loading) {
@@ -122,11 +134,86 @@ export default function FacultyOverview() {
                 </div>
             </div>
 
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Quiz Leaderboard */}
+                <div className="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 overflow-hidden shadow-sm">
+                    <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700/50 flex items-center justify-between">
+                        <h3 className="font-[700] text-slate-900 dark:text-white">Quiz Leaderboard</h3>
+                        <Trophy className="w-4 h-4 text-amber-500" />
+                    </div>
+                    {leaderboard.length > 0 ? (
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b border-slate-100 dark:border-slate-700/30">
+                                        <th className="text-left px-6 py-3 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase">Rank</th>
+                                        <th className="text-left px-6 py-3 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase">Student</th>
+                                        <th className="text-right px-6 py-3 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase">Avg %</th>
+                                        <th className="text-right px-6 py-3 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase">Points</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {leaderboard.map((s, idx) => (
+                                        <tr key={s.email} className="border-b border-slate-50 dark:border-slate-700/20 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-all">
+                                            <td className="px-6 py-3 text-sm font-[700] text-slate-400">#{idx + 1}</td>
+                                            <td className="px-6 py-3">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="font-[600] text-sm text-slate-900 dark:text-white">{s.name}</div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-3 text-right">
+                                                <span className="text-sm font-[700] text-green-600 dark:text-green-400">{s.avgPercentage}%</span>
+                                            </td>
+                                            <td className="px-6 py-3 text-right text-sm font-[800] text-indigo-600 dark:text-indigo-400">{s.totalScore}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="p-8 text-center text-slate-400 text-sm italic">No quiz data available yet.</div>
+                    )}
+                </div>
+
+                {/* Performance Gaps */}
+                <div className="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-6 shadow-sm">
+                    <h3 className="font-[700] text-slate-900 dark:text-white mb-6">Critical Areas (Performance Gaps)</h3>
+                    {gaps.length > 0 ? (
+                        <div className="space-y-6">
+                            {gaps.map((gap) => (
+                                <div key={gap.topic}>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <span className="text-sm font-[600] text-slate-700 dark:text-slate-200">{gap.topic}</span>
+                                        <span className="text-xs font-[700] text-red-500 dark:text-red-400">{gap.avgScore}% avg</span>
+                                    </div>
+                                    <div className="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                                        <div 
+                                            className={`h-full rounded-full ${gap.avgScore < 40 ? 'bg-red-500' : 'bg-amber-500'}`} 
+                                            style={{ width: `${gap.avgScore}%` }} 
+                                        />
+                                    </div>
+                                    <div className="mt-1 text-[10px] text-slate-400 font-[500] uppercase tracking-wider">
+                                        Based on {gap.totalAttempts} recent attempts
+                                    </div>
+                                </div>
+                            ))}
+                            <div className="mt-8 p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl">
+                                <p className="text-xs text-amber-700 dark:text-amber-400 font-[500] leading-relaxed">
+                                    <span className="font-[700]">Insight:</span> Students are struggling most with <span className="font-[700]">{gaps[0].topic}</span>. Consider organizing a specialized mentoring session on this topic.
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="text-center text-slate-400 text-sm italic py-12">Waiting for more quiz engagement to identify trends.</div>
+                    )}
+                </div>
+            </div>
+
             {/* Top Students */}
             <div className="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 overflow-hidden shadow-sm">
                 <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700/50 flex items-center justify-between">
-                    <h3 className="font-[700] text-slate-900 dark:text-white">Top Performing Students</h3>
-                    <button onClick={() => router.push('/dashboard/students')} className="text-sm text-green-600 dark:text-green-400 font-[600] hover:underline">View All</button>
+                    <h3 className="font-[700] text-slate-900 dark:text-white">Engagement Overview</h3>
+                    <button onClick={() => router.push('/dashboard/students')} className="text-sm text-green-600 dark:text-green-400 font-[600] hover:underline">View All Students</button>
                 </div>
                 {stats?.topStudents?.length > 0 ? (
                     <div className="overflow-x-auto">

@@ -249,6 +249,15 @@ export const announcements = {
     delete: (id: string) => request<any>(`/announcements/${id}`, { method: 'DELETE' }),
 };
 
+// ─── Quizzes ──────────────────────────────────────────────────────────────────
+export const quizzes = {
+    getAnalytics: () => request<any[]>('/quizzes/analytics'),
+    getLeaderboard: () => request<any[]>('/quizzes/leaderboard'),
+    getGaps: () => request<any[]>('/quizzes/gaps'),
+    generate: (data: any) => request<any>('/quizzes/generate', { method: 'POST', body: JSON.stringify(data) }),
+    submit: (data: any) => request<any>('/quizzes/submit', { method: 'POST', body: JSON.stringify(data) }),
+};
+
 // ─── Health ───────────────────────────────────────────────────────────────────
 
 export const health = {

@@ -109,3 +109,79 @@ exports.getQuizAnalytics = async (req, res) => {
         res.status(500).json({ error: 'Server error while fetching analytics' });
     }
 };
+
+exports.getQuizLeaderboard = async (req, res) => {
+    try {
+        const leaderboard = await QuizAttempt.aggregate([
+            {
+                $group: {
+                    _id: "$studentId",
+                    totalScore: { $sum: "$score" },
+                    quizzesTaken: { $sum: 1 },
+                    avgPercentage: { $avg: { $multiply: [{ $divide: ["$score", "$totalQuestions"] }, 100] } }
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "studentInfo"
+                }
+            },
+            { $unwind: "$studentInfo" },
+            {
+                $project: {
+                    name: "$studentInfo.name",
+                    email: "$studentInfo.email",
+                    totalScore: 1,
+                    quizzesTaken: 1,
+                    avgPercentage: { $round: ["$avgPercentage", 1] },
+                    _id: 0
+                }
+            },
+            { $sort: { totalScore: -1 } },
+            { $limit: 10 }
+        ]);
+
+        res.json(leaderboard);
+    } catch (error) {
+        console.error('Error fetching quiz leaderboard:', error);
+        res.status(500).json({ error: 'Server error while fetching leaderboard' });
+    }
+};
+
+exports.getPerformanceGaps = async (req, res) => {
+    try {
+        const gaps = await QuizAttempt.aggregate([
+            {
+                $project: {
+                    topic: 1,
+                    percentage: { $multiply: [{ $divide: ["$score", "$totalQuestions"] }, 100] }
+                }
+            },
+            {
+                $group: {
+                    _id: "$topic",
+                    avgScore: { $avg: "$percentage" },
+                    totalAttempts: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    topic: "$_id",
+                    avgScore: { $round: ["$avgScore", 1] },
+                    totalAttempts: 1,
+                    _id: 0
+                }
+            },
+            { $sort: { avgScore: 1 } }, // Show worst performing topics first
+            { $limit: 5 }
+        ]);
+
+        res.json(gaps);
+    } catch (error) {
+        console.error('Error fetching performance gaps:', error);
+        res.status(500).json({ error: 'Server error while fetching gaps' });
+    }
+};

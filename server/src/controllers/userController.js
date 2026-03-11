@@ -7,7 +7,14 @@ const Job = require('../models/Job');
 const getUsers = async (req, res) => {
     try {
         const { search, industry, batchYear, role } = req.query;
+        
+        // Default filter: only approved users
         const filter = { isApproved: true };
+
+        // If user is Admin or Faculty, they can see ALL users (including pending)
+        if (req.user && (req.user.role === 'admin' || req.user.role === 'faculty')) {
+            delete filter.isApproved;
+        }
 
         if (role) filter.role = role;
         if (batchYear) filter.batchYear = batchYear;

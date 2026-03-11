@@ -14,8 +14,8 @@ const { auth, checkRole } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Public
-router.get('/', getUsers); // Alumni directory - list all approved users
+// Protected
+router.get('/', auth, getUsers); // Alumni directory - list all approved users
 
 // Protected
 router.get('/pending', auth, checkRole(['admin']), getPendingUsers);
