@@ -91,6 +91,11 @@ export const admin = {
     processPayout: (id: string, status: string) => request<any>(`/payouts/admin/${id}`, { method: 'PUT', body: JSON.stringify({ status }) }),
     getInboundPayments: () => request<any[]>('/payouts/admin/inbound'),
     confirmStudentPayment: (id: string) => request<any>(`/payouts/admin/confirm-payment/${id}`, { method: 'PUT' }),
+    getFinancials: () => request<any>('/payouts/admin/financials'),
+    getConfig: () => request<any>('/payouts/admin/config'),
+    updateConfig: (key: string, value: any) => request<any>('/payouts/admin/config', { method: 'PUT', body: JSON.stringify({ key, value }) }),
+    getPublicConfig: (key: string) => request<any>(`/payouts/platform/config/${key}`),
+    getDashboardAnalytics: () => request<any>('/analytics/dashboard'),
 };
 
 export const upload = {
@@ -226,6 +231,13 @@ export const resumes = {
             method: 'PUT',
             body: JSON.stringify({ feedback }),
         }),
+};
+
+// ─── Announcements ────────────────────────────────────────────────────────────
+export const announcements = {
+    list: () => request<any[]>('/announcements'),
+    create: (data: any) => request<any>('/announcements', { method: 'POST', body: JSON.stringify(data) }),
+    delete: (id: string) => request<any>(`/announcements/${id}`, { method: 'DELETE' }),
 };
 
 // ─── Health ───────────────────────────────────────────────────────────────────

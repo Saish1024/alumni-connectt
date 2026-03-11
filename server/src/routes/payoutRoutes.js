@@ -15,4 +15,10 @@ router.put('/admin/:id', auth, checkRole(['admin']), payoutController.processPay
 router.get('/admin/inbound', auth, checkRole(['admin']), payoutController.getInboundPayments);
 router.put('/admin/confirm-payment/:id', auth, checkRole(['admin']), payoutController.confirmStudentPayment);
 
+// Platform & Financial Overview
+router.get('/admin/financials', auth, checkRole(['admin']), payoutController.getFinancialOverview);
+router.get('/admin/config', auth, checkRole(['admin']), payoutController.getPlatformConfig);
+router.put('/admin/config', auth, checkRole(['admin']), payoutController.updatePlatformConfig);
+router.get('/platform/config/:key', payoutController.getConfigByKey); // Publicly accessible (for students to get UPI)
+
 module.exports = router;

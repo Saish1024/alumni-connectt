@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react';
 import { Search, Star, Check, X, Loader2 } from 'lucide-react';
-import { users as apiUsers, events as apiEvents } from '@/lib/api';
+import { users as apiUsers, events as apiEvents, admin as apiAdmin } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 
 export default function MentorsPage() {
@@ -13,20 +13,25 @@ export default function MentorsPage() {
     const [bookingDone, setBookingDone] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [form, setForm] = useState({ date: '', time: '10:00 AM', topic: '', paymentType: 'free', amount: 0, transactionId: '' });
+    const [platformUpi, setPlatformUpi] = useState('admin-connect@upi');
     const router = useRouter();
 
     useEffect(() => {
-        const fetchMentors = async () => {
+        const fetchData = async () => {
             try {
-                const data = await apiUsers.list({ role: 'alumni' });
-                setMentors(data);
+                const [mentorData, configData] = await Promise.all([
+                    apiUsers.list({ role: 'alumni' }),
+                    apiAdmin.getPublicConfig('platformUpiId').catch(() => ({ value: 'admin-connect@upi' }))
+                ]);
+                setMentors(mentorData);
+                setPlatformUpi(configData.value || 'admin-connect@upi');
             } catch (err) {
-                console.error('Failed to fetch mentors:', err);
+                console.error('Failed to fetch data:', err);
             } finally {
                 setLoading(false);
             }
         };
-        fetchMentors();
+        fetchData();
     }, []);
 
     const handleRequestSession = async () => {
@@ -208,7 +213,7 @@ export default function MentorsPage() {
                                             <div className="pt-2 border-t border-indigo-100 dark:border-indigo-800/50">
                                                 <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-2 font-[600] uppercase">Pay to Platform Owner (UPI)</p>
                                                 <div className="bg-white dark:bg-slate-800 p-2.5 rounded-lg text-sm font-[700] text-center text-slate-900 dark:text-white">
-                                                    admin-connect@upi
+                                                    {platformUpi}
                                                 </div>
                                             </div>
                                             <div>

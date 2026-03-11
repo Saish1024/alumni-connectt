@@ -2,54 +2,44 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AreaChart, Area, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Users, TrendingUp, Calendar, AlertCircle, Loader2 } from 'lucide-react';
-import { users as apiUsers } from '@/lib/api';
+import { users as apiUsers, admin as apiAdmin } from '@/lib/api';
 
-const revenueData = [
-    { month: 'Oct', revenue: 82000, users: 1200, sessions: 180 },
-    { month: 'Nov', revenue: 98000, users: 1450, sessions: 210 },
-    { month: 'Dec', revenue: 115000, users: 1680, sessions: 245 },
-    { month: 'Jan', revenue: 145000, users: 1920, sessions: 290 },
-    { month: 'Feb', revenue: 198000, users: 2240, sessions: 340 },
-    { month: 'Mar', revenue: 250000, users: 2580, sessions: 398 },
-];
 
-const userGrowthData = [
-    { month: 'Sep', students: 3200, alumni: 820, faculty: 95 },
-    { month: 'Oct', students: 3850, alumni: 980, faculty: 102 },
-    { month: 'Nov', students: 4200, alumni: 1120, faculty: 108 },
-    { month: 'Dec', students: 4680, alumni: 1280, faculty: 115 },
-    { month: 'Jan', students: 5100, alumni: 1480, faculty: 122 },
-    { month: 'Feb', students: 5620, alumni: 1680, faculty: 130 },
-    { month: 'Mar', students: 6200, alumni: 1920, faculty: 140 },
-];
-
-const roleDistribution = [
-    { name: 'Students', value: 62, color: '#6366f1' },
-    { name: 'Alumni', value: 19, color: '#8b5cf6' },
-    { name: 'Faculty', value: 14, color: '#06b6d4' },
-    { name: 'Admins', value: 5, color: '#10b981' },
-];
 
 export default function AdminOverview() {
     const router = useRouter();
     const [stats, setStats] = useState({
         pendingCount: 0,
         totalUsers: 0,
+        platformRevenue: 0,
+        totalPayouts: 0,
+        pendingInboundCount: 0,
         loading: true
+    });
+    const [chartsData, setChartsData] = useState<any>({
+        revenueData: [],
+        userGrowthData: [],
+        roleDistribution: []
     });
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const [pending, allUsers] = await Promise.all([
+                const [pending, allUsers, financials, analytics] = await Promise.all([
                     apiUsers.pending(),
-                    apiUsers.list()
+                    apiUsers.list(),
+                    apiAdmin.getFinancials(),
+                    apiAdmin.getDashboardAnalytics()
                 ]);
                 setStats({
                     pendingCount: pending.length,
                     totalUsers: allUsers.length,
+                    platformRevenue: financials.platformRevenue,
+                    totalPayouts: financials.totalPayouts,
+                    pendingInboundCount: financials.pendingInboundCount,
                     loading: false
                 });
+                setChartsData(analytics);
             } catch (err) {
                 console.error('Failed to fetch admin stats:', err);
                 setStats(prev => ({ ...prev, loading: false }));
@@ -84,9 +74,9 @@ export default function AdminOverview() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
                     { label: 'Total Users', value: stats.loading ? '...' : stats.totalUsers.toLocaleString(), change: '+340 this month', icon: Users, color: 'from-blue-500 to-cyan-600', bg: 'bg-blue-50 dark:bg-blue-900/10' },
-                    { label: 'Revenue (Mar)', value: '₹2.5L', change: '+26% vs Feb', icon: TrendingUp, color: 'from-green-500 to-emerald-600', bg: 'bg-green-50 dark:bg-green-900/10' },
-                    { label: 'Sessions Done', value: '398', change: 'This month', icon: Calendar, color: 'from-purple-500 to-violet-600', bg: 'bg-purple-50 dark:bg-purple-900/10' },
-                    { label: 'Pending Reviews', value: stats.loading ? '...' : stats.pendingCount, change: 'User approvals', icon: AlertCircle, color: 'from-amber-500 to-orange-600', bg: 'bg-amber-50 dark:bg-amber-900/10' },
+                    { label: 'Total Revenue', value: stats.loading ? '...' : `₹${(stats.platformRevenue / 1000).toFixed(1)}K`, change: 'Verified payments', icon: TrendingUp, color: 'from-green-500 to-emerald-600', bg: 'bg-green-50 dark:bg-green-900/10' },
+                    { label: 'Pending Inbound', value: stats.loading ? '...' : stats.pendingInboundCount, change: 'Awaiting verification', icon: Calendar, color: 'from-purple-500 to-violet-600', bg: 'bg-purple-50 dark:bg-purple-900/10' },
+                    { label: 'Pending Approvals', value: stats.loading ? '...' : stats.pendingCount, change: 'User registrations', icon: AlertCircle, color: 'from-amber-500 to-orange-600', bg: 'bg-amber-50 dark:bg-amber-900/10' },
                 ].map(({ label, value, change, icon: Icon, color, bg }) => (
                     <div key={label} className={`${bg} rounded-2xl p-5 border border-slate-200 dark:border-slate-700/50 hover:shadow-md transition-all`}>
                         <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center mb-3 shadow-md`}>
@@ -107,7 +97,7 @@ export default function AdminOverview() {
                         <span className="text-xs text-slate-400 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full font-[500]">Last 6 months</span>
                     </div>
                     <ResponsiveContainer width="100%" height={200}>
-                        <AreaChart data={revenueData}>
+                        <AreaChart data={chartsData.revenueData}>
                             <defs>
                                 <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="#f97316" stopOpacity={0.3} />
@@ -128,14 +118,14 @@ export default function AdminOverview() {
                     <h3 className="font-[700] text-slate-900 dark:text-white mb-4">User Distribution</h3>
                     <ResponsiveContainer width="100%" height={150}>
                         <PieChart>
-                            <Pie data={roleDistribution} cx="50%" cy="50%" innerRadius={40} outerRadius={65} paddingAngle={3} dataKey="value">
-                                {roleDistribution.map((entry, i) => <Cell key={`admin-role-${i}`} fill={entry.color} />)}
+                            <Pie data={chartsData.roleDistribution} cx="50%" cy="50%" innerRadius={40} outerRadius={65} paddingAngle={3} dataKey="value">
+                                {chartsData.roleDistribution.map((entry: any, i: number) => <Cell key={`admin-role-${i}`} fill={entry.color} />)}
                             </Pie>
                             <Tooltip contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '12px', color: '#fff' }} />
                         </PieChart>
                     </ResponsiveContainer>
                     <div className="space-y-2 mt-2">
-                        {roleDistribution.map(r => (
+                        {chartsData.roleDistribution.map((r: any) => (
                             <div key={r.name} className="flex items-center justify-between text-xs">
                                 <div className="flex items-center gap-2">
                                     <div className="w-2.5 h-2.5 rounded-full" style={{ background: r.color }} />
@@ -155,12 +145,12 @@ export default function AdminOverview() {
                     <button onClick={() => router.push('/dashboard/users')} className="text-sm text-orange-600 dark:text-orange-400 font-[600] hover:underline">View Users</button>
                 </div>
                 <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={userGrowthData}>
+                    <BarChart data={chartsData.userGrowthData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:stroke-slate-700" />
                         <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                         <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                         <Tooltip contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '12px', color: '#fff' }} />
-                        <Bar dataKey="students" fill="#6366f1" radius={[4, 4, 0, 0]} name="Students" stackId="a" />
+                        <Bar dataKey="student" fill="#6366f1" radius={[4, 4, 0, 0]} name="Students" stackId="a" />
                         <Bar dataKey="alumni" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="Alumni" stackId="a" />
                         <Bar dataKey="faculty" fill="#06b6d4" radius={[4, 4, 0, 0]} name="Faculty" stackId="a" />
                     </BarChart>

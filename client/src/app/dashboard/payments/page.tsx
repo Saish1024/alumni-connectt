@@ -1,24 +1,33 @@
 "use client"
 import { useEffect, useState } from 'react';
-import { Download, Loader2, CheckCircle2, XCircle, Clock, Search, Filter } from 'lucide-react';
+import { Download, Loader2, CheckCircle2, XCircle, Clock, Search, Filter, Settings } from 'lucide-react';
 import { admin as apiAdmin } from '@/lib/api';
 import { Button } from '@/components/Button';
 
 export default function PaymentsPage() {
     const [payouts, setPayouts] = useState<any[]>([]);
     const [inbound, setInbound] = useState<any[]>([]);
+    const [stats, setStats] = useState({ platformRevenue: 0, totalPayouts: 0, pendingPayoutsCount: 0, pendingInboundCount: 0 });
+    const [config, setConfig] = useState<any>({ platformUpiId: 'admin-connect@upi' });
+    const [newUpi, setNewUpi] = useState('');
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'pending' | 'completed' | 'inbound'>('pending');
     const [processingId, setProcessingId] = useState<string | null>(null);
+    const [isUpdatingConfig, setIsUpdatingConfig] = useState(false);
 
     const fetchData = async () => {
         try {
-            const [payoutData, inboundData] = await Promise.all([
+            const [payoutData, inboundData, financialData, configData] = await Promise.all([
                 apiAdmin.getPayouts(),
-                apiAdmin.getInboundPayments()
+                apiAdmin.getInboundPayments(),
+                apiAdmin.getFinancials(),
+                apiAdmin.getConfig()
             ]);
             setPayouts(payoutData);
             setInbound(inboundData);
+            setStats(financialData);
+            setConfig(configData);
+            setNewUpi(configData.platformUpiId || 'admin-connect@upi');
         } catch (err) {
             console.error('Failed to fetch data:', err);
         } finally {
@@ -54,6 +63,19 @@ export default function PaymentsPage() {
         }
     };
 
+    const handleUpdateConfig = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsUpdatingConfig(true);
+        try {
+            await apiAdmin.updateConfig('platformUpiId', newUpi);
+            fetchData();
+        } catch (err) {
+            console.error('Failed to update config:', err);
+        } finally {
+            setIsUpdatingConfig(false);
+        }
+    };
+
     const filteredPayouts = payouts.filter(p => {
         if (activeTab === 'inbound') return false;
         if (activeTab === 'pending' || activeTab === 'completed') return p.status === activeTab;
@@ -73,9 +95,6 @@ export default function PaymentsPage() {
         );
     }
 
-    const pendingPayoutCount = payouts.filter(p => p.status === 'pending').length;
-    const pendingInboundCount = inbound.filter(s => s.studentPaymentStatus === 'pending').length;
-
     return (
         <div className="space-y-6 animate-in fade-in duration-500 font-[Inter,sans-serif]">
             <div className="flex justify-between items-center">
@@ -93,10 +112,10 @@ export default function PaymentsPage() {
             {/* Stats Overview */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                    { label: 'Pending Payouts', value: pendingPayoutCount.toString(), icon: <Clock className="w-5 h-5" />, color: 'from-amber-500 to-orange-600' },
-                    { label: 'Pending Inbound', value: pendingInboundCount.toString(), icon: <Search className="w-5 h-5" />, color: 'from-blue-500 to-indigo-600' },
-                    { label: 'Total Payouts', value: `₹${payouts.filter(p => p.status === 'completed').reduce((sum, p) => sum + p.amount, 0).toLocaleString()}`, icon: '💰', color: 'from-green-500 to-emerald-600' },
-                    { label: 'Platform Revenue', value: '₹2,50,000', icon: '🏦', color: 'from-indigo-500 to-violet-600' },
+                    { label: 'Pending Payouts', value: stats.pendingPayoutsCount.toString(), icon: <Clock className="w-5 h-5" />, color: 'from-amber-500 to-orange-600' },
+                    { label: 'Pending Inbound', value: stats.pendingInboundCount.toString(), icon: <Search className="w-5 h-5" />, color: 'from-blue-500 to-indigo-600' },
+                    { label: 'Total Payouts', value: `₹${stats.totalPayouts.toLocaleString()}`, icon: '💰', color: 'from-green-500 to-emerald-600' },
+                    { label: 'Platform Revenue', value: `₹${stats.platformRevenue.toLocaleString()}`, icon: '🏦', color: 'from-indigo-500 to-violet-600' },
                 ].map(({ label, value, icon, color }) => (
                     <div key={label} className={`bg-gradient-to-br ${color} rounded-2xl p-5 text-white shadow-lg`}>
                         <div className="flex items-center justify-between mb-2">
@@ -108,8 +127,44 @@ export default function PaymentsPage() {
                 ))}
             </div>
 
-            {/* Inbound & Payout Management */}
-            <div className="bg-white dark:bg-slate-800/50 rounded-3xl border border-slate-200 dark:border-slate-700/50 overflow-hidden shadow-sm">
+            <div className="grid lg:grid-cols-3 gap-6">
+                {/* Configuration Card */}
+                <div className="bg-white dark:bg-slate-800/50 rounded-3xl border border-slate-200 dark:border-slate-700/50 p-6 shadow-sm h-full">
+                    <h3 className="font-[800] text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                        <Settings className="w-5 h-5 text-indigo-500" /> Platform Payout Config
+                    </h3>
+                    <p className="text-xs text-slate-500 mb-6">Set the UPI ID where students will send payments for sessions.</p>
+                    
+                    <form onSubmit={handleUpdateConfig} className="space-y-4">
+                        <div>
+                            <label className="text-xs font-[600] text-slate-500 mb-1.5 block ml-1">Platform UPI ID</label>
+                            <input
+                                type="text"
+                                value={newUpi}
+                                onChange={(e) => setNewUpi(e.target.value)}
+                                placeholder="admin@upi"
+                                className="w-full h-11 px-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 focus:border-indigo-500 outline-none font-[600] text-sm transition-all"
+                            />
+                        </div>
+                        <Button 
+                            type="submit" 
+                            disabled={isUpdatingConfig || newUpi === config.platformUpiId}
+                            className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 dark:shadow-none"
+                        >
+                            {isUpdatingConfig ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Configuration"}
+                        </Button>
+                    </form>
+
+                    <div className="mt-8 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800/50">
+                        <h4 className="text-[10px] font-[800] uppercase text-indigo-600 dark:text-indigo-400 mb-2">Internal Note</h4>
+                        <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                            This UPI ID is displayed to students during the booking flow for paid sessions. Transaction IDs are manually verified by you in the Financial Queue.
+                        </p>
+                    </div>
+                </div>
+
+                {/* Inbound & Payout Management */}
+                <div className="lg:col-span-2 bg-white dark:bg-slate-800/50 rounded-3xl border border-slate-200 dark:border-slate-700/50 overflow-hidden shadow-sm">
                 <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-700/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h3 className="font-[800] text-slate-900 dark:text-white">Financial Queue</h3>
                     <div className="flex bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl">

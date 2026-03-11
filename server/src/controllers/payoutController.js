@@ -1,6 +1,7 @@
 const Payout = require('../models/Payout');
 const Event = require('../models/Event');
 const User = require('../models/User');
+const Config = require('../models/Config');
 
 // Get Earnings Summary & History
 exports.getEarnings = async (req, res) => {
@@ -146,6 +147,80 @@ exports.processPayout = async (req, res) => {
         await payout.save();
         
         res.json(payout);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// --- Platform Configuration & Revenue ---
+
+// Admin: Get platform config
+exports.getPlatformConfig = async (req, res) => {
+    try {
+        const configs = await Config.find();
+        const configMap = configs.reduce((acc, c) => ({ ...acc, [c.key]: c.value }), {});
+        res.json(configMap);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Admin/Public: Get specific config key
+exports.getConfigByKey = async (req, res) => {
+    try {
+        const config = await Config.findOne({ key: req.params.key });
+        if (!config) return res.status(404).json({ error: 'Config not found' });
+        res.json({ key: config.key, value: config.value });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Admin: Update platform config
+exports.updatePlatformConfig = async (req, res) => {
+    try {
+        const { key, value } = req.body;
+        let config = await Config.findOne({ key });
+        if (config) {
+            config.value = value;
+            config.updatedAt = new Date();
+        } else {
+            config = new Config({ key, value });
+        }
+        await config.save();
+        res.json(config);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Admin: Get Financial Overview (Real-time)
+exports.getFinancialOverview = async (req, res) => {
+    try {
+        // Total platform revenue: Sum of all verified student payments
+        const verifiedSessions = await Event.find({ 
+            paymentType: 'paid', 
+            studentPaymentStatus: 'received' 
+        });
+        const platformRevenue = verifiedSessions.reduce((sum, s) => sum + (s.amount || 0), 0);
+
+        // Total payouts: Sum of all completed payout requests
+        const completedPayouts = await Payout.find({ status: 'completed' });
+        const totalPayouts = completedPayouts.reduce((sum, p) => sum + p.amount, 0);
+
+        // Active/Pending Queue stats
+        const pendingPayoutsCount = await Payout.countDocuments({ status: 'pending' });
+        const pendingInboundCount = await Event.countDocuments({ 
+            paymentType: 'paid', 
+            studentPaymentStatus: 'pending' 
+        });
+
+        res.json({
+            platformRevenue,
+            totalPayouts,
+            pendingPayoutsCount,
+            pendingInboundCount
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
