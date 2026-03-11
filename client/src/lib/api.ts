@@ -82,6 +82,17 @@ export const users = {
     pending: () => request<any[]>('/users/pending'),
 };
 
+export const admin = {
+    getUsers: () => request<any>('/users'),
+    getRegistrations: () => request<any>('/users/registrations'),
+    approveUser: (id: string) => request<any>(`/users/${id}/approve`, { method: 'PUT' }),
+    deleteUser: (id: string) => request<any>(`/users/${id}`, { method: 'DELETE' }),
+    getPayouts: () => request<any>('/payouts/admin/all'),
+    processPayout: (id: string, status: string) => request<any>(`/payouts/admin/${id}`, { method: 'PUT', body: JSON.stringify({ status }) }),
+    getInboundPayments: () => request<any[]>('/payouts/admin/inbound'),
+    confirmStudentPayment: (id: string) => request<any>(`/payouts/admin/confirm-payment/${id}`, { method: 'PUT' }),
+};
+
 export const upload = {
     image: (file: File) => {
         const formData = new FormData();
@@ -114,6 +125,9 @@ export const jobs = {
 
 export const alumni = {
     getStats: () => request<any>('/alumni/stats'),
+    getEarnings: () => request<any>('/payouts/earnings'),
+    requestPayout: (data: { amount: number, method?: any }) => request<any>('/payouts/request', { method: 'POST', body: JSON.stringify(data) }),
+    updatePaymentSettings: (data: any) => request<any>('/payouts/settings', { method: 'PUT', body: JSON.stringify(data) }),
 };
 
 // ─── Events ───────────────────────────────────────────────────────────────────

@@ -10,6 +10,12 @@ const eventSchema = new mongoose.Schema({
     type: { type: String, enum: ['event', 'session'], default: 'event' },
     paymentType: { type: String, enum: ['free', 'paid'], default: 'free' },
     amount: { type: Number, default: 0 },
+    studentPaymentStatus: { 
+        type: String, 
+        enum: ['pending', 'received', 'not_applicable'], 
+        default: 'not_applicable' 
+    },
+    transactionId: { type: String, default: '' },
     status: { type: String, enum: ['pending', 'upcoming', 'completed', 'rejected'], default: 'upcoming' },
     category: { type: String },
     meetLink: { type: String },

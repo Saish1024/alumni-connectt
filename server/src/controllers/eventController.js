@@ -124,6 +124,8 @@ const requestSession = async (req, res) => {
             type: 'session',
             paymentType: paymentType || 'free',
             amount: req.body.amount || 0,
+            studentPaymentStatus: (paymentType === 'paid') ? 'pending' : 'not_applicable',
+            transactionId: req.body.transactionId || '',
             status: 'pending',
             organizer: mentorId, // The alumni
             attendees: [req.user._id] // The student requesting

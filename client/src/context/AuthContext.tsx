@@ -27,6 +27,15 @@ interface User {
     totalRating?: number
     ratingCount?: number
     averageRating?: number
+    paymentInfo?: {
+        upiId: string
+        bankDetails: {
+            accountNumber: string
+            ifscCode: string
+            bankName: string
+            accountHolder: string
+        }
+    }
 }
 
 interface AuthContextType {

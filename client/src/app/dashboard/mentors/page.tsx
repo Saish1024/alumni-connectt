@@ -38,7 +38,10 @@ export default function MentorsPage() {
                 date: form.date,
                 time: form.time,
                 topic: form.topic,
-                duration: '60 min'
+                duration: '60 min',
+                paymentType: form.paymentType,
+                amount: form.amount,
+                transactionId: form.transactionId
             });
             setBookingDone(true);
         } catch (err: any) {
@@ -126,13 +129,15 @@ export default function MentorsPage() {
                             </div>
                             <div className="flex items-center justify-between mb-4">
                                 <span className="text-sm font-[700] text-green-600 dark:text-green-400">● Available</span>
-                                <span className="text-sm font-[700] px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400">🆓 Free</span>
+                                <span className={`text-sm font-[700] px-3 py-1 rounded-full ${m.sessionPrice > 0 ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-600' : 'bg-green-100 dark:bg-green-900/20 text-green-600'}`}>
+                                    {m.sessionPrice > 0 ? `₹${m.sessionPrice}` : 'Free'}
+                                </span>
                             </div>
                             <button
                                 onClick={() => {
                                     setBookModal(m);
                                     setBookingDone(false);
-                                    setForm({ date: '', time: '10:00 AM', topic: '' });
+                                    setForm({ date: '', time: '10:00 AM', topic: '', paymentType: m.sessionPrice > 0 ? 'paid' : 'free', amount: m.sessionPrice || 0, transactionId: '' });
                                 }}
                                 className="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-[700] rounded-xl hover:scale-[1.02] transition-all shadow-md shadow-indigo-500/20">
                                 Book Session
@@ -186,7 +191,7 @@ export default function MentorsPage() {
                                     <div>
                                         <label className="block text-sm font-[600] text-slate-700 dark:text-slate-300 mb-2">Topic / Goals</label>
                                         <textarea
-                                            rows={3}
+                                            rows={2}
                                             id="sessionTopic"
                                             value={form.topic}
                                             onChange={e => setForm({ ...form, topic: e.target.value })}
@@ -194,6 +199,30 @@ export default function MentorsPage() {
                                             className="w-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 resize-none"
                                         />
                                     </div>
+                                    {form.paymentType === 'paid' && (
+                                        <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800/50 space-y-3">
+                                            <div className="flex items-center justify-between text-xs">
+                                                <span className="text-slate-500 dark:text-slate-400 font-[600]">Session Fee</span>
+                                                <span className="text-indigo-600 dark:text-indigo-400 font-[800]">₹{form.amount}</span>
+                                            </div>
+                                            <div className="pt-2 border-t border-indigo-100 dark:border-indigo-800/50">
+                                                <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-2 font-[600] uppercase">Pay to Platform Owner (UPI)</p>
+                                                <div className="bg-white dark:bg-slate-800 p-2.5 rounded-lg text-sm font-[700] text-center text-slate-900 dark:text-white">
+                                                    admin-connect@upi
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-[700] text-slate-400 uppercase mb-1.5 ml-1">Transaction ID / Reference</label>
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="Enter UPI Ref No."
+                                                    value={form.transactionId}
+                                                    onChange={e => setForm({ ...form, transactionId: e.target.value })}
+                                                    className="w-full text-xs border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                                 <button
                                     onClick={handleRequestSession}

@@ -21,6 +21,15 @@ const userSchema = new mongoose.Schema({
   totalRating: { type: Number, default: 0 },
   ratingCount: { type: Number, default: 0 },
   averageRating: { type: Number, default: 0 },
+  paymentInfo: {
+    upiId: { type: String, default: '' },
+    bankDetails: {
+      accountNumber: { type: String, default: '' },
+      ifscCode: { type: String, default: '' },
+      bankName: { type: String, default: '' },
+      accountHolder: { type: String, default: '' }
+    }
+  },
   createdAt: { type: Date, default: Date.now }
 });
 
