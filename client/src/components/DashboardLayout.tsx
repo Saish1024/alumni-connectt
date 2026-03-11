@@ -66,7 +66,7 @@ export default function DashboardLayout({
     const gradientClass = roleColors[role] || 'from-indigo-500 to-purple-600';
 
     return (
-        <div className={`${isDark ? 'dark' : ''} flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden font-[Inter,sans-serif]`}>
+        <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden font-[Inter,sans-serif]">
             {/* SIDEBAR */}
             <aside className={`
         fixed inset-y-0 left-0 z-50 w-64 flex flex-col
