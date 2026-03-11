@@ -96,6 +96,7 @@ export const admin = {
     updateConfig: (key: string, value: any) => request<any>('/payouts/admin/config', { method: 'PUT', body: JSON.stringify({ key, value }) }),
     getPublicConfig: (key: string) => request<any>(`/payouts/platform/config/${key}`),
     getDashboardAnalytics: () => request<any>('/analytics/dashboard'),
+    getRevenueAnalytics: () => request<any>('/analytics/revenue'),
 };
 
 export const upload = {

@@ -107,3 +107,89 @@ exports.getDashboardAnalytics = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+// Admin: Get Detailed Revenue Analytics
+exports.getRevenueAnalytics = async (req, res) => {
+    try {
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+        sixMonthsAgo.setDate(1);
+        sixMonthsAgo.setHours(0, 0, 0, 0);
+
+        // 1. Monthly Revenue & Session Counts (Last 6 Months)
+        const monthlyStats = await Event.aggregate([
+            {
+                $match: {
+                    paymentType: 'paid',
+                    studentPaymentStatus: 'received',
+                    createdAt: { $gte: sixMonthsAgo }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    revenue: { $sum: "$amount" },
+                    sessions: { $sum: 1 }
+                }
+            },
+            { $sort: { "_id.year": 1, "_id.month": 1 } }
+        ]);
+
+        // 2. Category Breakdown
+        const categoryBreakdown = await Event.aggregate([
+            {
+                $match: {
+                    paymentType: 'paid',
+                    studentPaymentStatus: 'received'
+                }
+            },
+            {
+                $group: {
+                    _id: "$type",
+                    totalAmount: { $sum: "$amount" }
+                }
+            }
+        ]);
+
+        // Format month names and align with stats
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const last6Months = [];
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date();
+            d.setMonth(d.getMonth() - i);
+            last6Months.push({
+                month: monthNames[d.getMonth()],
+                year: d.getFullYear(),
+                monthIndex: d.getMonth() + 1
+            });
+        }
+
+        const formattedMonthly = last6Months.map(m => {
+            const match = monthlyStats.find(s => s._id.month === m.monthIndex && s._id.year === m.year);
+            return {
+                month: m.month,
+                revenue: match ? match.revenue : 0,
+                sessions: match ? match.sessions : 0
+            };
+        });
+
+        const totalRevenue = categoryBreakdown.reduce((sum, c) => sum + c.totalAmount, 0);
+        const categories = categoryBreakdown.map(c => ({
+            label: c._id === 'session' ? 'Mentoring Sessions' : 'Events & Webinars',
+            amount: c.totalAmount,
+            share: totalRevenue > 0 ? ((c.totalAmount / totalRevenue) * 100).toFixed(1) : 0,
+            icon: c._id === 'session' ? '🎓' : '🎪',
+            color: c._id === 'session' ? 'from-indigo-500 to-purple-600' : 'from-green-500 to-emerald-600'
+        }));
+
+        res.json({
+            revenueData: formattedMonthly,
+            categories,
+            totalRevenue
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
