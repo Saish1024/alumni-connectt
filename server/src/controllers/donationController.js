@@ -14,10 +14,11 @@ exports.getCampaigns = async (req, res) => {
 // Create a donation attempt
 exports.createDonation = async (req, res) => {
   try {
-    const { campaignId, amount, transactionId } = req.body;
+    const { campaignId, amount, transactionId, type = 'campaign' } = req.body;
     
     const donation = new Donation({
-      campaignId,
+      type,
+      campaignId: type === 'campaign' ? campaignId : null,
       userId: req.user.id,
       amount,
       transactionId,
@@ -70,7 +71,7 @@ exports.verifyDonation = async (req, res) => {
     donation.paymentStatus = status;
     await donation.save();
 
-    if (status === 'verified') {
+    if (status === 'verified' && donation.type === 'campaign') {
       await DonationCampaign.findByIdAndUpdate(donation.campaignId, {
         $inc: { raisedAmount: donation.amount, donorsCount: 1 }
       });

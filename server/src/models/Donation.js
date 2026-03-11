@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
 
 const donationSchema = new mongoose.Schema({
-  campaignId: { type: mongoose.Schema.Types.ObjectId, ref: 'DonationCampaign', required: true },
+  type: { type: String, enum: ['campaign', 'general'], default: 'campaign' },
+  campaignId: { type: mongoose.Schema.Types.ObjectId, ref: 'DonationCampaign', required: false },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   amount: { type: Number, required: true },
   paymentStatus: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },

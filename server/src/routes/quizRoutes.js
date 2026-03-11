@@ -3,6 +3,7 @@ const router = express.Router();
 const quizController = require('../controllers/quizController');
 const { protect, authorize } = require('../middleware/auth');
 
+router.post('/generate', protect, quizController.generateQuizAttempt);
 router.post('/submit', protect, quizController.submitQuizAttempt);
 router.get('/analytics', protect, authorize(['faculty', 'admin']), quizController.getQuizAnalytics);
 

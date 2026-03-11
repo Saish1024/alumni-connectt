@@ -38,8 +38,10 @@ export default function DonationsPage() {
         if (!amount || !transactionId) return alert('Please enter amount and transaction ID');
         setSubmitting(true);
         try {
+            const isGeneral = donateModal === 'general';
             await apiAlumni.recordDonation({
-                campaignId: donateModal._id,
+                type: isGeneral ? 'general' : 'campaign',
+                campaignId: isGeneral ? undefined : donateModal._id,
                 amount: Number(amount),
                 transactionId
             });
@@ -77,7 +79,7 @@ export default function DonationsPage() {
                     {(['campaigns', 'history'] as const).map(t => (
                         <button key={t} onClick={() => setTab(t)}
                             className={`px-4 py-2 rounded-lg text-sm font-[600] capitalize transition-all ${tab === t ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400'}`}>
-                            {t === 'campaigns' ? 'Active Campaigns' : 'My Contributions'}
+                            {t === 'campaigns' ? 'Donation Hub' : 'My Contributions'}
                         </button>
                     ))}
                 </div>
@@ -103,7 +105,27 @@ export default function DonationsPage() {
             </div>
 
             {tab === 'campaigns' ? (
-                <div className="grid md:grid-cols-2 gap-5">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {/* General Fund Card */}
+                    <div className="bg-slate-900 dark:bg-indigo-950/40 rounded-3xl p-6 text-white shadow-xl lg:col-span-1 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-4 opacity-20 transform translate-x-4 -translate-y-4 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform">
+                            <IndianRupee className="w-32 h-32" />
+                        </div>
+                        <div className="relative z-10 h-full flex flex-col">
+                            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-2xl mb-4 border border-white/10">
+                                🏛️
+                            </div>
+                            <h3 className="text-xl font-[800] mb-2 leading-tight">General College Fund</h3>
+                            <p className="text-white/60 text-xs mb-6 flex-grow">Provide unrestricted support for infrastructure, student welfare, and immediate campus needs.</p>
+                            
+                            <button 
+                                onClick={() => { setDonateModal('general'); setDonationDone(false); setAmount('1000'); setTransactionId(''); }}
+                                className="w-full py-3.5 bg-white text-slate-900 font-[800] text-sm rounded-2xl hover:bg-slate-100 transition-colors shadow-lg flex items-center justify-center gap-2">
+                                <Heart className="w-4 h-4 fill-slate-900" /> Donate to College
+                            </button>
+                        </div>
+                    </div>
+
                     {campaigns.length > 0 ? campaigns.map(c => {
                         const pct = Math.min(100, Math.round((c.raisedAmount / c.goalAmount) * 100));
                         return (
@@ -141,7 +163,7 @@ export default function DonationsPage() {
                             </div>
                         );
                     }) : (
-                        <div className="md:col-span-2 py-20 bg-white dark:bg-slate-800/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700 text-center">
+                        <div className="md:col-span-2 lg:col-span-2 py-20 bg-white dark:bg-slate-800/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-700 text-center">
                             <TrendingUp className="w-12 h-12 text-slate-300 mx-auto mb-4" />
                             <h3 className="text-lg font-[700] text-slate-900 dark:text-white">No Active Campaigns</h3>
                             <p className="text-slate-500 max-w-xs mx-auto text-sm mt-1">Check back soon for upcoming donation drives and giveaways.</p>
@@ -166,11 +188,11 @@ export default function DonationsPage() {
                             {history.map(d => (
                                 <div key={d._id} className="flex items-center justify-between px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-all group">
                                     <div className="flex items-center gap-4">
-                                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${d.campaignId?.color || 'from-pink-400 to-purple-600'} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
-                                            <span className="text-lg">{d.campaignId?.icon || '💝'}</span>
+                                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${d.type === 'general' ? 'from-slate-700 to-slate-900' : (d.campaignId?.color || 'from-pink-400 to-purple-600')} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
+                                            <span className="text-lg">{d.type === 'general' ? '🏛️' : (d.campaignId?.icon || '💝')}</span>
                                         </div>
                                         <div>
-                                            <div className="font-[700] text-slate-900 dark:text-white text-sm">{d.campaignId?.title || 'Unknown Campaign'}</div>
+                                            <div className="font-[700] text-slate-900 dark:text-white text-sm">{d.type === 'general' ? 'General College Fund' : (d.campaignId?.title || 'Unknown Campaign')}</div>
                                             <div className="text-[10px] text-slate-400 uppercase tracking-wider font-[700] mt-0.5">{new Date(d.date).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</div>
                                         </div>
                                     </div>
@@ -215,10 +237,10 @@ export default function DonationsPage() {
                                     </button>
                                 </div>
 
-                                <div className={`p-5 bg-gradient-to-br ${donateModal.color || 'from-indigo-500 to-purple-600'} rounded-2xl mb-6 text-white shadow-inner relative overflow-hidden`}>
+                                <div className={`p-5 bg-gradient-to-br ${donateModal === 'general' ? 'from-slate-700 to-slate-900' : (donateModal.color || 'from-indigo-500 to-purple-600')} rounded-2xl mb-6 text-white shadow-inner relative overflow-hidden`}>
                                     <Heart className="absolute -right-4 -bottom-4 w-20 h-20 opacity-20 rotate-12" />
-                                    <div className="text-2xl mb-1">{donateModal.icon || '🎓'}</div>
-                                    <p className="font-[800] text-base leading-tight">{donateModal.title}</p>
+                                    <div className="text-2xl mb-1">{donateModal === 'general' ? '🏛️' : (donateModal.icon || '🎓')}</div>
+                                    <p className="font-[800] text-base leading-tight">{donateModal === 'general' ? 'General College Fund' : donateModal.title}</p>
                                 </div>
 
                                 <div className="space-y-5">

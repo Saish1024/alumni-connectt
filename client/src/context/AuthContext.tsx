@@ -16,17 +16,7 @@ interface User {
     department?: string
     institution?: string
     location?: string
-    bio?: string
-    linkedin?: string
-    skills?: string[]
-    isApproved?: boolean
-    googleTokens?: {
-        access_token?: string
-        refresh_token?: string
-    }
-    totalRating?: number
-    ratingCount?: number
-    averageRating?: number
+    phoneNumber?: string
     paymentInfo?: {
         upiId: string
         bankDetails: {
@@ -36,6 +26,12 @@ interface User {
             accountHolder: string
         }
     }
+    // Mentoring Setup
+    sessionPrice?: number
+    resumeReviewPrice?: number
+    mentoringTopics?: string[]
+    availability?: Record<string, string[]>
+    createdAt?: string
 }
 
 interface AuthContextType {
@@ -44,6 +40,7 @@ interface AuthContextType {
     login: (email: string, password: string) => Promise<void>
     register: (data: RegisterData) => Promise<void>
     logout: () => void
+    setUser: React.Dispatch<React.SetStateAction<User | null>>
     isLoading: boolean
     error: string | null
 }
@@ -54,8 +51,11 @@ interface RegisterData {
     password: string
     role: string
     batchYear?: string
+    phoneNumber?: string
     company?: string
     jobTitle?: string
+    industry?: string
+    linkedin?: string
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -151,7 +151,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ user, token, login, register, logout, isLoading, error }}>
+        <AuthContext.Provider value={{ user, token, login, register, logout, setUser, isLoading, error }}>
             {children}
         </AuthContext.Provider>
     )

@@ -131,4 +131,98 @@ function formatTimeAgo(date) {
     return Math.floor(seconds) + " secs ago";
 }
 
-module.exports = { getAlumniStats };
+const getLegacyData = async (req, res) => {
+    try {
+        const alumniId = req.user._id;
+        const allCompletedSessions = await Event.find({
+            organizer: alumniId,
+            status: 'completed'
+        }).populate('attendees', 'name institution major');
+
+        // 1. Calculating the Archetype
+        const topicCounts = {};
+        allCompletedSessions.forEach(s => {
+            topicCounts[s.category] = (topicCounts[s.category] || 0) + 1;
+        });
+        const topTopic = Object.entries(topicCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'Mentoring';
+        
+        const archetypes = {
+            'DSA & Algo': 'The Logic Architect',
+            'System Design': 'The Infrastructure Titan',
+            'Web Dev': 'The Full-Stack Alchemist',
+            'Interview Prep': 'The Kingmaker',
+            'Career Advice': 'The North Star',
+            'Mentoring': 'The Legacy Builder'
+        };
+        const archetype = archetypes[topTopic] || 'The Visionary';
+
+        // 2. Legacy Multiplier (Projected ROI)
+        const sessionsCount = allCompletedSessions.length;
+        const hoursCoded = sessionsCount * 1.5; // Assumption
+        const projectedEconomicImpact = sessionsCount * 50000; // $50k per student influenced
+
+        // 3. Chronicling the Future (Predictions)
+        const futureYears = [2028, 2031, 2035, 2040];
+        const studentNames = allCompletedSessions.flatMap(s => s.attendees.map(a => a.name));
+        const uniqueStudents = [...new Set(studentNames)];
+        
+        const headlines = [
+            { year: 2028, title: "The First Breakthrough", content: `${uniqueStudents[0] || 'A student'} credits your early guidance for their first Senior Engineer promotion at a FAANG company.` },
+            { year: 2031, title: "The Startup Exit", content: `${uniqueStudents[1] || 'A mentee'} sells their startup for $50M, citing the 'Session on ${topTopic}' as the turning point.` },
+            { year: 2035, title: "The Policy Shift", content: `${uniqueStudents[2] || 'A researcher'} becomes an industry lead, implementing the technical ethics you discussed years ago.` },
+            { year: 2040, title: "The Global Legacy", content: `A generation of engineers influenced by your 'Legacy' now lead the global tech ecosystem.` }
+        ];
+
+        res.status(200).json({
+            archetype,
+            multiplier: {
+                studentsHelped: uniqueStudents.length,
+                projectedValue: projectsAmount(projectedEconomicImpact),
+                hoursInvested: Math.round(hoursCoded)
+            },
+            headlines: headlines.slice(0, Math.max(1, Math.min(headlines.length, uniqueStudents.length || 1))),
+            synthData: {
+                pulseRate: Math.min(100, 60 + sessionsCount),
+                color: topTopic === 'DSA & Algo' ? '#3b82f6' : '#8b5cf6'
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const updateMentoringSettings = async (req, res) => {
+    try {
+        const alumniId = req.user._id;
+        const { sessionPrice, resumeReviewPrice, mentoringTopics, availability } = req.body;
+
+        const updatedUser = await User.findByIdAndUpdate(
+            alumniId,
+            {
+                $set: {
+                    sessionPrice,
+                    resumeReviewPrice,
+                    mentoringTopics,
+                    skills: mentoringTopics, // Keep skills in sync for search/display
+                    availability
+                }
+            },
+            { new: true, runValidators: true }
+        );
+
+        res.status(200).json({
+            message: 'Mentoring settings updated successfully',
+            user: {
+                sessionPrice: updatedUser.sessionPrice,
+                resumeReviewPrice: updatedUser.resumeReviewPrice,
+                mentoringTopics: updatedUser.mentoringTopics,
+                availability: updatedUser.availability
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = { getAlumniStats, getLegacyData, updateMentoringSettings };

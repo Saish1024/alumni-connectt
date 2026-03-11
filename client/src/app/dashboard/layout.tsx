@@ -42,7 +42,7 @@ export default function DashboardLayoutWrapper({
             { icon: Users, label: 'Mentors', href: '/dashboard/mentors' },
             { icon: Briefcase, label: 'Job Portal', href: '/dashboard/jobs' },
             { icon: BookOpen, label: 'Quizzes / Tests', href: '/dashboard/tests' },
-            { icon: MessageCircle, label: 'Messages', href: '/dashboard/sessions', badge: 3 },
+            { icon: MessageCircle, label: 'My sessions', href: '/dashboard/sessions', badge: 3 },
             { icon: FileText, label: 'Resume Review', href: '/dashboard/resumes' },
             { icon: Calendar, label: 'Events', href: '/dashboard/events' },
             { icon: Star, label: 'Leaderboard', href: '/dashboard/leaderboard' },
@@ -60,6 +60,7 @@ export default function DashboardLayoutWrapper({
         ],
         faculty: [
             { icon: Home, label: 'Overview', href: '/dashboard' },
+            { icon: Users, label: 'Alumni Directory', href: '/dashboard/faculty/alumni' },
             { icon: Users, label: 'Student Performance', href: '/dashboard/students' },
             { icon: BookOpen, label: 'Mentoring Monitor', href: '/dashboard/mentoring' },
             { icon: Trophy, label: 'Competitions', href: '/dashboard/competitions' },

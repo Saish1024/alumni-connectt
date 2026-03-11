@@ -44,7 +44,7 @@ export default function SignupPage() {
 
     const [form, setForm] = useState({
         firstName: '', lastName: '', email: '', password: '', confirmPassword: '',
-        institution: '', department: '', year: '', linkedin: '', company: '', jobTitle: '', major: '',
+        institution: '', department: '', year: '', phoneNumber: '', linkedin: '', company: '', jobTitle: '', major: '',
         agree: false,
     });
 
@@ -56,7 +56,19 @@ export default function SignupPage() {
         if (!form.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) errs.email = 'Valid email required';
         if (form.password.length < 8) errs.password = 'Password must be at least 8 characters';
         if (form.password !== form.confirmPassword) errs.confirmPassword = 'Passwords do not match';
-        if (!form.year) errs.year = 'Year is required';
+        
+        // Validation for different roles
+        if (selectedRole === 'student' || selectedRole === 'alumni') {
+            if (!form.year) errs.year = 'Year is required';
+        }
+        if (!form.phoneNumber.trim()) errs.phoneNumber = 'Phone number is required';
+        if (selectedRole === 'alumni') {
+            if (!form.linkedin) errs.linkedin = 'LinkedIn link is required';
+        }
+        if (selectedRole === 'faculty') {
+            if (!form.jobTitle) errs.jobTitle = 'Designation is required';
+        }
+
         setValidationErrors(errs);
         return Object.keys(errs).length === 0;
     };
@@ -72,14 +84,16 @@ export default function SignupPage() {
                 password: form.password,
                 role: selectedRole,
                 batchYear: form.year,
+                phoneNumber: form.phoneNumber,
                 company: form.company,
                 jobTitle: form.jobTitle,
+                industry: form.institution,
+                linkedin: form.linkedin,
             });
             // Registration succeeded — show "Verification Pending" screen.
-            // Users need admin approval before they can log in.
             setStep(3);
         } catch {
-            // Error is set in AuthContext; the error banner will show it.
+            // Error handled by AuthContext
         }
     };
 
@@ -212,21 +226,41 @@ export default function SignupPage() {
                                 {validationErrors.email && <p className="text-xs text-red-400 mt-1 ml-1">{validationErrors.email}</p>}
                             </div>
 
+                            <div>
+                                <label className="block text-sm font-[600] text-white/80 mb-2">Mobile Number</label>
+                                <input
+                                    type="tel" required value={form.phoneNumber} onChange={e => setForm({ ...form, phoneNumber: e.target.value })}
+                                    placeholder="+91 98765 43210"
+                                    className="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
+                                />
+                                {validationErrors.phoneNumber && <p className="text-xs text-red-400 mt-1 ml-1">{validationErrors.phoneNumber}</p>}
+                            </div>
+
                             {selectedRole === 'alumni' && (
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-[600] text-white/80 mb-2">Company</label>
-                                        <input
-                                            value={form.company} onChange={e => setForm({ ...form, company: e.target.value })}
-                                            placeholder="Google"
-                                            className="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
-                                        />
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-[600] text-white/80 mb-2">Company</label>
+                                            <input
+                                                value={form.company} onChange={e => setForm({ ...form, company: e.target.value })}
+                                                placeholder="Google"
+                                                className="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-[600] text-white/80 mb-2">Job Title</label>
+                                            <input
+                                                value={form.jobTitle} onChange={e => setForm({ ...form, jobTitle: e.target.value })}
+                                                placeholder="Senior Engineer"
+                                                className="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
+                                            />
+                                        </div>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-[600] text-white/80 mb-2">Job Title</label>
+                                        <label className="block text-sm font-[600] text-white/80 mb-2">LinkedIn Profile</label>
                                         <input
-                                            value={form.jobTitle} onChange={e => setForm({ ...form, jobTitle: e.target.value })}
-                                            placeholder="Senior Engineer"
+                                            required value={form.linkedin} onChange={e => setForm({ ...form, linkedin: e.target.value })}
+                                            placeholder="https://linkedin.com/in/username"
                                             className="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
                                         />
                                     </div>
@@ -235,26 +269,41 @@ export default function SignupPage() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-[600] text-white/80 mb-2">Institution/Major</label>
+                                    <label className="block text-sm font-[600] text-white/80 mb-2">
+                                        {selectedRole === 'faculty' ? 'Department/Field' : 'Institution/Major'}
+                                    </label>
                                     <input
                                         required value={form.institution} onChange={e => setForm({ ...form, institution: e.target.value })}
-                                        placeholder="Computer Science"
+                                        placeholder={selectedRole === 'faculty' ? 'Computer Science Dept.' : 'Computer Science'}
                                         className="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-[600] text-white/80 mb-2">
-                                        {selectedRole === 'alumni' ? 'Grad Year' : 'Current Year'}
-                                    </label>
-                                    <select
-                                        value={form.year} onChange={e => setForm({ ...form, year: e.target.value })}
-                                        className="w-full bg-white/10 border border-white/20 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]">
-                                        <option value="" className="bg-slate-900 border-none">Select</option>
-                                        {selectedRole === 'student'
-                                            ? ['1st Year', '2nd Year', '3rd Year', '4th Year'].map(y => <option key={y} value={y} className="bg-slate-900">{y}</option>)
-                                            : ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'].map(y => <option key={y} value={y} className="bg-slate-900">{y}</option>)
-                                        }
-                                    </select>
+                                    {selectedRole === 'faculty' ? (
+                                        <>
+                                            <label className="block text-sm font-[600] text-white/80 mb-2">Designation</label>
+                                            <input
+                                                required value={form.jobTitle} onChange={e => setForm({ ...form, jobTitle: e.target.value })}
+                                                placeholder="e.g. Professor"
+                                                className="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
+                                            />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <label className="block text-sm font-[600] text-white/80 mb-2">
+                                                {selectedRole === 'alumni' ? 'Grad Year' : 'Current Year'}
+                                            </label>
+                                            <select
+                                                required value={form.year} onChange={e => setForm({ ...form, year: e.target.value })}
+                                                className="w-full bg-white/10 border border-white/20 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]">
+                                                <option value="" className="bg-slate-900 border-none">Select</option>
+                                                {selectedRole === 'student'
+                                                    ? ['1st Year', '2nd Year', '3rd Year', '4th Year'].map(y => <option key={y} value={y} className="bg-slate-900">{y}</option>)
+                                                    : ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'].map(y => <option key={y} value={y} className="bg-slate-900">{y}</option>)
+                                                }
+                                            </select>
+                                        </>
+                                    )}
                                 </div>
                             </div>
 

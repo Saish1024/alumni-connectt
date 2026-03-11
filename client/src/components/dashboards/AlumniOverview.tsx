@@ -13,19 +13,34 @@ export default function AlumniOverview() {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState<any>(null);
+    const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+    const [isSyncing, setIsSyncing] = useState(false);
+
+    const fetchStats = async (isBackground = false) => {
+        if (!isBackground) setLoading(true);
+        else setIsSyncing(true);
+        
+        try {
+            const data = await apiAlumni.getStats();
+            setStats(data);
+            setLastUpdated(new Date());
+        } catch (err) {
+            console.error('Failed to fetch alumni stats:', err);
+        } finally {
+            setLoading(false);
+            setIsSyncing(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const data = await apiAlumni.getStats();
-                setStats(data);
-            } catch (err) {
-                console.error('Failed to fetch alumni stats:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchStats();
+        
+        // Polling for live updates every 30 seconds
+        const interval = setInterval(() => {
+            fetchStats(true);
+        }, 30000);
+
+        return () => clearInterval(interval);
     }, []);
 
     const displayName = user?.name || 'Alumni Mentor';
@@ -59,9 +74,17 @@ export default function AlumniOverview() {
                         <div className="text-white/70 text-sm font-[500] mb-1">Welcome back 👋</div>
                         <h2 className="text-2xl font-[800]">{displayName}</h2>
                         <p className="text-white/80 text-sm mt-1">{roleStr} · {major} {batchYear} · {institution}</p>
-                        <div className="flex items-center gap-2 mt-3">
-                            <Star className="w-4 h-4 text-amber-300 fill-amber-300" />
-                            <span className="text-sm font-[600] text-amber-200">{topStats.avgRating.toFixed(1)} Rating · {topStats.sessionsDone} Sessions Completed</span>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3">
+                            <div className="flex items-center gap-2">
+                                <Star className="w-4 h-4 text-amber-300 fill-amber-300" />
+                                <span className="text-sm font-[600] text-amber-200">{topStats.avgRating.toFixed(1)} Rating · {topStats.sessionsDone} Sessions Completed</span>
+                            </div>
+                            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10">
+                                <div className={`w-2 h-2 rounded-full ${isSyncing ? 'bg-amber-400 animate-pulse' : 'bg-green-400 blink'}`} />
+                                <span className="text-[10px] font-[700] uppercase tracking-wider text-white/90">
+                                    {isSyncing ? 'Syncing...' : 'Live'} · {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div className="flex gap-3">

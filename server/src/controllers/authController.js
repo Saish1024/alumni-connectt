@@ -3,7 +3,7 @@ const User = require('../models/User');
 
 const register = async (req, res) => {
     try {
-        const { name, email, password, role, batchYear, company, jobTitle, industry, location, skills, bio, linkedin } = req.body;
+        const { name, email, password, role, batchYear, phoneNumber, company, jobTitle, industry, location, skills, bio, linkedin } = req.body;
 
         // Block creating admin accounts through regular registration
         if (role === 'admin') {

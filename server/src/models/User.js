@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['student', 'alumni', 'admin', 'faculty'], default: 'student' },
   profileImage: { type: String, default: '' },
   batchYear: { type: String },
+  phoneNumber: { type: String },
   company: { type: String },
   jobTitle: { type: String },
   industry: { type: String },
@@ -30,6 +31,26 @@ const userSchema = new mongoose.Schema({
       accountHolder: { type: String, default: '' }
     }
   },
+  // Mentoring Setup
+  sessionPrice: { type: Number, default: 0 },
+  resumeReviewPrice: { type: Number, default: 0 },
+  mentoringTopics: { type: [String], default: [] },
+  availability: {
+    type: Map,
+    of: [String],
+    default: {
+      'Monday': ['10:00 AM', '02:00 PM', '04:00 PM'],
+      'Tuesday': ['10:00 AM', '02:00 PM', '04:00 PM'],
+      'Wednesday': ['10:00 AM', '02:00 PM', '04:00 PM'],
+      'Thursday': ['10:00 AM', '02:00 PM', '04:00 PM'],
+      'Friday': ['10:00 AM', '02:00 PM', '04:00 PM'],
+      'Saturday': [],
+      'Sunday': []
+    }
+  },
+  // Gamification
+  totalPoints: { type: Number, default: 0 },
+  streak: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
 });
 

@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react';
-import { Search, Star, Check, X, Loader2 } from 'lucide-react';
+import { Search, Star, Check, X, Loader2, Linkedin } from 'lucide-react';
 import { users as apiUsers, events as apiEvents, admin as apiAdmin } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 
@@ -138,15 +138,28 @@ export default function MentorsPage() {
                                     {m.sessionPrice > 0 ? `₹${m.sessionPrice}` : 'Free'}
                                 </span>
                             </div>
-                            <button
-                                onClick={() => {
-                                    setBookModal(m);
-                                    setBookingDone(false);
-                                    setForm({ date: '', time: '10:00 AM', topic: '', paymentType: m.sessionPrice > 0 ? 'paid' : 'free', amount: m.sessionPrice || 0, transactionId: '' });
-                                }}
-                                className="w-full py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-[700] rounded-xl hover:scale-[1.02] transition-all shadow-md shadow-indigo-500/20">
-                                Book Session
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => {
+                                        setBookModal(m);
+                                        setBookingDone(false);
+                                        setForm({ date: '', time: '10:00 AM', topic: '', paymentType: m.sessionPrice > 0 ? 'paid' : 'free', amount: m.sessionPrice || 0, transactionId: '' });
+                                    }}
+                                    className="flex-1 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-[700] rounded-xl hover:scale-[1.02] transition-all shadow-md shadow-indigo-500/20">
+                                    Book Session
+                                </button>
+                                {m.linkedin && (
+                                    <a
+                                        href={m.linkedin}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="p-2.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded-xl hover:bg-[#0077b5] hover:text-white dark:hover:bg-[#0077b5] dark:hover:text-white transition-all flex items-center justify-center group/ln"
+                                        title="Connect on LinkedIn"
+                                    >
+                                        <Linkedin className="w-5 h-5" />
+                                    </a>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>

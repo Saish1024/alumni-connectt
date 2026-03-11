@@ -80,6 +80,8 @@ export const users = {
         }),
 
     pending: () => request<any[]>('/users/pending'),
+    getStudentStats: () => request<any>('/users/stats'),
+    getLeaderboard: () => request<any[]>('/users/leaderboard'),
 };
 
 export const admin = {
@@ -138,6 +140,8 @@ export const alumni = {
     getDonationCampaigns: () => request<any>('/donations/campaigns'),
     recordDonation: (data: { campaignId: string, amount: number, transactionId: string }) => request<any>('/donations/donate', { method: 'POST', body: JSON.stringify(data) }),
     getMyDonations: () => request<any>('/donations/my-history'),
+    getLegacyStats: () => request<any>('/alumni/legacy'),
+    updateMentoringSettings: (data: any) => request<any>('/alumni/setup', { method: 'PUT', body: JSON.stringify(data) }),
 };
 
 // ─── Events ───────────────────────────────────────────────────────────────────

@@ -21,6 +21,32 @@ exports.submitQuizAttempt = async (req, res) => {
     }
 };
 
+exports.generateQuizAttempt = async (req, res) => {
+    try {
+        const { topic, difficulty, numQ } = req.body;
+        
+        // In a real scenario, this would call an AI model (OpenAI/Google).
+        // Since we are in a limited environment, we generate structured mock questions 
+        // that feel real based on the requested topic.
+        
+        const questions = Array.from({ length: numQ || 5 }, (_, i) => ({
+            q: `Which of the following describes a core concept of ${topic || 'Computer Science'} within the context of ${difficulty || 'medium'} difficulty?`,
+            options: [
+                `A specialized ${topic} implementation pattern`,
+                `A standard ${difficulty} level approach`,
+                `The primary ${topic} optimization technique`,
+                `None of the above`
+            ],
+            correct: Math.floor(Math.random() * 3)
+        }));
+
+        res.json({ questions });
+    } catch (error) {
+        console.error('Error generating quiz:', error);
+        res.status(500).json({ error: 'Failed to generate quiz' });
+    }
+};
+
 exports.getQuizAnalytics = async (req, res) => {
     try {
         // Only faculty and admin should see overall analytics (middleware handles role check generally, but we can be specific)
