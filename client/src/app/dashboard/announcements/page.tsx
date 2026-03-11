@@ -1,3 +1,4 @@
+"use client"
 import { useEffect, useState } from 'react';
 import { Plus, Trash2, Loader2, AlertTriangle, Bell } from 'lucide-react';
 import { announcements as apiAnnouncements } from '@/lib/api';
