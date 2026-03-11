@@ -97,6 +97,7 @@ export const admin = {
     getPublicConfig: (key: string) => request<any>(`/payouts/platform/config/${key}`),
     getDashboardAnalytics: () => request<any>('/analytics/dashboard'),
     getRevenueAnalytics: () => request<any>('/analytics/revenue'),
+    createDonationCampaign: (data: any) => request<any>('/donations/admin/campaigns', { method: 'POST', body: JSON.stringify(data) }),
 };
 
 export const upload = {
@@ -134,6 +135,9 @@ export const alumni = {
     getEarnings: () => request<any>('/payouts/earnings'),
     requestPayout: (data: { amount: number, method?: any }) => request<any>('/payouts/request', { method: 'POST', body: JSON.stringify(data) }),
     updatePaymentSettings: (data: any) => request<any>('/payouts/settings', { method: 'PUT', body: JSON.stringify(data) }),
+    getDonationCampaigns: () => request<any>('/donations/campaigns'),
+    recordDonation: (data: { campaignId: string, amount: number, transactionId: string }) => request<any>('/donations/donate', { method: 'POST', body: JSON.stringify(data) }),
+    getMyDonations: () => request<any>('/donations/my-history'),
 };
 
 // ─── Events ───────────────────────────────────────────────────────────────────
