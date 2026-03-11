@@ -128,7 +128,7 @@ export default function StatsReputationPage() {
                                 <div className="flex items-baseline justify-between mb-2">
                                     <h4 className="text-2xl font-serif dark:font-[Inter] font-[900] text-slate-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-indigo-400 transition-colors">
                                         {h.title}
-                                    </h1>
+                                    </h4>
                                     <span className="text-sm font-[800] text-amber-600/50 dark:text-indigo-500/50 tabular-nums">{h.year}</span>
                                 </div>
                                 <p className="text-slate-600 dark:text-slate-400 font-serif dark:font-[Inter] text-lg leading-[1.6]">

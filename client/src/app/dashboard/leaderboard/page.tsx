@@ -1,3 +1,4 @@
+"use client"
 import { useEffect, useState, useRef } from 'react';
 import { Flame, Loader2, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
