@@ -36,7 +36,7 @@ export default function FacultyAlumniDirectory() {
     const fetchAlumni = async () => {
         try {
             setLoading(true);
-            const data = await users.getUsers({ 
+            const data = await users.list({ 
                 role: 'alumni', 
                 search: search || undefined,
                 industry: filterIndustry || undefined

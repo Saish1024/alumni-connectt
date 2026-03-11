@@ -1,3 +1,4 @@
+const express = require('express');
 const { getAlumniStats, getLegacyData, updateMentoringSettings } = require('../controllers/alumniController');
 const { auth, checkRole } = require('../middleware/auth');
 const router = express.Router();
