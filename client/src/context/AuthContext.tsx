@@ -17,6 +17,11 @@ interface User {
     institution?: string
     location?: string
     phoneNumber?: string
+    bio?: string
+    linkedin?: string
+    skills?: string[]
+    averageRating?: number
+    ratingCount?: number
     paymentInfo?: {
         upiId: string
         bankDetails: {
