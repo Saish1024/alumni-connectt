@@ -12,7 +12,7 @@ export default function MentorsPage() {
     const [bookModal, setBookModal] = useState<null | any>(null);
     const [bookingDone, setBookingDone] = useState(false);
     const [submitting, setSubmitting] = useState(false);
-    const [form, setForm] = useState({ date: '', time: '10:00 AM', topic: '' });
+    const [form, setForm] = useState({ date: '', time: '10:00 AM', topic: '', paymentType: 'free', amount: 0, transactionId: '' });
     const router = useRouter();
 
     useEffect(() => {

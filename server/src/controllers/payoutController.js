@@ -14,7 +14,31 @@ exports.getEarnings = async (req, res) => {
             paymentType: 'paid',
             studentPaymentStatus: 'received'
         }).populate('attendees', 'name email');
-// ... (rest of the code)
+
+        const totalEarned = earningsHistory.reduce((sum, session) => sum + (session.amount || 0), 0);
+
+        // 2. All payout requests
+        const payoutHistory = await Payout.find({ alumni: alumniId }).sort({ createdAt: -1 });
+        
+        const totalWithdrawn = payoutHistory
+            .filter(p => ['completed', 'pending'].includes(p.status))
+            .reduce((sum, p) => sum + p.amount, 0);
+
+        const currentBalance = totalEarned - totalWithdrawn;
+
+        res.json({
+            summary: {
+                totalEarned,
+                totalWithdrawn,
+                currentBalance
+            },
+            earningsHistory,
+            payoutHistory
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 
 // Admin: Confirm student payment for a session
 exports.confirmStudentPayment = async (req, res) => {
@@ -39,31 +63,6 @@ exports.getInboundPayments = async (req, res) => {
             .populate('attendees', 'name email')
             .sort({ createdAt: -1 });
         res.json(sessions);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-        const totalEarned = earningsHistory.reduce((sum, session) => sum + (session.amount || 0), 0);
-
-        // 2. All payout requests
-        const payoutHistory = await Payout.find({ alumni: alumniId }).sort({ createdAt: -1 });
-        
-        const totalWithdrawn = payoutHistory
-            .filter(p => ['completed', 'pending'].includes(p.status))
-            .reduce((sum, p) => sum + p.amount, 0);
-
-        const currentBalance = totalEarned - totalWithdrawn;
-
-        res.json({
-            summary: {
-                totalEarned,
-                totalWithdrawn,
-                currentBalance
-            },
-            earningsHistory,
-            payoutHistory
-        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
