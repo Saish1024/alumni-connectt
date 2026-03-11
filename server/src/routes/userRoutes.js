@@ -7,7 +7,8 @@ const {
     deleteUser,
     getPendingUsers,
     adminUpdateUser,
-    getStudentStats
+    getStudentStats,
+    getLeaderboard
 } = require('../controllers/userController');
 const { auth, checkRole } = require('../middleware/auth');
 

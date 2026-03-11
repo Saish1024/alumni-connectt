@@ -31,7 +31,71 @@ const getUsers = async (req, res) => {
     }
 };
 
-// ... (other functions)
+// GET /api/users/:id - get single user
+const getUserById = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id).select('-password');
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// PUT /api/users/profile - update current user profile
+const updateProfile = async (req, res) => {
+    try {
+        const updates = req.body;
+        // Prevent role/approval changes via this route
+        delete updates.role;
+        delete updates.isApproved;
+
+        const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true }).select('-password');
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// GET /api/users/pending - get users awaiting approval (Admin only)
+const getPendingUsers = async (req, res) => {
+    try {
+        const users = await User.find({ isApproved: false }).select('-password').sort({ createdAt: -1 });
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// PUT /api/users/:id/approve - approve a user (Admin only)
+const approveUser = async (req, res) => {
+    try {
+        const user = await User.findByIdAndUpdate(req.params.id, { isApproved: true }, { new: true });
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// DELETE /api/users/:id - delete a user (Admin only)
+const deleteUser = async (req, res) => {
+    try {
+        await User.findByIdAndDelete(req.params.id);
+        res.status(200).json({ message: 'User deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// PUT /api/users/:id - update any user (Admin only)
+const adminUpdateUser = async (req, res) => {
+    try {
+        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true }).select('-password');
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 
 // GET /api/users/student-stats - get stats for student dashboard
 const getStudentStats = async (req, res) => {
