@@ -79,12 +79,7 @@ const features = [
     },
 ];
 
-const stats = [
-    { value: '50K+', label: 'Students', icon: Users },
-    { value: '12K+', label: 'Alumni', icon: GraduationCap },
-    { value: '5K+', label: 'Mentors', icon: Heart },
-    { value: '98%', label: 'Satisfaction', icon: Star },
-];
+// Stat definition removed
 
 const testimonials = [
     {
@@ -240,20 +235,9 @@ export default function Landing() {
                                 className="px-8 py-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-[700] shadow-2xl shadow-indigo-500/40 hover:shadow-indigo-500/60 hover:scale-105 transition-all flex items-center justify-center gap-2">
                                 Get Started Free <ArrowRight className="w-5 h-5" />
                             </button>
-                            <button className="px-8 py-4 bg-white/10 border border-white/20 backdrop-blur-sm text-white rounded-xl font-[600] hover:bg-white/20 transition-all flex items-center justify-center gap-2">
-                                <Play className="w-5 h-5 fill-white" /> Watch Demo
-                            </button>
                         </div>
 
-                        {/* Stats row */}
-                        <div className="flex flex-wrap gap-6 mt-12 justify-center lg:justify-start">
-                            {stats.map(({ value, label, icon: Icon }) => (
-                                <div key={label} className="text-center">
-                                    <div className="text-2xl font-[800] text-white">{value}</div>
-                                    <div className="text-sm text-slate-400 font-[500]">{label}</div>
-                                </div>
-                            ))}
-                        </div>
+                        {/* Stats removed */}
                     </div>
 
                     {/* Hero Visual */}
@@ -412,7 +396,7 @@ export default function Landing() {
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djZoNnYtNmgtNnptMCAwdi02aC02djZoNnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-50" />
                 <div className="relative max-w-4xl mx-auto text-center px-4">
                     <h2 className="text-4xl md:text-6xl font-[900] text-white mb-6">Ready to Transform Your Career?</h2>
-                    <p className="text-xl text-white/80 mb-10">Join 50,000+ students and alumni already using Alumni Connect to build their dream careers.</p>
+                    <p className="text-xl text-white/80 mb-10">Join a thriving network of students and alumni dedicated to career excellence and lifelong learning.</p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <button
                             onClick={() => router.push('/signup')}
@@ -425,11 +409,7 @@ export default function Landing() {
                             Sign In
                         </button>
                     </div>
-                    <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-white/70 text-sm">
-                        <span className="flex items-center gap-2"><Check className="w-4 h-4 text-white" /> No credit card required</span>
-                        <span className="flex items-center gap-2"><Check className="w-4 h-4 text-white" /> Free plan available</span>
-                        <span className="flex items-center gap-2"><Check className="w-4 h-4 text-white" /> Cancel anytime</span>
-                    </div>
+                    {/* Benefit labels removed */}
                 </div>
             </section>
 
