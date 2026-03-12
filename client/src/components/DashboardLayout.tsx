@@ -231,7 +231,9 @@ export default function DashboardLayout({
                                                 className={`px-4 py-3 border-b border-slate-100 dark:border-slate-700/50 last:border-0 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all ${!n.read ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : ''}`}
                                             >
                                                 <p className="text-sm text-slate-700 dark:text-slate-300">{n.text}</p>
-                                                <p className="text-xs text-slate-400 mt-1">{new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                <p className="text-xs text-slate-400 mt-1">
+                                                    {n.createdAt ? new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recently'}
+                                                </p>
                                             </div>
                                         )) : (
                                             <div className="px-4 py-8 text-center text-slate-400 text-sm">No notifications</div>

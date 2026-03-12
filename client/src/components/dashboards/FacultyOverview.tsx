@@ -271,7 +271,7 @@ export default function FacultyOverview() {
                                         <td className="px-6 py-3">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white font-[700] text-sm">
-                                                    {s.name.charAt(0)}
+                                                    {(s.name || 'S').charAt(0)}
                                                 </div>
                                                 <div>
                                                     <div className="font-[600] text-sm text-slate-900 dark:text-white">{s.name}</div>
