@@ -1,6 +1,39 @@
 const User = require('../models/User');
 const Event = require('../models/Event');
 const QuizAttempt = require('../models/QuizAttempt');
+const SessionRequest = require('../models/SessionRequest');
+
+exports.createSessionRequest = async (req, res) => {
+    try {
+        const { topic, description } = req.body;
+        const facultyId = req.user.id;
+
+        const request = new SessionRequest({
+            faculty: facultyId,
+            topic,
+            description
+        });
+
+        await request.save();
+        res.status(201).json({ message: 'Session request created successfully', request });
+    } catch (error) {
+        console.error('Error creating session request:', error);
+        res.status(500).json({ error: 'Server error while creating session request' });
+    }
+};
+
+exports.getMySessionRequests = async (req, res) => {
+    try {
+        const facultyId = req.user.id;
+        const requests = await SessionRequest.find({ faculty: facultyId })
+            .populate('acceptingAlumni', 'name email profileImage')
+            .sort({ createdAt: -1 });
+        res.json(requests);
+    } catch (error) {
+        console.error('Error fetching session requests:', error);
+        res.status(500).json({ error: 'Server error while fetching session requests' });
+    }
+};
 
 exports.getDashboardStats = async (req, res) => {
     try {

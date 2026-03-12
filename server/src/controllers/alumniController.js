@@ -1,7 +1,59 @@
 const Event = require('../models/Event');
 const User = require('../models/User');
 const ResumeReview = require('../models/ResumeReview');
+const SessionRequest = require('../models/SessionRequest');
 const mongoose = require('mongoose');
+
+const getAvailableSessionRequests = async (req, res) => {
+    try {
+        const requests = await SessionRequest.find({ status: 'pending' })
+            .populate('faculty', 'name email profileImage')
+            .sort({ createdAt: -1 });
+        res.json(requests);
+    } catch (error) {
+        console.error('Error fetching available session requests:', error);
+        res.status(500).json({ error: 'Server error while fetching available session requests' });
+    }
+};
+
+const acceptSessionRequest = async (req, res) => {
+    try {
+        const { requestId, scheduledDate } = req.body;
+        const alumniId = req.user._id;
+
+        const request = await SessionRequest.findById(requestId).populate('faculty', 'name');
+        if (!request) return res.status(404).json({ error: 'Session request not found' });
+        if (request.status !== 'pending') return res.status(400).json({ error: 'Session request already accepted or cancelled' });
+
+        // Generate mock link for now (matching eventController logic if no tokens)
+        const meetLink = `https://meet.google.com/session-${Math.random().toString(36).substring(2, 10)}`;
+
+        request.status = 'accepted';
+        request.acceptingAlumni = alumniId;
+        request.scheduledDate = scheduledDate || new Date(Date.now() + 86400000); // Default to tomorrow
+        request.meetingLink = meetLink;
+        await request.save();
+
+        // Create an Event so it shows up in dashboards
+        const event = new Event({
+            title: `Session: ${request.topic}`,
+            description: `Faculty requested session by ${request.faculty.name}. Topic: ${request.description}`,
+            date: request.scheduledDate.toISOString().split('T')[0],
+            time: "10:00", // Default time
+            type: 'session',
+            category: 'Mentoring',
+            organizer: alumniId,
+            meetLink,
+            status: 'upcoming'
+        });
+        await event.save();
+
+        res.json({ message: 'Session request accepted successfully', request, event });
+    } catch (error) {
+        console.error('Error accepting session request:', error);
+        res.status(500).json({ error: 'Server error while accepting session request' });
+    }
+};
 
 const getAlumniStats = async (req, res) => {
     try {

@@ -142,6 +142,22 @@ export const alumni = {
     getMyDonations: () => request<any>('/donations/my-history'),
     getLegacyStats: () => request<any>('/alumni/legacy'),
     updateMentoringSettings: (data: any) => request<any>('/alumni/setup', { method: 'PUT', body: JSON.stringify(data) }),
+    getAvailableSessionRequests: () => request<any[]>('/alumni/requests/available'),
+    acceptSessionRequest: (requestId: string, scheduledDate?: string) =>
+        request<any>('/alumni/requests/accept', {
+            method: 'POST',
+            body: JSON.stringify({ requestId, scheduledDate }),
+        }),
+};
+
+export const faculty = {
+    getStats: () => request<any>('/faculty/stats'),
+    fetchSessionRequests: () => request<any[]>('/faculty/requests'),
+    createSessionRequest: (topic: string, description: string) =>
+        request<any>('/faculty/requests', {
+            method: 'POST',
+            body: JSON.stringify({ topic, description }),
+        }),
 };
 
 // ─── Events ───────────────────────────────────────────────────────────────────
