@@ -185,14 +185,18 @@ export default function FacultyAlumniDirectory() {
 
                                 {/* Contact Details */}
                                 <div className="mt-4 space-y-2">
-                                    <div className="flex items-center justify-between text-[11px] p-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors group/link">
-                                        <span className="text-slate-400 font-bold flex items-center gap-1.5"><Mail className="w-3 h-3" /> EMAIL</span>
-                                        <span className="text-slate-700 dark:text-slate-300 font-black truncate max-w-[140px] select-all tracking-tight">{person.email}</span>
+                                    <div className="flex items-center justify-between text-[11px] p-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors group/link overflow-hidden">
+                                        <span className="text-slate-400 font-bold flex items-center gap-1.5 flex-shrink-0 mr-4"><Mail className="w-3 h-3" /> EMAIL</span>
+                                        <div className="flex-1 overflow-x-auto scrollbar-hide text-right">
+                                            <span className="text-slate-700 dark:text-slate-300 font-black whitespace-nowrap select-all tracking-tight">{person.email}</span>
+                                        </div>
                                     </div>
                                     {person.phoneNumber && (
-                                        <div className="flex items-center justify-between text-[11px] p-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors">
-                                            <span className="text-slate-400 font-bold flex items-center gap-1.5"><Phone className="w-3 h-3" /> PHONE</span>
-                                            <span className="text-slate-700 dark:text-slate-300 font-black select-all tracking-tight">{person.phoneNumber}</span>
+                                        <div className="flex items-center justify-between text-[11px] p-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors overflow-hidden">
+                                            <span className="text-slate-400 font-bold flex items-center gap-1.5 flex-shrink-0 mr-4"><Phone className="w-3 h-3" /> PHONE</span>
+                                            <div className="flex-1 overflow-x-auto scrollbar-hide text-right">
+                                                <span className="text-slate-700 dark:text-slate-300 font-black whitespace-nowrap select-all tracking-tight">{person.phoneNumber}</span>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -206,11 +210,11 @@ export default function FacultyAlumniDirectory() {
                                             className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-[#0077b5] hover:bg-[#0077b5]/90 text-white text-[11px] font-black rounded-xl transition-all shadow-lg shadow-[#0077b5]/20 uppercase tracking-widest"
                                         >
                                             <Linkedin className="w-4 h-4" />
-                                            LinkedIn
+                                            Connect on LinkedIn
                                         </a>
                                     ) : (
                                         <div className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-400 text-[11px] font-black rounded-xl uppercase tracking-widest cursor-not-allowed">
-                                            No Profile
+                                            No LinkedIn
                                         </div>
                                     )}
                                     <button className="p-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-indigo-600 hover:text-white transition-all rounded-xl shadow-sm">
