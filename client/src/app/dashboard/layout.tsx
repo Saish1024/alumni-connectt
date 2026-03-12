@@ -15,6 +15,7 @@ export default function DashboardLayoutWrapper({
     const { user, isLoading } = useAuth();
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
+    const [notificationsList, setNotificationsList] = useState<any[]>([]);
 
     useEffect(() => {
         setMounted(true);
@@ -25,6 +26,31 @@ export default function DashboardLayoutWrapper({
             router.push('/login');
         }
     }, [user, isLoading, mounted, router]);
+
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/notifications`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('alumni_token')}` }
+                });
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    setNotificationsList(data);
+                } else if (!data.error) {
+                    // Handle case where it might be a single object or wrapped
+                    setNotificationsList([]);
+                }
+            } catch (err) {
+                console.error('Failed to fetch notifications:', err);
+            }
+        };
+
+        if (user) {
+            fetchNotifications();
+            const interval = setInterval(fetchNotifications, 60000); // Poll every minute
+            return () => clearInterval(interval);
+        }
+    }, [user]);
 
     // Prevent hydration mismatch or layout flashing before auth is checked
     if (!mounted || isLoading || !user) {
@@ -81,32 +107,6 @@ export default function DashboardLayoutWrapper({
     };
 
     const roleNavItems = navItemsMap[user.role] || navItemsMap.student;
-    const [notificationsList, setNotificationsList] = useState<any[]>([]);
-
-    useEffect(() => {
-        const fetchNotifications = async () => {
-            try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/notifications`, {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('alumni_token')}` }
-                });
-                const data = await res.json();
-                if (Array.isArray(data)) {
-                    setNotificationsList(data);
-                } else if (!data.error) {
-                    // Handle case where it might be a single object or wrapped
-                    setNotificationsList([]);
-                }
-            } catch (err) {
-                console.error('Failed to fetch notifications:', err);
-            }
-        };
-
-        if (user) {
-            fetchNotifications();
-            const interval = setInterval(fetchNotifications, 60000); // Poll every minute
-            return () => clearInterval(interval);
-        }
-    }, [user]);
 
     return (
         <DashboardLayout navItems={roleNavItems} notifications={notificationsList}>
