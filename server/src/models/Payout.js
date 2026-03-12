@@ -17,7 +17,13 @@ const payoutSchema = new mongoose.Schema({
     },
     paymentMethod: {
         type: { type: String, enum: ['UPI', 'Bank Transfer'], default: 'UPI' },
-        details: { type: String } // e.g. the UPI ID used at the time of request
+        details: { type: String }, // For UPI ID
+        bankDetails: {
+            accountHolder: { type: String },
+            accountNumber: { type: String },
+            ifscCode: { type: String },
+            bankName: { type: String }
+        }
     },
     processedAt: {
         type: Date

@@ -13,6 +13,12 @@ export default function EarningsPage() {
     const [upiId, setUpiId] = useState('');
     const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
     const [isRequesting, setIsRequesting] = useState(false);
+    const [bankDetails, setBankDetails] = useState({
+        accountNumber: '',
+        ifscCode: '',
+        bankName: '',
+        accountHolder: ''
+    });
     const [message, setMessage] = useState({ text: '', type: '' });
 
     const fetchData = async () => {
@@ -20,6 +26,12 @@ export default function EarningsPage() {
             const res = await apiAlumni.getEarnings();
             setData(res);
             setUpiId(user?.paymentInfo?.upiId || '');
+            setBankDetails(user?.paymentInfo?.bankDetails || {
+                accountNumber: '',
+                ifscCode: '',
+                bankName: '',
+                accountHolder: ''
+            });
         } catch (err) {
             console.error('Failed to fetch earnings:', err);
         } finally {
@@ -35,7 +47,10 @@ export default function EarningsPage() {
         e.preventDefault();
         setIsUpdatingSettings(true);
         try {
-            await apiAlumni.updatePaymentSettings({ upiId });
+            await apiAlumni.updatePaymentSettings({ 
+                upiId,
+                bankDetails
+            });
             setMessage({ text: 'Payment settings updated!', type: 'success' });
             setTimeout(() => setMessage({ text: '', type: '' }), 3000);
         } catch (err: any) {
@@ -266,22 +281,59 @@ export default function EarningsPage() {
                         </h3>
                         <form onSubmit={handleUpdateSettings} className="space-y-4">
                             <div>
-                                <label className="text-xs font-[600] text-slate-500 mb-1.5 block ml-1">UPI ID (Preferred)</label>
+                                <label className="text-xs font-[600] text-slate-500 mb-1.5 block ml-1">UPI ID</label>
                                 <input
                                     type="text"
                                     value={upiId}
                                     onChange={(e) => setUpiId(e.target.value)}
                                     placeholder="yourname@okaxis"
-                                    className="w-full h-12 px-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 focus:border-indigo-500 outline-none font-[600] text-sm transition-all"
+                                    className="w-full h-11 px-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 focus:border-indigo-500 outline-none font-[600] text-sm transition-all"
                                 />
                             </div>
+
+                            <div className="pt-2 border-t border-slate-100 dark:border-slate-700/50">
+                                <label className="text-[10px] font-[800] text-slate-400 uppercase tracking-widest mb-3 block ml-1">Bank Account Details</label>
+                                <div className="space-y-3">
+                                    <input
+                                        type="text"
+                                        value={bankDetails.accountHolder}
+                                        onChange={(e) => setBankDetails({...bankDetails, accountHolder: e.target.value})}
+                                        placeholder="Account Holder Name"
+                                        className="w-full h-10 px-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 focus:border-indigo-500 outline-none text-xs transition-all"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={bankDetails.accountNumber}
+                                        onChange={(e) => setBankDetails({...bankDetails, accountNumber: e.target.value})}
+                                        placeholder="Account Number"
+                                        className="w-full h-10 px-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 focus:border-indigo-500 outline-none text-xs transition-all"
+                                    />
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <input
+                                            type="text"
+                                            value={bankDetails.ifscCode}
+                                            onChange={(e) => setBankDetails({...bankDetails, ifscCode: e.target.value})}
+                                            placeholder="IFSC Code"
+                                            className="w-full h-10 px-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 focus:border-indigo-500 outline-none text-xs transition-all"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={bankDetails.bankName}
+                                            onChange={(e) => setBankDetails({...bankDetails, bankName: e.target.value})}
+                                            placeholder="Bank Name"
+                                            className="w-full h-10 px-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 focus:border-indigo-500 outline-none text-xs transition-all"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
                             <Button 
                                 type="submit" 
                                 variant="outline"
                                 className="w-full h-11 border-slate-200 text-slate-700 hover:bg-slate-50"
                                 disabled={isUpdatingSettings}
                             >
-                                {isUpdatingSettings ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Changes"}
+                                {isUpdatingSettings ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save Payment Details"}
                             </Button>
                         </form>
                         <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl">

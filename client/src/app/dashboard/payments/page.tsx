@@ -259,8 +259,17 @@ export default function PaymentsPage() {
                                             ₹{payout.amount.toLocaleString()}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="text-xs font-[600] text-slate-700 dark:text-slate-300">{payout.paymentMethod?.type}</div>
-                                            <div className="text-[10px] text-slate-500 italic">{payout.paymentMethod?.details}</div>
+                                            <div className="text-xs font-[700] text-slate-800 dark:text-slate-200">{payout.paymentMethod?.type}</div>
+                                            {payout.paymentMethod?.type === 'UPI' ? (
+                                                <div className="text-[10px] text-indigo-500 font-mono mt-0.5">{payout.paymentMethod?.details}</div>
+                                            ) : (
+                                                <div className="mt-1.5 p-2 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-100 dark:border-slate-700/50 space-y-1">
+                                                    <div className="flex justify-between text-[9px]"><span className="text-slate-400">Name:</span> <span className="font-bold text-slate-700 dark:text-slate-300">{payout.paymentMethod?.bankDetails?.accountHolder}</span></div>
+                                                    <div className="flex justify-between text-[9px]"><span className="text-slate-400">A/C:</span> <span className="font-bold text-slate-700 dark:text-slate-300">{payout.paymentMethod?.bankDetails?.accountNumber}</span></div>
+                                                    <div className="flex justify-between text-[9px]"><span className="text-slate-400">IFSC:</span> <span className="font-bold text-slate-700 dark:text-slate-300">{payout.paymentMethod?.bankDetails?.ifscCode}</span></div>
+                                                    <div className="flex justify-between text-[9px]"><span className="text-slate-400">Bank:</span> <span className="font-bold text-slate-700 dark:text-slate-300">{payout.paymentMethod?.bankDetails?.bankName}</span></div>
+                                                </div>
+                                            )}
                                         </td>
                                         <td className="px-6 py-4 text-xs text-slate-500">
                                             {new Date(payout.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}

@@ -1,7 +1,7 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import { Heart, X, IndianRupee, Loader2, Calendar, Users, TrendingUp } from 'lucide-react';
-import { alumni as apiAlumni } from '@/lib/api';
+import { Heart, X, IndianRupee, Loader2, Calendar, Users, TrendingUp, Copy, CheckCircle2 } from 'lucide-react';
+import { alumni as apiAlumni, admin as apiAdmin } from '@/lib/api';
 
 export default function DonationsPage() {
     const [campaigns, setCampaigns] = useState<any[]>([]);
@@ -13,6 +13,8 @@ export default function DonationsPage() {
     const [transactionId, setTransactionId] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [donationDone, setDonationDone] = useState(false);
+    const [platformConfig, setPlatformConfig] = useState<any>({});
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -27,6 +29,20 @@ export default function DonationsPage() {
             ]);
             setCampaigns(cRez);
             setHistory(hRez);
+
+            // Fetch platform configs for payment
+            try {
+                const [upi, bank] = await Promise.all([
+                    apiAdmin.getPublicConfig('platform_upi_id'),
+                    apiAdmin.getPublicConfig('platform_bank_details')
+                ]);
+                setPlatformConfig({
+                    upiId: upi?.value || '',
+                    bankDetails: bank?.value || {}
+                });
+            } catch (cfgErr) {
+                console.warn('Could not fetch payment config:', cfgErr);
+            }
         } catch (err) {
             console.error('Failed to fetch donation data:', err);
         } finally {
@@ -237,13 +253,63 @@ export default function DonationsPage() {
                                     </button>
                                 </div>
 
-                                <div className={`p-5 bg-gradient-to-br ${donateModal === 'general' ? 'from-slate-700 to-slate-900' : (donateModal.color || 'from-indigo-500 to-purple-600')} rounded-2xl mb-6 text-white shadow-inner relative overflow-hidden`}>
+                                 <div className={`p-5 bg-gradient-to-br ${donateModal === 'general' ? 'from-slate-700 to-slate-900' : (donateModal.color || 'from-indigo-500 to-purple-600')} rounded-2xl mb-6 text-white shadow-inner relative overflow-hidden`}>
                                     <Heart className="absolute -right-4 -bottom-4 w-20 h-20 opacity-20 rotate-12" />
                                     <div className="text-2xl mb-1">{donateModal === 'general' ? '🏛️' : (donateModal.icon || '🎓')}</div>
                                     <p className="font-[800] text-base leading-tight">{donateModal === 'general' ? 'General College Fund' : donateModal.title}</p>
                                 </div>
 
-                                <div className="space-y-5">
+                                <div className="space-y-5 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                                    {/* Payment Details Section */}
+                                    <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <span className="text-[10px] font-[800] text-slate-400 uppercase tracking-widest">Payment Instructions</span>
+                                            <div className="flex items-center gap-1 px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 rounded-full">
+                                                <div className="w-1 h-1 bg-indigo-500 rounded-full animate-pulse" />
+                                                <span className="text-[9px] font-[800] text-indigo-500 uppercase">Direct Hub</span>
+                                            </div>
+                                        </div>
+
+                                        {platformConfig.upiId && (
+                                            <div className="mb-4">
+                                                <p className="text-[10px] text-slate-400 font-bold mb-1.5 ml-1">ADMIN UPI ID</p>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="flex-grow bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700 font-mono text-xs text-slate-600 dark:text-slate-300 select-all overflow-hidden text-ellipsis">
+                                                        {platformConfig.upiId}
+                                                    </div>
+                                                    <button 
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(platformConfig.upiId);
+                                                            setCopied(true);
+                                                            setTimeout(() => setCopied(false), 2000);
+                                                        }}
+                                                        className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 hover:bg-slate-50 transition-colors">
+                                                        {copied ? <CheckCircle2 className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-slate-400" />}
+                                                    </button>
+                                                </div>
+                                                
+                                                <a 
+                                                    href={`upi://pay?pa=${platformConfig.upiId}&pn=AlumniConnect&am=${amount}&cu=INR`}
+                                                    className="w-full mt-3 py-3 bg-[#4285F4] text-white rounded-xl flex items-center justify-center gap-2 text-xs font-[800] hover:opacity-95 transition-opacity shadow-sm">
+                                                    <img src="https://www.gstatic.com/images/branding/product/1x/gpay_32dp.png" alt="GPay" className="w-4 h-4" />
+                                                    Pay via UPI / GPay
+                                                </a>
+                                            </div>
+                                        )}
+
+                                        {platformConfig.bankDetails?.accountNo && (
+                                            <div className="pt-3 border-t border-slate-200/50 dark:border-slate-700/50">
+                                                <p className="text-[10px] text-slate-400 font-bold mb-2 ml-1">BANK TRANSFER</p>
+                                                <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400 font-[500] bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-100 dark:border-slate-700">
+                                                    <div className="flex justify-between"><span className="opacity-60">Bank:</span> <span className="text-slate-900 dark:text-white font-bold">{platformConfig.bankDetails.bankName}</span></div>
+                                                    <div className="flex justify-between"><span className="opacity-60">A/C Name:</span> <span className="text-slate-900 dark:text-white font-bold">{platformConfig.bankDetails.accountName}</span></div>
+                                                    <div className="flex justify-between"><span className="opacity-60">A/C No:</span> <span className="text-slate-900 dark:text-white font-bold">{platformConfig.bankDetails.accountNo}</span></div>
+                                                    <div className="flex justify-between"><span className="opacity-60">IFSC:</span> <span className="text-slate-900 dark:text-white font-bold">{platformConfig.bankDetails.ifscCode}</span></div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
                                     <div>
                                         <label className="block text-xs font-[800] text-slate-400 uppercase tracking-widest mb-2">Select Amount</label>
                                         <div className="grid grid-cols-4 gap-2">
@@ -270,15 +336,15 @@ export default function DonationsPage() {
                                         <input value={transactionId} onChange={e => setTransactionId(e.target.value)} placeholder="e.g. UPI Ref, Bank Txn ID"
                                             className="w-full bg-slate-50 dark:bg-slate-900/50 border-2 border-slate-100 dark:border-slate-700 text-slate-900 dark:text-white font-[600] rounded-2xl px-4 py-3 focus:outline-none focus:border-indigo-500 transition-all text-sm" />
                                         <p className="text-[10px] text-slate-400 mt-2 flex items-center gap-1">
-                                            <TrendingUp className="w-3 h-3" /> Transferred to college UPI/Bank account? Enter ID here.
+                                            <TrendingUp className="w-3 h-3" /> Transferred? Enter the Ref ID above to notify Admin.
                                         </p>
                                     </div>
 
                                     <button
                                         onClick={handleDonate}
                                         disabled={submitting || !amount || !transactionId}
-                                        className={`w-full mt-2 py-4 bg-gradient-to-r ${donateModal.color || 'from-indigo-500 to-purple-600'} text-white font-[800] rounded-2xl hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:pointer-events-none transition-all shadow-xl flex items-center justify-center gap-2 text-base`}>
-                                        {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Heart className="w-5 h-5 fill-white" /> Contribute ₹{amount}</>}
+                                        className={`w-full py-4 bg-gradient-to-r ${donateModal === 'general' ? 'from-slate-700 to-slate-900' : (donateModal.color || 'from-indigo-500 to-purple-600')} text-white font-[800] rounded-2xl hover:opacity-90 active:scale-95 disabled:opacity-50 disabled:pointer-events-none transition-all shadow-xl flex items-center justify-center gap-2 text-base`}>
+                                        {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Heart className="w-5 h-5 fill-white" /> Request Verification</>}
                                     </button>
                                 </div>
                             </>

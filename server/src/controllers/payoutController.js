@@ -93,7 +93,13 @@ exports.requestPayout = async (req, res) => {
         }
 
         const user = await User.findById(alumniId);
-        const payoutMethod = method || { type: 'UPI', details: user.paymentInfo.upiId };
+        
+        // Define the payment method details based on what the user chose or their default profile settings
+        const payoutMethod = method || { 
+            type: user.paymentInfo?.upiId ? 'UPI' : 'Bank Transfer', 
+            details: user.paymentInfo?.upiId || '',
+            bankDetails: user.paymentInfo?.bankDetails || {}
+        };
 
         const payout = new Payout({
             alumni: alumniId,
