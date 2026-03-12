@@ -118,7 +118,7 @@ exports.getQuizLeaderboard = async (req, res) => {
                     _id: "$studentId",
                     totalScore: { $sum: "$score" },
                     quizzesTaken: { $sum: 1 },
-                    avgPercentage: { $avg: { $multiply: [{ $divide: ["$score", "$totalQuestions"] }, 100] } }
+                    avgPercentage: { $avg: { $multiply: [{ $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] }, 100] } }
                 }
             },
             {
@@ -157,7 +157,7 @@ exports.getPerformanceGaps = async (req, res) => {
             {
                 $project: {
                     topic: 1,
-                    percentage: { $multiply: [{ $divide: ["$score", "$totalQuestions"] }, 100] }
+                    percentage: { $multiply: [{ $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] }, 100] }
                 }
             },
             {

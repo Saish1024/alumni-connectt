@@ -22,7 +22,7 @@ exports.getDashboardStats = async (req, res) => {
             {
                 $group: {
                     _id: null,
-                    avgScore: { $avg: { $divide: ["$score", "$totalQuestions"] } }
+                    avgScore: { $avg: { $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] } }
                 }
             }
         ]);
@@ -43,7 +43,7 @@ exports.getDashboardStats = async (req, res) => {
             {
                 $group: {
                     _id: { $month: "$createdAt" },
-                    avg: { $avg: { $divide: ["$score", "$totalQuestions"] } },
+                    avg: { $avg: { $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] } },
                     month: { $first: { $dateToString: { format: "%b", date: "$createdAt" } } },
                     date: { $first: "$createdAt" }
                 }
@@ -62,7 +62,7 @@ exports.getDashboardStats = async (req, res) => {
             {
                 $group: {
                     _id: "$studentId",
-                    avgScore: { $avg: { $divide: ["$score", "$totalQuestions"] } },
+                    avgScore: { $avg: { $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] } },
                     totalQuizzes: { $sum: 1 }
                 }
             },

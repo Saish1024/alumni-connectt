@@ -31,6 +31,10 @@ async function seed() {
         const User = mongoose.model('User', UserSchema);
         const QuizAttempt = mongoose.model('QuizAttempt', QuizAttemptSchema);
 
+        // Clear existing quiz attempts to avoid mixed data
+        await QuizAttempt.deleteMany({});
+        console.log('Cleared existing quiz attempts.');
+
         // 1. Find some students
         const students = await User.find({ role: 'student' }).limit(5);
         if (students.length === 0) {
@@ -51,9 +55,9 @@ async function seed() {
                 // Create some gaps (low scores) in 'Algorithms' and 'Machine Learning'
                 let score;
                 if (topic === 'Algorithms' || topic === 'Machine Learning') {
-                    score = Math.floor(Math.random() * 40); // 0-40%
+                    score = Math.floor(Math.random() * 4); // 0-4 raw score (0-40%)
                 } else {
-                    score = Math.floor(Math.random() * 50) + 50; // 50-100%
+                    score = Math.floor(Math.random() * 5) + 5; // 5-10 raw score (50-100%)
                 }
 
                 attempts.push({
@@ -61,7 +65,7 @@ async function seed() {
                     topic: topic,
                     score: score,
                     totalQuestions: 10,
-                    percentage: score,
+                    percentage: (score / 10) * 100,
                     createdAt: new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 7) // Last 7 days
                 });
             }
