@@ -81,15 +81,30 @@ export default function DashboardLayoutWrapper({
     };
 
     const roleNavItems = navItemsMap[user.role] || navItemsMap.student;
+    const [notificationsList, setNotificationsList] = useState<any[]>([]);
 
-    const dummyNotifications = [
-        { id: 1, text: 'You have a new message from Priya Sharma', time: '5m ago', read: false },
-        { id: 2, text: 'Your resume review is ready', time: '2h ago', read: false },
-        { id: 3, text: 'Google is hiring for SDE-1 roles', time: '1d ago', read: true },
-    ];
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/notifications`, {
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('alumni_token')}` }
+                });
+                const data = await res.json();
+                if (!data.error) setNotificationsList(data);
+            } catch (err) {
+                console.error('Failed to fetch notifications:', err);
+            }
+        };
+
+        if (user) {
+            fetchNotifications();
+            const interval = setInterval(fetchNotifications, 60000); // Poll every minute
+            return () => clearInterval(interval);
+        }
+    }, [user]);
 
     return (
-        <DashboardLayout navItems={roleNavItems} notifications={dummyNotifications}>
+        <DashboardLayout navItems={roleNavItems} notifications={notificationsList}>
             {children}
         </DashboardLayout>
     );

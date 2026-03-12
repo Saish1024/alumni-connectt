@@ -179,7 +179,7 @@ export default function FacultyOverview() {
                         <Trophy className="w-4 h-4 text-amber-500" />
                     </div>
                     {leaderboard.length > 0 ? (
-                        <div className="overflow-x-auto">
+                        <div className="overflow-x-auto max-h-[450px] overflow-y-auto">
                             <table className="w-full">
                                 <thead>
                                     <tr className="border-b border-slate-100 dark:border-slate-700/30">
@@ -255,7 +255,7 @@ export default function FacultyOverview() {
                     <button onClick={() => router.push('/dashboard/students')} className="text-sm text-green-600 dark:text-green-400 font-[600] hover:underline">View All Students</button>
                 </div>
                 {stats?.topStudents?.length > 0 ? (
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto max-h-[450px] overflow-y-auto">
                         <table className="w-full">
                             <thead>
                                 <tr className="border-b border-slate-100 dark:border-slate-700/30">

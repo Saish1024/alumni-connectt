@@ -39,7 +39,7 @@ export default function StudentOverview() {
     }, []);
 
     const displayName = user?.name || 'User';
-    const major = user?.major || 'Computer Science';
+    const major = user?.major || 'Information Technology';
     const batchYear = user?.batchYear || '2024';
 
     if (loading && !stats) {

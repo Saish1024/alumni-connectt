@@ -18,7 +18,7 @@ interface NavItem {
 interface DashboardLayoutProps {
     navItems: NavItem[];
     children: ReactNode;
-    notifications?: { id: number; text: string; time: string; read: boolean }[];
+    notifications?: { _id: string; text: string; createdAt: string; read: boolean }[];
 }
 
 export default function DashboardLayout({
@@ -193,13 +193,45 @@ export default function DashboardLayout({
                                 <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl z-50 overflow-hidden">
                                     <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-700">
                                         <span className="font-[700] text-slate-900 dark:text-white text-sm">Notifications</span>
-                                        <span className="text-xs text-indigo-500 dark:text-indigo-400 font-[600] cursor-pointer">Mark all read</span>
+                                        <span 
+                                            onClick={async () => {
+                                                try {
+                                                    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+                                                    await fetch(`${baseUrl}/notifications/mark-all-read`, {
+                                                        method: 'PUT',
+                                                        headers: { 'Authorization': `Bearer ${localStorage.getItem('alumni_token')}` }
+                                                    });
+                                                    // This will update on next poll or we could force a refresh via a prop
+                                                    setNotifOpen(false);
+                                                } catch (err) {
+                                                    console.error('Failed to mark all read:', err);
+                                                }
+                                            }}
+                                            className="text-xs text-indigo-500 dark:text-indigo-400 font-[600] cursor-pointer"
+                                        >
+                                            Mark all read
+                                        </span>
                                     </div>
                                     <div className="max-h-64 overflow-y-auto">
                                         {notifications.length ? notifications.map(n => (
-                                            <div key={n.id} className={`px-4 py-3 border-b border-slate-100 dark:border-slate-700/50 last:border-0 ${!n.read ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : ''}`}>
+                                            <div 
+                                                key={n._id} 
+                                                onClick={async () => {
+                                                    if (n.read) return;
+                                                    try {
+                                                        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+                                                        await fetch(`${baseUrl}/notifications/${n._id}/read`, {
+                                                            method: 'PUT',
+                                                            headers: { 'Authorization': `Bearer ${localStorage.getItem('alumni_token')}` }
+                                                        });
+                                                    } catch (err) {
+                                                        console.error('Failed to mark as read:', err);
+                                                    }
+                                                }}
+                                                className={`px-4 py-3 border-b border-slate-100 dark:border-slate-700/50 last:border-0 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all ${!n.read ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : ''}`}
+                                            >
                                                 <p className="text-sm text-slate-700 dark:text-slate-300">{n.text}</p>
-                                                <p className="text-xs text-slate-400 mt-1">{n.time}</p>
+                                                <p className="text-xs text-slate-400 mt-1">{new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                                             </div>
                                         )) : (
                                             <div className="px-4 py-8 text-center text-slate-400 text-sm">No notifications</div>

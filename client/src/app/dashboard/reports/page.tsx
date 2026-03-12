@@ -16,7 +16,7 @@ export default function ReportsPage() {
     const reportOptions: Record<string, string[]> = {
         'Date Range': ['Last 7 Days', 'Last 30 Days', 'Last 3 Months', 'Last 6 Months', 'Last Year', 'All Time'],
         'Report Type': ['Student Performance', 'Quiz Analytics', 'Mentoring Summary', 'Placement & Jobs', 'Community Engagement'],
-        'Department': ['All Departments', 'Computer Science', 'Information Technology', 'Electronics & Comm.', 'Mechanical', 'Civil', 'Business Admin.'],
+        'Department': ['All Departments', 'Electronics and Computer Science', 'Computer Engineering', 'Information Technology', 'Artificial Intelligence and Data Science', 'Artificial Intelligence and Machine Learning', 'Mechatronics'],
         'Year': ['All Years', '1st Year', '2nd Year', '3rd Year', '4th Year', 'Alumni']
     };
 

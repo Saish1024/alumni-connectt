@@ -4,6 +4,15 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { GraduationCap, ArrowLeft, ArrowRight, Eye, EyeOff, Check, Users, BookOpen, Briefcase, Shield, AlertCircle } from 'lucide-react';
 
+const DEPARTMENTS = [
+    'Electronics and Computer Science',
+    'Computer Engineering',
+    'Information Technology',
+    'Artificial Intelligence and Data Science',
+    'Artificial Intelligence and Machine Learning',
+    'Mechatronics'
+];
+
 const roles = [
     {
         key: 'student',
@@ -270,13 +279,19 @@ export default function SignupPage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-[600] text-white/80 mb-2">
-                                        {selectedRole === 'faculty' ? 'Department/Field' : 'Institution/Major'}
+                                        {selectedRole === 'faculty' ? 'Department' : 'Major/Branch'}
                                     </label>
-                                    <input
-                                        required value={form.institution} onChange={e => setForm({ ...form, institution: e.target.value })}
-                                        placeholder={selectedRole === 'faculty' ? 'Computer Science Dept.' : 'Computer Science'}
-                                        className="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
-                                    />
+                                    <select
+                                        required 
+                                        value={form.institution} 
+                                        onChange={e => setForm({ ...form, institution: e.target.value })}
+                                        className="w-full bg-white/10 border border-white/20 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
+                                    >
+                                        <option value="" className="bg-slate-900">Select Department</option>
+                                        {DEPARTMENTS.map(dept => (
+                                            <option key={dept} value={dept} className="bg-slate-900">{dept}</option>
+                                        ))}
+                                    </select>
                                 </div>
                                 <div>
                                     {selectedRole === 'faculty' ? (

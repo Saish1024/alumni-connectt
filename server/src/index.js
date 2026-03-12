@@ -73,6 +73,7 @@ app.use('/api/payouts', require('./routes/payoutRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
 app.use('/api/announcements', require('./routes/announcementRoutes'));
 app.use('/api/donations', require('./routes/donations'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
 
 // 404 handler
 app.use((req, res) => {

@@ -23,19 +23,51 @@ exports.downloadReportByType = async (req, res) => {
 
         if (type === 'student-performance') {
             const students = await User.find({ role: 'student' }).select('name email major batchYear');
-            doc.fontSize(16).text('Student Performance Overview', { underline: true });
+            doc.fontSize(16).fillColor('#111827').text('Student Performance Overview', { underline: true });
             doc.moveDown();
 
+            // Table Header
+            const startX = 50;
+            let currentY = doc.y;
+            doc.fontSize(10).fillColor('#374151').font('Helvetica-Bold');
+            doc.text('#', startX, currentY);
+            doc.text('Student', startX + 30, currentY);
+            doc.text('Batch', startX + 180, currentY);
+            doc.text('Avg Perf.', startX + 300, currentY);
+            doc.text('Quizzes', startX + 380, currentY);
+            
+            doc.moveTo(startX, currentY + 15).lineTo(550, currentY + 15).strokeColor('#e5e7eb').stroke();
+            currentY += 25;
+            doc.font('Helvetica');
+
+            let count = 1;
             for (let student of students) {
                 const attempts = await QuizAttempt.find({ studentId: student._id });
                 const avgScore = attempts.length > 0
-                    ? (attempts.reduce((acc, curr) => acc + (curr.score / curr.totalQuestions), 0) / attempts.length * 100).toFixed(1)
+                    ? (attempts.reduce((acc, curr) => {
+                        const ratio = curr.totalQuestions > 0 ? (curr.score / curr.totalQuestions) : 0;
+                        return acc + Math.min(1, ratio);
+                    }, 0) / attempts.length * 100).toFixed(1)
                     : 'N/A';
 
-                doc.fontSize(12).fillColor('#333').text(`${student.name} (${student.major})`);
-                doc.fontSize(10).fillColor('#666').text(`Email: ${student.email} | Batch: ${student.batchYear}`);
-                doc.text(`Avg Quiz Performance: ${avgScore}% | Total Quizzes: ${attempts.length}`);
-                doc.moveDown(0.5);
+                doc.fontSize(9).fillColor('#4b5563');
+                doc.text(`${count}.`, startX, currentY);
+                doc.fillColor('#111827').text(student.name, startX + 30, currentY);
+                doc.fillColor('#6b7280').fontSize(8).text(student.email, startX + 30, currentY + 10);
+                
+                doc.fontSize(9).fillColor('#4b5563');
+                doc.text(student.batchYear || 'N/A', startX + 180, currentY);
+                doc.text(`${avgScore}%`, startX + 300, currentY);
+                doc.text(attempts.length.toString(), startX + 380, currentY);
+
+                doc.moveTo(startX, currentY + 25).lineTo(550, currentY + 25).strokeColor('#f3f4f6').stroke();
+                currentY += 35;
+                count++;
+
+                if (currentY > 700) {
+                    doc.addPage();
+                    currentY = 50;
+                }
             }
         }
         else if (type === 'quiz-analytics') {
@@ -44,49 +76,104 @@ exports.downloadReportByType = async (req, res) => {
                     $group: {
                         _id: "$topic",
                         count: { $sum: 1 },
-                        avgScore: { $avg: { $divide: ["$score", "$totalQuestions"] } }
+                        avgScore: { 
+                            $avg: { 
+                                $min: [
+                                    1,
+                                    { $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] }
+                                ]
+                            }
+                        }
                     }
-                }
+                },
+                { $sort: { avgScore: -1 } }
             ]);
 
-            doc.fontSize(16).text('Quiz Analytics Summary', { underline: true });
+            doc.fontSize(16).fillColor('#111827').text('Quiz Analytics Summary', { underline: true });
             doc.moveDown();
 
-            topicStats.forEach(stat => {
-                doc.fontSize(12).fillColor('#333').text(`Topic: ${stat._id}`);
-                doc.fontSize(10).fillColor('#666').text(`Total Attempts: ${stat.count}`);
-                doc.text(`Average Proficiency: ${(stat.avgScore * 100).toFixed(1)}%`);
-                doc.moveDown(0.5);
+            const startX = 50;
+            let currentY = doc.y;
+            doc.fontSize(10).fillColor('#374151').font('Helvetica-Bold');
+            doc.text('#', startX, currentY);
+            doc.text('Topic', startX + 30, currentY);
+            doc.text('Attempts', startX + 250, currentY);
+            doc.text('Avg Proficiency', startX + 350, currentY);
+            
+            doc.moveTo(startX, currentY + 15).lineTo(550, currentY + 15).strokeColor('#e5e7eb').stroke();
+            currentY += 25;
+            doc.font('Helvetica');
+
+            topicStats.forEach((stat, index) => {
+                doc.fontSize(9).fillColor('#4b5563');
+                doc.text(`${index + 1}.`, startX, currentY);
+                doc.fillColor('#111827').text(stat._id || 'General', startX + 30, currentY);
+                doc.text(stat.count.toString(), startX + 250, currentY);
+                doc.text(`${(stat.avgScore * 100).toFixed(1)}%`, startX + 350, currentY);
+
+                doc.moveTo(startX, currentY + 20).lineTo(550, currentY + 20).strokeColor('#f3f4f6').stroke();
+                currentY += 25;
             });
         }
         else if (type === 'placement-jobs') {
-            const jobs = await require('../models/Job').find({});
-            doc.fontSize(16).text('Placement & Jobs Activity Report', { underline: true });
+            const jobs = await require('../models/Job').find({}).sort({ createdAt: -1 });
+            doc.fontSize(16).fillColor('#111827').text('Placement & Jobs Activity Report', { underline: true });
             doc.moveDown();
 
-            doc.fontSize(12).text(`Total Jobs Posted: ${jobs.length}`);
-            doc.moveDown();
+            const startX = 50;
+            let currentY = doc.y;
+            doc.fontSize(10).fillColor('#374151').font('Helvetica-Bold');
+            doc.text('#', startX, currentY);
+            doc.text('Position & Company', startX + 30, currentY);
+            doc.text('Location', startX + 280, currentY);
+            doc.text('Salary', startX + 420, currentY);
+            
+            doc.moveTo(startX, currentY + 15).lineTo(550, currentY + 15).strokeColor('#e5e7eb').stroke();
+            currentY += 25;
+            doc.font('Helvetica');
 
-            jobs.forEach(job => {
-                doc.fontSize(12).fillColor('#333').text(`${job.title} at ${job.company}`);
-                doc.fontSize(10).fillColor('#666').text(`Location: ${job.location} | Posted: ${new Date(job.createdAt).toLocaleDateString()}`);
-                doc.text(`Salary: ${job.salaryRange || 'N/A'}`);
-                doc.moveDown(0.5);
+            jobs.forEach((job, index) => {
+                doc.fontSize(9).fillColor('#4b5563').text(`${index + 1}.`, startX, currentY);
+                doc.fillColor('#111827').text(job.title, startX + 30, currentY);
+                doc.fillColor('#6b7280').fontSize(8).text(job.company, startX + 30, currentY + 10);
+                
+                doc.fontSize(9).fillColor('#4b5563');
+                doc.text(job.location || 'Remote', startX + 280, currentY);
+                doc.text(job.salaryRange || 'N/A', startX + 420, currentY);
+
+                doc.moveTo(startX, currentY + 25).lineTo(550, currentY + 25).strokeColor('#f3f4f6').stroke();
+                currentY += 35;
             });
         }
         else if (type === 'community-engagement') {
-            const posts = await require('../models/Post').find({}).populate('author', 'name');
-            doc.fontSize(16).text('Community Engagement Analysis', { underline: true });
+            const posts = await require('../models/Post').find({}).populate('author', 'name').sort({ createdAt: -1 });
+            doc.fontSize(16).fillColor('#111827').text('Community Engagement Analysis', { underline: true });
             doc.moveDown();
 
-            doc.fontSize(12).text(`Total Community Posts: ${posts.length}`);
-            doc.moveDown();
+            const startX = 50;
+            let currentY = doc.y;
+            doc.fontSize(10).fillColor('#374151').font('Helvetica-Bold');
+            doc.text('#', startX, currentY);
+            doc.text('Author & Excerpt', startX + 30, currentY);
+            doc.text('Likes', startX + 350, currentY);
+            doc.text('Comments', startX + 430, currentY);
+            
+            doc.moveTo(startX, currentY + 15).lineTo(550, currentY + 15).strokeColor('#e5e7eb').stroke();
+            currentY += 25;
+            doc.font('Helvetica');
 
-            posts.slice(0, 20).forEach(post => { // Limit to last 20 posts
-                doc.fontSize(11).fillColor('#333').text(`${post.author?.name || 'Anonymous'}:`);
-                doc.fontSize(10).fillColor('#666').text(`"${post.content.substring(0, 100)}..."`);
-                doc.text(`Engagement: ${post.likes?.length || 0} Likes | ${post.comments?.length || 0} Comments`);
-                doc.moveDown(0.5);
+            posts.slice(0, 30).forEach((post, index) => {
+                doc.fontSize(9).fillColor('#4b5563').text(`${index + 1}.`, startX, currentY);
+                doc.fillColor('#111827').text(post.author?.name || 'Anonymous', startX + 30, currentY);
+                const excerpt = post.content.substring(0, 60).replace(/\n/g, ' ') + '...';
+                doc.fillColor('#6b7280').fontSize(8).text(excerpt, startX + 30, currentY + 10);
+                
+                doc.fontSize(9).fillColor('#4b5563');
+                doc.text((post.likes?.length || 0).toString(), startX + 350, currentY);
+                doc.text((post.comments?.length || 0).toString(), startX + 430, currentY);
+
+                doc.moveTo(startX, currentY + 25).lineTo(550, currentY + 25).strokeColor('#f3f4f6').stroke();
+                currentY += 35;
             });
         }
         else {

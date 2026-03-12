@@ -277,6 +277,14 @@ export const quizzes = {
     submit: (data: any) => request<any>('/quizzes/submit', { method: 'POST', body: JSON.stringify(data) }),
 };
 
+// ─── Notifications ────────────────────────────────────────────────────────────
+export const notifications = {
+    list: () => request<any[]>('/notifications'),
+    markRead: (id: string) => request<any>(`/notifications/${id}/read`, { method: 'PUT' }),
+    markAllRead: () => request<any>('/notifications/mark-all-read', { method: 'PUT' }),
+    delete: (id: string) => request<any>(`/notifications/${id}`, { method: 'DELETE' }),
+};
+
 // ─── Health ───────────────────────────────────────────────────────────────────
 
 export const health = {
