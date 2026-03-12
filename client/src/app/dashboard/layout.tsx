@@ -90,7 +90,12 @@ export default function DashboardLayoutWrapper({
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('alumni_token')}` }
                 });
                 const data = await res.json();
-                if (!data.error) setNotificationsList(data);
+                if (Array.isArray(data)) {
+                    setNotificationsList(data);
+                } else if (!data.error) {
+                    // Handle case where it might be a single object or wrapped
+                    setNotificationsList([]);
+                }
             } catch (err) {
                 console.error('Failed to fetch notifications:', err);
             }

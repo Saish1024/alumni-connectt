@@ -24,8 +24,9 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({
     navItems,
     children,
-    notifications = [],
+    notifications: rawNotifications = [],
 }: DashboardLayoutProps) {
+    const notifications = Array.isArray(rawNotifications) ? rawNotifications : [];
     const router = useRouter();
     const pathname = usePathname();
     const { theme, setTheme, systemTheme } = useTheme();
@@ -48,7 +49,7 @@ export default function DashboardLayout({
         router.push('/login');
     }
 
-    const unreadCount = notifications.filter(n => !n.read).length;
+    const unreadCount = notifications ? notifications.filter(n => n && !n.read).length : 0;
 
     // Safe fallbacks for user data
     const role = user?.role || 'student';

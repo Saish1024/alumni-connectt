@@ -77,7 +77,7 @@ export default function AlumniOverview() {
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3">
                             <div className="flex items-center gap-2">
                                 <Star className="w-4 h-4 text-amber-300 fill-amber-300" />
-                                <span className="text-sm font-[600] text-amber-200">{topStats.avgRating.toFixed(1)} Rating · {topStats.sessionsDone} Sessions Completed</span>
+                                <span className="text-sm font-[600] text-amber-200">{(topStats?.avgRating || 0).toFixed(1)} Rating · {topStats?.sessionsDone || 0} Sessions Completed</span>
                             </div>
                             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10">
                                 <div className={`w-2 h-2 rounded-full ${isSyncing ? 'bg-amber-400 animate-pulse' : 'bg-green-400 blink'}`} />
@@ -100,10 +100,10 @@ export default function AlumniOverview() {
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                    { label: 'Total Earnings', value: `₹${topStats.totalEarnings.toLocaleString()}`, change: `+₹${topStats.monthlyEarnings.toLocaleString()} this month`, icon: DollarSign, color: 'from-green-500 to-emerald-600', bg: 'bg-green-50 dark:bg-green-900/10' },
-                    { label: 'Sessions Done', value: topStats.sessionsDone.toString(), change: `${topStats.monthlySessions} this month`, icon: Video, color: 'from-blue-500 to-cyan-600', bg: 'bg-blue-50 dark:bg-blue-900/10' },
-                    { label: 'Avg Rating', value: `${topStats.avgRating.toFixed(1)} ⭐`, change: `${topStats.ratingCount} reviews`, icon: Star, color: 'from-amber-500 to-orange-600', bg: 'bg-amber-50 dark:bg-amber-900/10' },
-                    { label: 'Students Helped', value: topStats.studentsHelped.toString(), change: `From ${topStats.collegesHelped} colleges`, icon: Users, color: 'from-purple-500 to-violet-600', bg: 'bg-purple-50 dark:bg-purple-900/10' },
+                    { label: 'Total Earnings', value: `₹${(topStats?.totalEarnings || 0).toLocaleString()}`, change: `+₹${(topStats?.monthlyEarnings || 0).toLocaleString()} this month`, icon: DollarSign, color: 'from-green-500 to-emerald-600', bg: 'bg-green-50 dark:bg-green-900/10' },
+                    { label: 'Sessions Done', value: (topStats?.sessionsDone || 0).toString(), change: `${topStats?.monthlySessions || 0} this month`, icon: Video, color: 'from-blue-500 to-cyan-600', bg: 'bg-blue-50 dark:bg-blue-900/10' },
+                    { label: 'Avg Rating', value: `${(topStats?.avgRating || 0).toFixed(1)} ⭐`, change: `${topStats?.ratingCount || 0} reviews`, icon: Star, color: 'from-amber-500 to-orange-600', bg: 'bg-amber-50 dark:bg-amber-900/10' },
+                    { label: 'Students Helped', value: (topStats?.studentsHelped || 0).toString(), change: `From ${topStats?.collegesHelped || 0} colleges`, icon: Users, color: 'from-purple-500 to-violet-600', bg: 'bg-purple-50 dark:bg-purple-900/10' },
                 ].map(({ label, value, change, icon: Icon, color, bg }: any) => (
                     <div key={label} className={`${bg} rounded-2xl p-5 border border-slate-200 dark:border-slate-700/50 hover:shadow-md transition-all`}>
                         <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center mb-3 shadow-md`}>
@@ -182,7 +182,7 @@ export default function AlumniOverview() {
                     {upcomingSessions.length > 0 ? upcomingSessions.map((s: any) => (
                         <div key={s.id} className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-700/30 rounded-xl">
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white font-[700] text-sm flex-shrink-0">
-                                {s.student.charAt(0)}
+                                {(s.student || 'S').charAt(0)}
                             </div>
                             <div className="flex-1 min-w-0">
                                 <div className="font-[600] text-slate-900 dark:text-white text-sm truncate">{s.topic}</div>
@@ -211,7 +211,7 @@ export default function AlumniOverview() {
                     {pendingReviews.length > 0 ? pendingReviews.map((r: any) => (
                         <div key={r.id} className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-700/30 rounded-xl">
                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-600 flex items-center justify-center text-white font-[700] text-sm">
-                                {r.student.charAt(0)}
+                                {(r.student || 'S').charAt(0)}
                             </div>
                             <div className="flex-1">
                                 <div className="font-[600] text-slate-900 dark:text-white text-sm">{r.student}</div>
