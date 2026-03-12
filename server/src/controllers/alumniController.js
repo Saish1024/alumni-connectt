@@ -277,4 +277,10 @@ const updateMentoringSettings = async (req, res) => {
     }
 };
 
-module.exports = { getAlumniStats, getLegacyData, updateMentoringSettings };
+module.exports = { 
+    getAlumniStats, 
+    getLegacyData, 
+    updateMentoringSettings,
+    getAvailableSessionRequests,
+    acceptSessionRequest
+};
