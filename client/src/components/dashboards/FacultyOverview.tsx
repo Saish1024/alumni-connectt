@@ -197,11 +197,13 @@ export default function FacultyOverview() {
                                     </div>
                                 </div>
                             ))}
-                            <div className="mt-8 p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl">
-                                <p className="text-xs text-amber-700 dark:text-amber-400 font-[500] leading-relaxed">
-                                    <span className="font-[700]">Insight:</span> Students are struggling most with <span className="font-[700]">{gaps[0].topic}</span>. Consider organizing a specialized mentoring session on this topic.
-                                </p>
-                            </div>
+                            {gaps.length > 0 && gaps[0] && (
+                                <div className="mt-8 p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl">
+                                    <p className="text-xs text-amber-700 dark:text-amber-400 font-[500] leading-relaxed">
+                                        <span className="font-[700]">Insight:</span> Students are struggling most with <span className="font-[700]">{gaps[0].topic}</span>. Consider organizing a specialized mentoring session on this topic.
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     ) : (
                         <div className="text-center text-slate-400 text-sm italic py-12">Waiting for more quiz engagement to identify trends.</div>
