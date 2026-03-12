@@ -47,15 +47,22 @@ exports.getDashboardStats = async (req, res) => {
 
         const sessionsThisMonthCount = await Event.countDocuments({
             type: 'session',
-            createdAt: { $gte: startOfMonth }
+            date: { $gte: startOfMonth.toISOString().split('T')[0] } // Better compatibility with string dates
         });
 
-        // 3. Average Quiz Score
+        // 3. Average Quiz Score (Clamped)
         const quizStats = await QuizAttempt.aggregate([
             {
                 $group: {
                     _id: null,
-                    avgScore: { $avg: { $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] } }
+                    avgScore: { 
+                        $avg: { 
+                            $min: [
+                                1, 
+                                { $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] }
+                            ]
+                        } 
+                    }
                 }
             }
         ]);
@@ -76,7 +83,14 @@ exports.getDashboardStats = async (req, res) => {
             {
                 $group: {
                     _id: { $month: "$createdAt" },
-                    avg: { $avg: { $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] } },
+                    avg: { 
+                        $avg: { 
+                            $min: [
+                                1,
+                                { $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] }
+                            ]
+                        } 
+                    },
                     month: { $first: { $dateToString: { format: "%b", date: "$createdAt" } } },
                     date: { $first: "$createdAt" }
                 }
@@ -95,12 +109,19 @@ exports.getDashboardStats = async (req, res) => {
             {
                 $group: {
                     _id: "$studentId",
-                    avgScore: { $avg: { $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] } },
+                    avgScore: { 
+                        $avg: { 
+                            $min: [
+                                1,
+                                { $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] }
+                            ]
+                        } 
+                    },
                     totalQuizzes: { $sum: 1 }
                 }
             },
             { $sort: { avgScore: -1, totalQuizzes: -1 } },
-            { $limit: 5 },
+            { $limit: 10 },
             {
                 $lookup: {
                     from: "users",
@@ -116,18 +137,21 @@ exports.getDashboardStats = async (req, res) => {
                     name: "$studentInfo.name",
                     branch: "$studentInfo.major",
                     year: "$studentInfo.batchYear",
-                    avgScore: { $round: [{ $multiply: ["$avgScore", 100] }, 0] },
-                    progress: { $round: [{ $multiply: ["$avgScore", 100] }, 0] } // Mock progress as avg score for now
+                    avgScore: { $round: [{ $multiply: ["$avgScore", 100] }, 0] }
                 }
             }
         ]);
 
-        // Fetch session counts for top students
+        // Fetch session counts and calculate real progress
         for (let student of topStudents) {
             student.sessionsAttended = await Event.countDocuments({
                 type: 'session',
                 attendees: student.id
             });
+            
+            // Progress = (Avg Score * 0.7) + (Sessions * 10, capped at 30)
+            const sessionBonus = Math.min(30, student.sessionsAttended * 10);
+            student.progress = Math.min(100, Math.round((student.avgScore * 0.7) + sessionBonus));
         }
 
         res.json({

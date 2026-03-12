@@ -1,8 +1,8 @@
 "use client"
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Users, BookOpen, BarChart2, Loader2, Trophy } from 'lucide-react';
+import { Users, BookOpen, BarChart2, Loader2, Trophy, RefreshCw, Radio } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { users as usersApi, quizzes as quizzesApi } from '@/lib/api';
 
@@ -13,8 +13,11 @@ export default function FacultyOverview() {
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
     const [gaps, setGaps] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const fetchData = async () => {
+    const fetchData = useCallback(async (isSilent = false) => {
+        if (!isSilent) setLoading(true);
+        setIsRefreshing(true);
         try {
             // Main stats
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
@@ -36,12 +39,20 @@ export default function FacultyOverview() {
             console.error('Failed to fetch faculty data:', err);
         } finally {
             setLoading(false);
+            setIsRefreshing(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchData();
-    }, []);
+        
+        // Poll for live data every 60 seconds
+        const interval = setInterval(() => {
+            fetchData(true);
+        }, 60000);
+
+        return () => clearInterval(interval);
+    }, [fetchData]);
 
     if (loading) {
         return (
@@ -59,6 +70,32 @@ export default function FacultyOverview() {
 
     return (
         <div className="space-y-6 font-[Inter,sans-serif] animate-in fade-in duration-500">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+                <div>
+                    <h1 className="text-2xl font-[800] text-slate-900 dark:text-white flex items-center gap-2">
+                        Institutional Overview
+                        <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-[10px] font-[800] rounded-full uppercase tracking-wider flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                            Live
+                        </span>
+                    </h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Monitoring student performance and engagement in real-time</p>
+                </div>
+                <div className="flex items-center gap-2">
+                   <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <Radio className={`w-3.5 h-3.5 ${isRefreshing ? 'text-green-500 animate-pulse' : 'text-slate-400'}`} />
+                        <span className="text-[11px] font-[600] text-slate-600 dark:text-slate-300">Sync Active</span>
+                    </div>
+                    <button 
+                        onClick={() => fetchData()} 
+                        disabled={isRefreshing}
+                        className="p-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm"
+                    >
+                        <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 ${isRefreshing ? 'animate-spin' : ''}`} />
+                    </button>
+                </div>
+            </div>
+
             <div className="relative overflow-hidden bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 rounded-2xl p-6 text-white shadow-xl">
                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.3'%3E%3Ccircle cx='15' cy='15' r='2'/%3E%3C/g%3E%3C/svg%3E\")" }} />
                 <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">

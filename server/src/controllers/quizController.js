@@ -118,7 +118,14 @@ exports.getQuizLeaderboard = async (req, res) => {
                     _id: "$studentId",
                     totalScore: { $sum: "$score" },
                     quizzesTaken: { $sum: 1 },
-                    avgPercentage: { $avg: { $multiply: [{ $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] }, 100] } }
+                    avgPercentage: { 
+                        $avg: { 
+                            $min: [
+                                1,
+                                { $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] }
+                            ]
+                        } 
+                    }
                 }
             },
             {
@@ -136,7 +143,7 @@ exports.getQuizLeaderboard = async (req, res) => {
                     email: "$studentInfo.email",
                     totalScore: 1,
                     quizzesTaken: 1,
-                    avgPercentage: { $round: ["$avgPercentage", 1] },
+                    avgPercentage: { $round: [{ $multiply: ["$avgPercentage", 100] }, 1] },
                     _id: 0
                 }
             },
@@ -157,7 +164,12 @@ exports.getPerformanceGaps = async (req, res) => {
             {
                 $project: {
                     topic: 1,
-                    percentage: { $multiply: [{ $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] }, 100] }
+                    percentage: { 
+                        $min: [
+                            1,
+                            { $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] }
+                        ]
+                    }
                 }
             },
             {
@@ -170,7 +182,7 @@ exports.getPerformanceGaps = async (req, res) => {
             {
                 $project: {
                     topic: "$_id",
-                    avgScore: { $round: ["$avgScore", 1] },
+                    avgScore: { $round: [{ $multiply: ["$avgScore", 100] }, 1] },
                     totalAttempts: 1,
                     _id: 0
                 }
