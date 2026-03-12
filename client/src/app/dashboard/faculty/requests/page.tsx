@@ -5,7 +5,7 @@ import {
     MessageSquare, Plus, Clock, CheckCircle, 
     Calendar, User, AlertCircle, Loader2, Sparkles
 } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 
 export default function FacultyRequestsPage() {
     const [requests, setRequests] = useState<any[]>([]);

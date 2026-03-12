@@ -6,7 +6,7 @@ import {
     CheckCircle, Loader2, Sparkles, Filter, 
     ExternalLink, MapPin
 } from 'lucide-react';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 
 export default function AlumniOpportunitiesPage() {
     const [opportunities, setOpportunities] = useState<any[]>([]);
