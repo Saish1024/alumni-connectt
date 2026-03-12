@@ -55,7 +55,10 @@ export const auth = {
 
 export const users = {
     list: (params?: { search?: string; role?: string; industry?: string; batchYear?: string }) => {
-        const qs = new URLSearchParams(params as any).toString();
+        const cleanParams = Object.fromEntries(
+            Object.entries(params || {}).filter(([_, v]) => v !== undefined && v !== '')
+        );
+        const qs = new URLSearchParams(cleanParams as any).toString();
         return request<any[]>(`/users${qs ? `?${qs}` : ''}`);
     },
 
