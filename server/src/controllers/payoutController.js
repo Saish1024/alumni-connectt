@@ -175,7 +175,13 @@ exports.getPlatformConfig = async (req, res) => {
 exports.getConfigByKey = async (req, res) => {
     try {
         const config = await Config.findOne({ key: req.params.key });
-        if (!config) return res.status(404).json({ error: 'Config not found' });
+        if (!config) {
+            // Provide a default for the UPI ID if not configured yet
+            if (req.params.key === 'platformUpiId') {
+                return res.json({ key: 'platformUpiId', value: 'admin-connect@upi' });
+            }
+            return res.status(404).json({ error: 'Config not found' });
+        }
         res.json({ key: config.key, value: config.value });
     } catch (error) {
         res.status(500).json({ error: error.message });

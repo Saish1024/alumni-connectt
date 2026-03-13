@@ -142,7 +142,7 @@ export default function PaymentsPage() {
                                 type="text"
                                 value={newUpi}
                                 onChange={(e) => setNewUpi(e.target.value)}
-                                placeholder="admin@upi"
+                                placeholder="admin-connect@upi"
                                 className="w-full h-11 px-4 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700/50 focus:border-indigo-500 outline-none font-[600] text-sm transition-all"
                             />
                         </div>

@@ -63,7 +63,7 @@ export default function AdminSettingsPage() {
             title: 'Payment Settings', 
             icon: CreditCard,
             items: [
-                { label: 'Platform UPI ID', key: 'platformUpiId', type: 'text', default: 'admin@upi' },
+                { label: 'Platform UPI ID', key: 'platformUpiId', type: 'text', default: 'admin-connect@upi' },
                 { label: 'Platform Commission (%)', key: 'platformCommission', type: 'number', default: 10 },
                 { label: 'Payout Schedule', key: 'payoutSchedule', type: 'text', default: 'Weekly' },
                 { label: 'Minimum Payout (₹)', key: 'minimumPayout', type: 'number', default: 500 },
