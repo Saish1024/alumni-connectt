@@ -20,7 +20,8 @@ const getPosts = async (req, res) => {
         const posts = await Post.find()
             .populate('author', 'name profileImage role')
             .populate('comments.user', 'name')
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
         res.status(200).json(posts);
     } catch (error) {
         res.status(500).json({ error: error.message });

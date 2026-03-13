@@ -16,4 +16,8 @@ const jobSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
+// Add indexes for performance
+jobSchema.index({ type: 1 });
+jobSchema.index({ location: 1 });
+
 module.exports = mongoose.model('Job', jobSchema);

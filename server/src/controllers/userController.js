@@ -30,7 +30,8 @@ const getUsers = async (req, res) => {
 
         const users = await User.find(filter)
             .select('-password')
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .lean();
 
         res.status(200).json(users);
     } catch (error) {
@@ -41,7 +42,7 @@ const getUsers = async (req, res) => {
 // GET /api/users/:id - get single user
 const getUserById = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id).select('-password');
+        const user = await User.findById(req.params.id).select('-password').lean();
         if (!user) return res.status(404).json({ error: 'User not found' });
         res.status(200).json(user);
     } catch (error) {
@@ -67,7 +68,7 @@ const updateProfile = async (req, res) => {
 // GET /api/users/pending - get users awaiting approval (Admin only)
 const getPendingUsers = async (req, res) => {
     try {
-        const users = await User.find({ isApproved: false }).select('-password').sort({ createdAt: -1 });
+        const users = await User.find({ isApproved: false }).select('-password').sort({ createdAt: -1 }).lean();
         res.status(200).json(users);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -149,7 +150,7 @@ const getStudentStats = async (req, res) => {
             const dayQuizzes = await QuizAttempt.find({
                 studentId,
                 createdAt: { $gte: startOfDay, $lte: endOfDay }
-            });
+            }).lean();
 
             const dayScore = dayQuizzes.length > 0 
                 ? Math.round(dayQuizzes.reduce((sum, q) => sum + (q.score / q.totalQuestions * 100), 0) / dayQuizzes.length)
@@ -164,7 +165,7 @@ const getStudentStats = async (req, res) => {
         }
 
         // 3. Topics Practiced (Pie Chart)
-        const attempts = await QuizAttempt.find({ studentId });
+        const attempts = await QuizAttempt.find({ studentId }).lean();
         const topicCounts = {};
         attempts.forEach(a => {
             topicCounts[a.topic] = (topicCounts[a.topic] || 0) + 1;
@@ -180,13 +181,14 @@ const getStudentStats = async (req, res) => {
         // 4. Recommended Mentors (3)
         const aiMentors = await User.find({ role: 'alumni', isApproved: true })
             .limit(3)
-            .select('name jobTitle company skills averageRating profileImage sessionPrice linkedin');
+            .select('name jobTitle company skills averageRating profileImage sessionPrice linkedin')
+            .lean();
 
         // 5. Upcoming Sessions (2)
         const upcomingSessions = await Event.find({
             attendees: studentId,
             status: 'upcoming'
-        }).populate('organizer', 'name profileImage').sort({ date: 1, time: 1 }).limit(2);
+        }).populate('organizer', 'name profileImage').sort({ date: 1, time: 1 }).limit(2).lean();
 
         res.status(200).json({
             topStats: {
@@ -236,7 +238,8 @@ const getLeaderboard = async (req, res) => {
         const students = await User.find({ role: 'student' })
             .select('name totalPoints streak profileImage')
             .sort({ totalPoints: -1, streak: -1 })
-            .limit(50);
+            .limit(50)
+            .lean();
 
         const leaderboard = await Promise.all(students.map(async (student, index) => {
             const quizzes = await QuizAttempt.countDocuments({ studentId: student._id });
