@@ -14,6 +14,7 @@ export default function PaymentsPage() {
     const [activeTab, setActiveTab] = useState<'pending' | 'completed' | 'inbound'>('pending');
     const [processingId, setProcessingId] = useState<string | null>(null);
     const [isUpdatingConfig, setIsUpdatingConfig] = useState(false);
+    const [updateSuccess, setUpdateSuccess] = useState(false);
 
     const fetchData = async () => {
         try {
@@ -66,11 +67,16 @@ export default function PaymentsPage() {
     const handleUpdateConfig = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsUpdatingConfig(true);
+        setUpdateSuccess(false);
         try {
             await apiAdmin.updateConfig('platformUpiId', newUpi);
+            setConfig((prev: any) => ({ ...prev, platformUpiId: newUpi }));
+            setUpdateSuccess(true);
+            setTimeout(() => setUpdateSuccess(false), 3000); // Reset success state after 3s
             fetchData();
         } catch (err) {
             console.error('Failed to update config:', err);
+            alert('Failed to update UPI ID');
         } finally {
             setIsUpdatingConfig(false);
         }
@@ -148,10 +154,22 @@ export default function PaymentsPage() {
                         </div>
                         <Button 
                             type="submit" 
-                            disabled={isUpdatingConfig || newUpi === config.platformUpiId}
-                            className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 dark:shadow-none"
+                            disabled={isUpdatingConfig || newUpi === (config.platformUpiId || 'admin-connect@upi')}
+                            className={`w-full h-11 transition-all shadow-lg ${
+                                updateSuccess 
+                                    ? "bg-green-600 hover:bg-green-700" 
+                                    : "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200 dark:shadow-none"
+                            }`}
                         >
-                            {isUpdatingConfig ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Configuration"}
+                            {isUpdatingConfig ? (
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                            ) : updateSuccess ? (
+                                <div className="flex items-center gap-2">
+                                    <CheckCircle2 className="w-5 h-5" /> Saved Successfully
+                                </div>
+                            ) : (
+                                "Save Configuration"
+                            )}
                         </Button>
                     </form>
 

@@ -24,7 +24,11 @@ async function request<T>(
     };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+    const res = await fetch(`${BASE_URL}${path}`, { 
+        ...options, 
+        headers,
+        cache: 'no-store' // Ensure fresh data, especially for configs
+    });
 
     if (!res.ok) {
         const err = await res.json().catch(() => ({ error: 'Request failed' }));
