@@ -236,7 +236,18 @@ const getLegacyData = async (req, res) => {
             synthData: {
                 pulseRate: Math.min(100, 60 + sessionsCount),
                 color: topTopic === 'DSA & Algo' ? '#3b82f6' : '#8b5cf6'
-            }
+            },
+            testimonials: allCompletedSessions
+                .filter(s => s.ratings && s.ratings.length > 0)
+                .flatMap(s => s.ratings.map(r => ({
+                    studentName: s.attendees.find(a => a._id.toString() === r.studentId.toString())?.name || 'Verified Student',
+                    score: r.score,
+                    feedback: r.feedback,
+                    category: s.category || 'Mentoring',
+                    date: r.createdAt
+                })))
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 6)
         });
 
     } catch (error) {

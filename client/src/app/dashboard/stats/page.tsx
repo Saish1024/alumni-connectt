@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import { Sparkles, Zap, Newspaper, Shield, Loader2, ArrowRight, Activity, Globe } from 'lucide-react';
+import { Sparkles, Zap, Newspaper, Shield, Loader2, ArrowRight, Activity, Globe, Star, Quote } from 'lucide-react';
 import { alumni as apiAlumni } from '@/lib/api';
 
 export default function StatsReputationPage() {
@@ -29,11 +29,12 @@ export default function StatsReputationPage() {
         );
     }
 
-    const { archetype, multiplier, headlines, synthData } = data || {
+    const { archetype, multiplier, headlines, synthData, testimonials } = data || {
         archetype: 'The Visionary',
         multiplier: { studentsHelped: 0, projectedValue: '$0', hoursInvested: 0 },
         headlines: [],
-        synthData: { pulseRate: 60, color: '#8b5cf6' }
+        synthData: { pulseRate: 60, color: '#8b5cf6' },
+        testimonials: []
     };
 
     return (
@@ -145,6 +146,59 @@ export default function StatsReputationPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Verified Wall of Wisdom */}
+            {testimonials && testimonials.length > 0 && (
+                <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
+                                <Quote className="w-5 h-5 text-indigo-500" />
+                            </div>
+                            <h3 className="text-xl font-[800] text-slate-900 dark:text-white">Verified Wall of Wisdom</h3>
+                        </div>
+                        <div className="flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded-full border border-green-500/20 text-[10px] font-bold uppercase tracking-wider">
+                            <Activity className="w-3 h-3" /> Real-time Feed
+                        </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {testimonials.map((t: any, i: number) => (
+                            <div 
+                                key={i} 
+                                className="group relative bg-white/40 dark:bg-white/5 backdrop-blur-xl rounded-[1.5rem] p-6 border border-slate-200 dark:border-white/10 hover:border-indigo-500/50 transition-all duration-500 hover:-translate-y-1 shadow-lg hover:shadow-indigo-500/10 overflow-hidden flex flex-col"
+                            >
+                                <div className="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                                    <Quote className="w-24 h-24" />
+                                </div>
+                                
+                                <div className="flex items-center gap-1 mb-4">
+                                    {[...Array(5)].map((_, idx) => (
+                                        <Star 
+                                            key={idx} 
+                                            className={`w-3 h-3 ${idx < t.score ? 'text-amber-400 fill-amber-400' : 'text-slate-300 dark:text-slate-700'}`} 
+                                        />
+                                    ))}
+                                </div>
+
+                                <p className="text-slate-600 dark:text-slate-300 text-sm italic leading-relaxed mb-6 font-[500] flex-1">
+                                    "{t.feedback}"
+                                </p>
+
+                                <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100 dark:border-white/5">
+                                    <div>
+                                        <div className="text-xs font-[800] text-slate-900 dark:text-white uppercase tracking-tight">{t.studentName}</div>
+                                        <div className="text-[10px] font-[600] text-indigo-500 uppercase tracking-widest mt-0.5">{t.category}</div>
+                                    </div>
+                                    <div className="px-2 py-1 bg-slate-100 dark:bg-white/5 rounded-lg text-[10px] font-mono text-slate-400">
+                                        {new Date(t.date).toLocaleDateString(undefined, { month: 'short', year: '2-digit' })}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Sovereign Sigil / ID Card */}
             <div className="bg-gradient-to-br from-slate-900 to-indigo-950 rounded-[2.5rem] p-10 text-white relative overflow-hidden flex flex-col md:flex-row items-center gap-12 border border-white/10 shadow-2xl">
