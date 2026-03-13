@@ -192,6 +192,8 @@ exports.getConfigByKey = async (req, res) => {
 exports.updatePlatformConfig = async (req, res) => {
     try {
         const { key, value } = req.body;
+        console.log(`[ConfigUpdate] Attempting to update ${key} to ${value}`);
+        
         let config = await Config.findOne({ key });
         if (config) {
             config.value = value;
@@ -200,8 +202,10 @@ exports.updatePlatformConfig = async (req, res) => {
             config = new Config({ key, value });
         }
         await config.save();
+        console.log(`[ConfigUpdate] Successfully updated ${key}`);
         res.json(config);
     } catch (error) {
+        console.error(`[ConfigUpdate] Error updating config:`, error);
         res.status(500).json({ error: error.message });
     }
 };

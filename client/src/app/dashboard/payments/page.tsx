@@ -74,9 +74,9 @@ export default function PaymentsPage() {
             setUpdateSuccess(true);
             setTimeout(() => setUpdateSuccess(false), 3000); // Reset success state after 3s
             fetchData();
-        } catch (err) {
+        } catch (err: any) {
             console.error('Failed to update config:', err);
-            alert('Failed to update UPI ID');
+            alert('Failed to update UPI ID: ' + (err.message || 'Unknown error'));
         } finally {
             setIsUpdatingConfig(false);
         }
