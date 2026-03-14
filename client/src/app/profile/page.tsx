@@ -4,7 +4,7 @@ import { useAuth } from '@/context/AuthContext'
 import { users as usersApi, upload } from '@/lib/api'
 import {
     MapPin, Briefcase, GraduationCap, Linkedin, Edit3,
-    Users, Mail, ExternalLink, BookOpen, Loader2, X, Check, Star, Link as LinkIcon
+    Users, Mail, ExternalLink, BookOpen, Loader2, X, Check, Star, Link as LinkIcon, Activity
 } from 'lucide-react'
 
 export default function ProfilePage() {
