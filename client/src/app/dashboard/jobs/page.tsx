@@ -48,6 +48,7 @@ export default function JobsPage() {
             const requirementsArray = newJob.requirements.split(',').map(s => s.trim()).filter(s => s !== '');
             await apiJobs.create({
                 ...newJob,
+                role: newJob.title,
                 requirements: requirementsArray
             });
             setPostModal(false);

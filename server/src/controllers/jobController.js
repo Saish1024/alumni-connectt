@@ -4,6 +4,8 @@ const createJob = async (req, res) => {
     try {
         const job = new Job({
             ...req.body,
+            role: req.body.role || req.body.title || 'Untitled Role',
+            title: req.body.title || req.body.role || 'Untitled Job',
             postedBy: req.user._id
         });
         await job.save();
