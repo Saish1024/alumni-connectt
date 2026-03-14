@@ -219,7 +219,7 @@ export default function SessionsPage() {
                         <button
                             key={t}
                             onClick={() => setTab(t)}
-                            className={`px-4 py-2 rounded-lg text-sm font-[600] capitalize transition-all ${tab === t ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-50 dark:text-slate-400'}`}>
+                            className={`px-4 py-2 rounded-lg text-sm font-[600] capitalize transition-all ${tab === t ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'}`}>
                             {t} {t === 'requests' && pendingRequests.length > 0 && (
                                 <span className="ml-1 px-1.5 py-0.5 bg-red-500 text-white text-[10px] rounded-full animate-pulse">{pendingRequests.length}</span>
                             )}
@@ -310,7 +310,7 @@ export default function SessionsPage() {
                                 <tr key={s._id} className="last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-all group">
                                     <td className="px-6 py-4">
                                         <div className="font-[600] text-slate-900 dark:text-white">
-                                            {s.attendees?.length > 0 ? (s.attendees[0].name || s.attendees[0]) : <span className="text-slate-400 italic">Available Slot</span>}
+                                            {s.attendees?.length > 0 ? (s.attendees[0]?.name || 'Unknown Student') : <span className="text-slate-400 italic">Available Slot</span>}
                                         </div>
                                         <div className="text-sm text-slate-500 dark:text-slate-400">{s.topic || s.title}</div>
                                     </td>
@@ -378,7 +378,7 @@ export default function SessionsPage() {
                         <button
                             key={t}
                             onClick={() => setTab(t)}
-                            className={`px-4 py-2 rounded-lg text-sm font-[600] capitalize transition-all ${tab === t ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 dark:text-slate-400'}`}>
+                            className={`px-4 py-2 rounded-lg text-sm font-[600] capitalize transition-all ${tab === t ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'}`}>
                             {t}
                         </button>
                     ))}

@@ -1,280 +1,310 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import { Sparkles, Zap, Newspaper, Shield, Loader2, ArrowRight, Activity, Globe, Star, Quote } from 'lucide-react';
+import { Loader2, ArrowRight, Activity, Globe, Star, Quote, Network, Users, Clock, Award, TrendingUp, Cpu, Shield } from 'lucide-react';
 import { alumni as apiAlumni } from '@/lib/api';
 
-export default function StatsReputationPage() {
+export default function NetworkStatsPage() {
     const [loading, setLoading] = useState(true);
-    const [data, setData] = useState<any>(null);
+    const [stats, setStats] = useState<any>(null);
+    const [legacy, setLegacy] = useState<any>(null);
 
     useEffect(() => {
-        const fetchLegacy = async () => {
+        const fetchData = async () => {
             try {
-                const legacyData = await apiAlumni.getLegacyStats();
-                setData(legacyData);
+                const [statsRes, legacyRes] = await Promise.all([
+                    apiAlumni.getStats().catch(() => null),
+                    apiAlumni.getLegacyStats().catch(() => null)
+                ]);
+                setStats(statsRes);
+                setLegacy(legacyRes);
             } catch (err) {
-                console.error('Failed to fetch legacy stats:', err);
+                console.error('Failed to fetch stats:', err);
             } finally {
                 setLoading(false);
             }
         };
-        fetchLegacy();
+        fetchData();
     }, []);
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex bg-slate-950 items-center justify-center min-h-[400px] rounded-[2.5rem]">
                 <Loader2 className="w-12 h-12 text-indigo-500 animate-spin" />
             </div>
         );
     }
 
-    const { archetype, multiplier, headlines, synthData, testimonials } = data || {
-        archetype: 'The Visionary',
-        multiplier: { studentsHelped: 0, projectedValue: '$0', hoursInvested: 0 },
-        headlines: [],
-        synthData: { pulseRate: 60, color: '#8b5cf6' },
-        testimonials: []
-    };
+    const s = stats?.topStats || { studentsHelped: 0, sessionsDone: 0, avgRating: 0, collegesHelped: 0 };
+    const l = legacy || { archetype: 'The Visionary', multiplier: { projectedValue: '$0', hoursInvested: 0 }, testimonials: [] };
+
+    // Node data for network graph
+    const nodes = [
+        { id: 0, x: 50, y: 50, size: 28, color: '#8b5cf6', shadow: '0 0 40px #8b5cf6', z: 10, delay: 0 },
+        { id: 1, x: 20, y: 30, size: 12, color: '#3b82f6', shadow: '0 0 20px #3b82f6', z: 5, delay: 0.2 },
+        { id: 2, x: 80, y: 20, size: 16, color: '#ec4899', shadow: '0 0 25px #ec4899', z: 5, delay: 0.5 },
+        { id: 3, x: 15, y: 70, size: 10, color: '#10b981', shadow: '0 0 15px #10b981', z: 5, delay: 0.8 },
+        { id: 4, x: 85, y: 80, size: 14, color: '#6366f1', shadow: '0 0 20px #6366f1', z: 5, delay: 1.2 },
+        { id: 5, x: 35, y: 15, size: 8, color: '#f59e0b', shadow: '0 0 10px #f59e0b', z: 5, delay: 1.5 },
+        { id: 6, x: 65, y: 85, size: 10, color: '#06b6d4', shadow: '0 0 15px #06b6d4', z: 5, delay: 1.8 },
+        { id: 7, x: 40, y: 80, size: 12, color: '#8b5cf6', shadow: '0 0 20px #8b5cf6', z: 5, delay: 2.1 },
+        { id: 8, x: 70, y: 40, size: 8, color: '#ec4899', shadow: '0 0 10px #ec4899', z: 5, delay: 2.4 },
+        { id: 9, x: 30, y: 55, size: 10, color: '#3b82f6', shadow: '0 0 15px #3b82f6', z: 5, delay: 2.7 },
+        { id: 10, x: 90, y: 50, size: 8, color: '#10b981', shadow: '0 0 10px #10b981', z: 5, delay: 3.0 },
+    ];
+
+    const connections = [
+        [0, 1], [0, 2], [0, 3], [0, 4], [0, 7], [0, 9],
+        [1, 5], [2, 8], [4, 6], [2, 10], [9, 3], [7, 6]
+    ];
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-700 font-[Inter,sans-serif] pb-20">
-            {/* Holographic Header */}
-            <div className="relative overflow-hidden bg-slate-900 rounded-[2.5rem] p-8 text-white border border-white/5 shadow-2xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-transparent to-purple-500/20" />
-                <div className="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/30 blur-[100px] rounded-full animate-pulse" />
+        <div className="space-y-6 font-[Inter,sans-serif] pb-20 bg-slate-950 p-4 sm:p-8 rounded-[2.5rem] min-h-screen text-slate-200 animate-in fade-in duration-700">
+            {/* Header: Network Overview */}
+            <div className="relative overflow-hidden rounded-[2rem] bg-slate-900 border border-slate-800 p-8 lg:p-12 shadow-2xl">
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/40 via-slate-900 to-purple-900/40" />
                 
-                <div className="relative flex flex-col lg:flex-row items-center gap-10">
-                    {/* The Impact Synth (Bio-Mechanical Organism) */}
-                    <div className="relative w-64 h-64 flex items-center justify-center">
+                {/* Network Visualization Background */}
+                <div className="absolute inset-0 opacity-40 pointer-events-none">
+                    <svg className="w-full h-full absolute inset-0">
+                        {connections.map(([a, b], i) => (
+                            <line 
+                                key={i}
+                                x1={`${nodes[a].x}%`} y1={`${nodes[a].y}%`}
+                                x2={`${nodes[b].x}%`} y2={`${nodes[b].y}%`}
+                                stroke="rgba(139, 92, 246, 0.3)"
+                                strokeWidth="1.5"
+                                className="dash-line"
+                            />
+                        ))}
+                    </svg>
+                    {nodes.map(node => (
                         <div 
-                            className="absolute inset-0 rounded-full blur-[40px] opacity-40 animate-pulse"
-                            style={{ backgroundColor: synthData.color }}
-                        />
-                        <div className="impact-synth-container">
-                            <div className="synth-core" style={{ 
-                                animationDuration: `${60 / synthData.pulseRate * 2}s`,
-                                background: `radial-gradient(circle at 30% 30%, white 0%, ${synthData.color} 100%)`
-                            }} />
-                            <div className="synth-orbit synth-orbit-1" />
-                            <div className="synth-orbit synth-orbit-2" />
+                            key={node.id}
+                            className={`absolute rounded-full shadow-lg ${node.id === 0 ? 'bg-indigo-500 pulse-glow' : 'bg-slate-400'}`}
+                            style={{
+                                top: `${node.y}%`,
+                                left: `${node.x}%`,
+                                width: `${node.size}px`,
+                                height: `${node.size}px`,
+                                margin: `-${node.size/2}px 0 0 -${node.size/2}px`, // Center the node
+                                boxShadow: node.shadow,
+                                backgroundColor: node.color,
+                                zIndex: node.z,
+                                animation: `floatNode ${6 + (node.id % 4)}s infinite ease-in-out ${node.delay}s`
+                            }}
+                        >
+                            <div className="absolute inset-0 bg-white/40 rounded-full blur-[2px]" />
                         </div>
-                        <div className="absolute -bottom-4 bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-2xl border border-white/10 flex items-center gap-2">
-                            <Activity className="w-3 h-3 text-green-400 animate-pulse" />
-                            <span className="text-[10px] font-[800] uppercase tracking-widest">Reputation Synth Active</span>
-                        </div>
-                    </div>
+                    ))}
+                </div>
 
-                    <div className="flex-1 text-center lg:text-left">
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-500/20 text-indigo-300 rounded-full border border-indigo-500/20 mb-4">
-                            <Sparkles className="w-4 h-4" />
-                            <span className="text-xs font-[800] uppercase tracking-[0.2em]">Authentic Legacy Established</span>
+                <div className="relative z-10 flex flex-col md:flex-row gap-8 items-center justify-between">
+                    <div className="max-w-xl">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full text-[10px] font-[800] uppercase tracking-widest mb-4">
+                            <Network className="w-3.5 h-3.5" />
+                            Network Impact Tracker
                         </div>
-                        <h1 className="text-4xl lg:text-6xl font-[900] leading-tight mb-4 tracking-tight">
-                            {archetype}
+                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-[900] text-white tracking-tight mb-4">
+                            The Butterfly <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Effect</span>
                         </h1>
-                        <p className="text-slate-400 max-w-xl text-lg font-[500]">
-                            Your influence on the next generation has triggered a chain reaction. 
-                            You are no longer just a mentor; you are the architect of future history.
+                        <p className="text-slate-400 text-lg font-[500] leading-relaxed">
+                            Your mentorship creates ripples. Every session you lead expands your influence across the network, accelerating careers and defining the next generation of industry leaders.
                         </p>
+                    </div>
+
+                    {/* Network Stats Card */}
+                    <div className="bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-6 w-full md:w-80 shadow-2xl">
+                        <div className="flex items-center justify-between mb-6">
+                            <span className="text-xs font-[700] text-slate-500 uppercase tracking-wider">Archetype</span>
+                            <span className="px-2.5 py-1 bg-purple-500/10 text-purple-400 rounded-lg text-[10px] font-[800] uppercase tracking-widest border border-purple-500/20">{l.archetype}</span>
+                        </div>
+                        <div className="space-y-4">
+                            <div>
+                                <div className="text-3xl lg:text-4xl font-[900] text-white tracking-tight mb-1">{s.studentsHelped}</div>
+                                <div className="text-xs font-[600] text-slate-500 uppercase tracking-wider">Nodes Activated (Students)</div>
+                            </div>
+                            <div className="h-px bg-slate-800 w-full" />
+                            <div>
+                                <div className="text-3xl lg:text-4xl font-[900] text-emerald-400 tracking-tight mb-1">{l.multiplier.projectedValue}</div>
+                                <div className="text-xs font-[600] text-slate-500 uppercase tracking-wider">Projected Economic Ripple</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-8">
-                {/* Legacy Multiplier Card */}
-                <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-white/5 shadow-xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-8 opacity-5">
-                        <Zap className="w-32 h-32" />
+            {/* Core Metrics Overlay */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-slate-900/50 border border-slate-800 rounded-[1.5rem] p-6 hover:bg-slate-800/80 transition-all duration-300 group shadow-lg">
+                    <div className="w-12 h-12 bg-indigo-500/10 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                        <Users className="w-6 h-6 text-indigo-400" />
                     </div>
-                    <h3 className="text-xs font-[800] text-slate-400 uppercase tracking-widest mb-8">The Legacy Multiplier (ROI)</h3>
-                    
-                    <div className="space-y-6">
-                        <div>
-                            <div className="text-5xl font-[900] text-slate-900 dark:text-white mb-1">{multiplier.projectedValue}</div>
-                            <div className="text-sm text-slate-500 dark:text-slate-400 font-[600]">Projected Economic Impact Generated</div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl">
-                                <div className="text-2xl font-[800] text-indigo-500">{multiplier.studentsHelped}</div>
-                                <div className="text-[10px] uppercase font-[700] text-slate-400">Unique Lives Touched</div>
-                            </div>
-                            <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-2xl">
-                                <div className="text-2xl font-[800] text-purple-500">{multiplier.hoursInvested}h</div>
-                                <div className="text-[10px] uppercase font-[700] text-slate-400">Total wisdom Transmitted</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="mt-8 pt-8 border-t border-slate-100 dark:border-white/5">
-                        <p className="text-xs text-slate-500 leading-relaxed italic">
-                            "One hour of your time results in an average of $50,000 in long-term student salary growth."
-                        </p>
-                    </div>
+                    <div className="text-3xl font-[900] text-white mb-1">{s.sessionsDone}</div>
+                    <div className="text-[10px] font-[700] text-slate-500 uppercase tracking-widest">Total Connections</div>
                 </div>
-
-                {/* Chronicle of 2040 */}
-                <div className="lg:col-span-2 bg-[#fdfaf6] dark:bg-slate-900 rounded-[2rem] overflow-hidden border border-amber-900/10 dark:border-white/5 shadow-2xl flex flex-col">
-                    <div className="px-8 py-6 bg-[#1a1a1a] text-white flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <Newspaper className="w-5 h-5 text-amber-400" />
-                            <span className="font-[900] uppercase tracking-[0.2em] text-sm">Chronicle of 2040</span>
-                        </div>
-                        <span className="text-[10px] font-[700] p-1 border border-white/20 rounded">ISSUE #LEGACY-01</span>
-                    </div>
-                    
-                    <div className="p-8 space-y-8 flex-1 overflow-y-auto max-h-[400px] scrollbar-hide">
-                        {headlines.map((h: any, i: number) => (
-                            <div key={i} className="group cursor-default border-b border-amber-900/5 dark:border-white/5 pb-8 last:border-0">
-                                <div className="flex items-baseline justify-between mb-2">
-                                    <h4 className="text-2xl font-serif dark:font-[Inter] font-[900] text-slate-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-indigo-400 transition-colors">
-                                        {h.title}
-                                    </h4>
-                                    <span className="text-sm font-[800] text-amber-600/50 dark:text-indigo-500/50 tabular-nums">{h.year}</span>
-                                </div>
-                                <p className="text-slate-600 dark:text-slate-400 font-serif dark:font-[Inter] text-lg leading-[1.6]">
-                                    {h.content}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                    
-                    <div className="p-6 bg-amber-50 dark:bg-white/5 flex items-center justify-center gap-4 text-xs font-[800] text-amber-900/60 dark:text-white/40 uppercase tracking-widest">
-                        <span>Simulation Alpha V.2</span>
-                        <div className="w-1.5 h-1.5 rounded-full bg-amber-900/20 animate-bounce" />
-                        <span>Based on Real-Time Mentorship Data</span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Verified Wall of Wisdom */}
-            {testimonials && testimonials.length > 0 && (
-                <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
-                                <Quote className="w-5 h-5 text-indigo-500" />
-                            </div>
-                            <h3 className="text-xl font-[800] text-slate-900 dark:text-white">Verified Wall of Wisdom</h3>
-                        </div>
-                        <div className="flex items-center gap-1.5 px-3 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded-full border border-green-500/20 text-[10px] font-bold uppercase tracking-wider">
-                            <Activity className="w-3 h-3" /> Real-time Feed
-                        </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {testimonials.map((t: any, i: number) => (
-                            <div 
-                                key={i} 
-                                className="group relative bg-white/40 dark:bg-white/5 backdrop-blur-xl rounded-[1.5rem] p-6 border border-slate-200 dark:border-white/10 hover:border-indigo-500/50 transition-all duration-500 hover:-translate-y-1 shadow-lg hover:shadow-indigo-500/10 overflow-hidden flex flex-col"
-                            >
-                                <div className="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                    <Quote className="w-24 h-24" />
-                                </div>
-                                
-                                <div className="flex items-center gap-1 mb-4">
-                                    {[...Array(5)].map((_, idx) => (
-                                        <Star 
-                                            key={idx} 
-                                            className={`w-3 h-3 ${idx < t.score ? 'text-amber-400 fill-amber-400' : 'text-slate-300 dark:text-slate-700'}`} 
-                                        />
-                                    ))}
-                                </div>
-
-                                <p className="text-slate-600 dark:text-slate-300 text-sm italic leading-relaxed mb-6 font-[500] flex-1">
-                                    "{t.feedback}"
-                                </p>
-
-                                <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100 dark:border-white/5">
-                                    <div>
-                                        <div className="text-xs font-[800] text-slate-900 dark:text-white uppercase tracking-tight">{t.studentName}</div>
-                                        <div className="text-[10px] font-[600] text-indigo-500 uppercase tracking-widest mt-0.5">{t.category}</div>
-                                    </div>
-                                    <div className="px-2 py-1 bg-slate-100 dark:bg-white/5 rounded-lg text-[10px] font-mono text-slate-400">
-                                        {new Date(t.date).toLocaleDateString(undefined, { month: 'short', year: '2-digit' })}
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {/* Sovereign Sigil / ID Card */}
-            <div className="bg-gradient-to-br from-slate-900 to-indigo-950 rounded-[2.5rem] p-10 text-white relative overflow-hidden flex flex-col md:flex-row items-center gap-12 border border-white/10 shadow-2xl">
-                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
                 
-                <div className="relative w-48 h-48 group">
-                    <div className="absolute inset-0 bg-indigo-500 rounded-3xl rotate-6 group-hover:rotate-12 transition-transform duration-500 blur-xl opacity-20" />
-                    <div className="relative w-full h-full bg-white/5 backdrop-blur-xl border border-white/20 rounded-3xl flex items-center justify-center p-8">
-                        <Shield className="w-full h-full text-indigo-400" />
-                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Globe className="w-10 h-10 text-white animate-spin-slow" />
+                <div className="bg-slate-900/50 border border-slate-800 rounded-[1.5rem] p-6 hover:bg-slate-800/80 transition-all duration-300 group shadow-lg">
+                    <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                        <Clock className="w-6 h-6 text-purple-400" />
+                    </div>
+                    <div className="text-3xl font-[900] text-white mb-1">{l.multiplier.hoursInvested}h</div>
+                    <div className="text-[10px] font-[700] text-slate-500 uppercase tracking-widest">Time Transmitted</div>
+                </div>
+
+                <div className="bg-slate-900/50 border border-slate-800 rounded-[1.5rem] p-6 hover:bg-slate-800/80 transition-all duration-300 group shadow-lg">
+                    <div className="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                        <Star className="w-6 h-6 text-amber-400" />
+                    </div>
+                    <div className="text-3xl font-[900] text-white mb-1">{s.avgRating.toFixed(1)}</div>
+                    <div className="text-[10px] font-[700] text-slate-500 uppercase tracking-widest">Impact Resonance</div>
+                </div>
+
+                <div className="bg-slate-900/50 border border-slate-800 rounded-[1.5rem] p-6 hover:bg-slate-800/80 transition-all duration-300 group shadow-lg">
+                    <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                        <Globe className="w-6 h-6 text-emerald-400" />
+                    </div>
+                    <div className="text-3xl font-[900] text-white mb-1">{s.collegesHelped || 0}</div>
+                    <div className="text-[10px] font-[700] text-slate-500 uppercase tracking-widest">Global Clusters Reached</div>
+                </div>
+            </div>
+
+            <div className="grid lg:grid-cols-3 gap-6">
+                {/* Live Resonance Feed */}
+                <div className="lg:col-span-2 bg-slate-900/50 border border-slate-800 rounded-[2rem] p-8 shadow-xl">
+                    <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-3">
+                            <Activity className="w-6 h-6 text-indigo-400" />
+                            <h3 className="text-xl font-[800] text-white">Live Resonance Feed</h3>
                         </div>
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full text-[10px] font-[800] uppercase tracking-widest">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                            Active Signal
+                        </div>
+                    </div>
+
+                    <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                        {l.testimonials && l.testimonials.length > 0 ? (
+                            l.testimonials.map((t: any, i: number) => (
+                                <div key={i} className="flex gap-4 p-5 bg-slate-800/30 rounded-[1.5rem] border border-slate-700/50 hover:bg-slate-800/80 transition-all hover:-translate-y-0.5 shadow-md">
+                                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center flex-shrink-0 border border-indigo-500/30">
+                                        <Quote className="w-5 h-5 text-indigo-400" />
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-[700] text-white">{t.studentName}</span>
+                                                <span className="text-slate-600 hidden sm:inline">•</span>
+                                                <span className="text-[10px] font-[800] uppercase tracking-widest text-indigo-400">{t.category}</span>
+                                            </div>
+                                            <div className="flex items-center mt-2 sm:mt-0">
+                                                {[...Array(5)].map((_, idx) => (
+                                                    <Star key={idx} className={`w-3.5 h-3.5 ${idx < t.score ? 'text-amber-400 fill-amber-400' : 'text-slate-700'}`} />
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <p className="text-sm font-[500] text-slate-400 leading-relaxed italic">"{t.feedback}"</p>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="text-center py-16 flex flex-col items-center justify-center">
+                                <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mb-4">
+                                    <Activity className="w-8 h-8 text-slate-600" />
+                                </div>
+                                <h4 className="text-white font-[800] mb-2">No Active Resonance Signals</h4>
+                                <p className="text-slate-500 font-[500] text-sm max-w-sm">Complete mentoring sessions and receive student feedback to activate nodes in your resonance feed.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                <div className="flex-1 space-y-6 text-center md:text-left">
-                    <h3 className="text-3xl font-[900]">Your Sovereign Sigil</h3>
-                    <p className="text-slate-400 text-sm max-w-lg">
-                        This holographic identifier is mathematically generated from your session frequency, student success rate, and category depth. It is your permanent mark on the institution's history.
-                    </p>
-                    <div className="flex flex-wrap justify-center md:justify-start gap-4">
-                        <button className="px-6 py-3 bg-white text-slate-950 font-[800] rounded-2xl flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-xl shadow-white/5">
-                            Download Hologram (3D Model) <ArrowRight className="w-4 h-4" />
-                        </button>
-                        <button className="px-6 py-3 bg-white/10 border border-white/10 text-white font-[800] rounded-2xl hover:bg-white/20 transition-all">
-                            Share to LinkedIn
-                        </button>
+                {/* System Diagnostics / Milestones */}
+                <div className="bg-slate-900/50 border border-slate-800 rounded-[2rem] p-8 flex flex-col shadow-xl">
+                    <div className="flex items-center justify-between mb-8">
+                        <div className="flex items-center gap-3">
+                            <Cpu className="w-6 h-6 text-purple-400" />
+                            <h3 className="text-xl font-[800] text-white">System Protocol</h3>
+                        </div>
+                    </div>
+
+                    <div className="space-y-8 flex-1">
+                        {/* Level Progress */}
+                        <div className="p-5 bg-slate-800/40 rounded-2xl border border-slate-700/50">
+                            <div className="flex justify-between items-center mb-3">
+                                <span className="text-[10px] font-[800] text-slate-400 uppercase tracking-widest">Network Authority</span>
+                                <span className="text-sm font-[900] text-amber-400">Level 4</span>
+                            </div>
+                            <div className="h-2.5 w-full bg-slate-900/80 rounded-full overflow-hidden border border-slate-700">
+                                <div className="h-full bg-gradient-to-r from-amber-500 to-yellow-300 w-[80%] glow-bar" />
+                            </div>
+                            <div className="text-[10px] font-[600] text-slate-500 mt-2 text-right">800/1000 EXP to Level 5</div>
+                        </div>
+
+                        {/* Milestones */}
+                        <div>
+                            <h4 className="text-[10px] font-[800] text-slate-500 uppercase tracking-widest mb-4">Milestones Unlocked</h4>
+                            <div className="space-y-3">
+                                {[
+                                    { name: 'First Connection', desc: 'Hosted 1 session', icon: Award, color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
+                                    { name: 'Ripple Maker', desc: 'Influenced 10 students', icon: TrendingUp, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
+                                    { name: 'The Architect', desc: 'Maintained 5.0 rating', icon: Shield, color: 'text-amber-400', bg: 'bg-amber-500/10' }
+                                ].map((m, i) => (
+                                    <div key={i} className="flex items-center gap-4 p-4 bg-slate-800/20 border border-slate-800 rounded-2xl hover:bg-slate-800/50 transition-colors">
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${m.bg}`}>
+                                            <m.icon className={`w-5 h-5 ${m.color}`} />
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-[800] text-white">{m.name}</div>
+                                            <div className="text-[10px] font-[600] text-slate-500">{m.desc}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <style jsx>{`
-                .impact-synth-container {
-                    position: relative;
-                    width: 154px;
-                    height: 154px;
-                    perspective: 1000px;
+                .dash-line {
+                    stroke-dasharray: 6;
+                    animation: dashAnim 15s linear infinite;
                 }
-                .synth-core {
-                    width: 100%;
-                    height: 100%;
-                    border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
-                    animation: morph 8s ease-in-out infinite, pulse 2s ease-in-out infinite;
-                    box-shadow: 0 0 50px rgba(139, 92, 246, 0.5);
+                @keyframes dashAnim {
+                    to {
+                        stroke-dashoffset: -100;
+                    }
                 }
-                .synth-orbit {
-                    position: absolute;
-                    top: -10%; left: -10%; right: -10%; bottom: -10%;
-                    border: 1px solid rgba(255,255,255,0.1);
-                    border-radius: 50%;
+                @keyframes floatNode {
+                    0%, 100% { transform: translateY(0) translateX(0); }
+                    25% { transform: translateY(-3px) translateX(3px); }
+                    50% { transform: translateY(3px) translateX(0); }
+                    75% { transform: translateY(0) translateX(-3px); }
                 }
-                .synth-orbit-1 { animation: rotate 10s linear infinite; }
-                .synth-orbit-2 { animation: rotate 15s linear reverse infinite; border-style: dashed; opacity: 0.5; }
-
-                @keyframes morph {
-                    0% { border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; transform: scale(1); }
-                    33% { border-radius: 73% 27% 59% 41% / 57% 59% 41% 43%; transform: scale(1.05) rotate(5deg); }
-                    66% { border-radius: 37% 63% 31% 69% / 28% 25% 75% 72%; transform: scale(0.95) rotate(-5deg); }
-                    100% { border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; transform: scale(1); }
+                .pulse-glow {
+                    animation: mainPulse 3s infinite alternate;
                 }
-                @keyframes pulse {
-                    0%, 100% { opacity: 0.8; filter: brightness(1); }
-                    50% { opacity: 1; filter: brightness(1.3); }
+                @keyframes mainPulse {
+                    from { box-shadow: 0 0 20px #8b5cf6, inset 0 0 10px rgba(255,255,255,0.5); }
+                    to { box-shadow: 0 0 50px #c084fc, inset 0 0 20px rgba(255,255,255,0.8); }
                 }
-                @keyframes rotate {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
+                .glow-bar {
+                    box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
                 }
-                .animate-spin-slow {
-                    animation: rotate 6s linear infinite;
+                
+                /* Custom Scrollbar for feed */
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 6px;
                 }
-                .blink {
-                    animation: pulse 1s ease-in-out infinite;
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: transparent;
                 }
-                .scrollbar-hide::-webkit-scrollbar {
-                    display: none;
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background-color: rgba(100, 116, 139, 0.3);
+                    border-radius: 10px;
+                }
+                .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+                    background-color: rgba(100, 116, 139, 0.5);
                 }
             `}</style>
         </div>

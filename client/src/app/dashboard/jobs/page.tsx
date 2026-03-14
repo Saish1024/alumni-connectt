@@ -83,6 +83,16 @@ export default function JobsPage() {
 
     const isAuthorizedToPost = user?.role === 'alumni' || user?.role === 'admin';
 
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+
+    const activeJobs = jobs.filter(job => {
+        if (!job.deadline) return true;
+        const deadlineDate = new Date(job.deadline);
+        if (isNaN(deadlineDate.getTime())) return true;
+        return deadlineDate >= currentDate;
+    });
+
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
@@ -107,9 +117,18 @@ export default function JobsPage() {
                 )}
             </div>
 
-            <div className="grid md:grid-cols-2 gap-5">
-                {jobs.map(job => (
-                    <div key={job._id} className="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50 hover:shadow-xl hover:-translate-y-1 transition-all group">
+            {activeJobs.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-800/50 rounded-3xl border border-slate-200 dark:border-slate-700/50 text-center px-4">
+                    <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center rounded-2xl mb-4">
+                        <Briefcase className="w-8 h-8 text-indigo-400" />
+                    </div>
+                    <h3 className="text-xl font-[800] text-slate-900 dark:text-white mb-2">No Opportunities Available</h3>
+                    <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto">There are currently no active job postings. Our mentors will post new opportunities soon!</p>
+                </div>
+            ) : (
+                <div className="grid md:grid-cols-2 gap-5">
+                    {activeJobs.map(job => (
+                        <div key={job._id} className="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50 hover:shadow-xl hover:-translate-y-1 transition-all group">
                         <div className="flex items-start justify-between mb-4">
                             <div className="flex gap-4">
                                 <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 transition-colors group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/40">
@@ -178,7 +197,8 @@ export default function JobsPage() {
                         </button>
                     </div>
                 ))}
-            </div>
+                </div>
+            )}
 
             {/* Post Job Modal */}
             {postModal && (

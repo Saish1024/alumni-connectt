@@ -79,7 +79,7 @@ export default function AlumniOpportunitiesPage() {
                         <div key={opp._id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden hover:border-indigo-500/50 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all group flex flex-col sm:flex-row">
                             <div className="sm:w-32 bg-slate-50 dark:bg-slate-800/50 p-6 flex flex-col items-center justify-center text-center border-b sm:border-b-0 sm:border-r border-slate-100 dark:border-slate-700/50">
                                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-[800] text-xl shadow-lg mb-2">
-                                    {opp.faculty.name.charAt(0)}
+                                    {(opp.faculty?.name || 'F').charAt(0)}
                                 </div>
                                 <span className="text-[10px] uppercase font-[800] text-indigo-500 tracking-wider">Faculty</span>
                             </div>
@@ -91,7 +91,7 @@ export default function AlumniOpportunitiesPage() {
                                             {opp.topic}
                                         </h3>
                                         <p className="text-xs text-slate-400 flex items-center gap-1.5">
-                                            Requested by <span className="text-slate-600 dark:text-slate-200 font-[600]">{opp.faculty.name}</span>
+                                            Requested by <span className="text-slate-600 dark:text-slate-200 font-[600]">{opp.faculty?.name || 'Unknown Faculty'}</span>
                                         </p>
                                     </div>
                                     <span className="text-xs text-slate-400 whitespace-nowrap">{new Date(opp.createdAt).toLocaleDateString()}</span>
