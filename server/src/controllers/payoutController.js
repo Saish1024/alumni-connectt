@@ -176,9 +176,9 @@ exports.getConfigByKey = async (req, res) => {
     try {
         const config = await Config.findOne({ key: req.params.key });
         if (!config) {
-            // Provide a default for the UPI ID if not configured yet
-            if (req.params.key === 'platformUpiId') {
-                return res.json({ key: 'platformUpiId', value: 'admin-connect@upi' });
+            // Provide a default fallback if not configured in DB
+            if (req.params.key === 'platform_upi_id') {
+                return res.json({ key: 'platform_upi_id', value: 'alumni-connect@upi' });
             }
             return res.status(404).json({ error: 'Config not found' });
         }
