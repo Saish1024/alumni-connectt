@@ -1,16 +1,17 @@
 "use client"
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
-import { users as usersApi } from '@/lib/api'
+import { users as usersApi, upload as apiUpload } from '@/lib/api'
 import {
-    MapPin, Briefcase, GraduationCap, Linkedin, Edit3,
+    MapPin, Briefcase, GraduationCap, Linkedin, Edit3, Camera,
     Users, Mail, ExternalLink, BookOpen, Loader2, X, Check, Star, Network, Zap, Globe, Key
 } from 'lucide-react'
 
 export default function ProfilePage() {
-    const { user } = useAuth()
     const [isEditing, setIsEditing] = useState(false)
     const [saving, setSaving] = useState(false)
+    const [isUploading, setIsUploading] = useState(false)
+    const { user, setUser } = useAuth()
 
     // Form state
     const [form, setForm] = useState({
@@ -46,12 +47,44 @@ export default function ProfilePage() {
             const payload = { ...form, skills: skillsArray }
             
             await usersApi.updateProfile(payload)
+            if (user) {
+                setUser({ ...user, ...payload } as any)
+            }
             setIsEditing(false)
-            window.location.reload()
         } catch (err) {
             console.error('Failed to update profile:', err)
         } finally {
             setSaving(false)
+        }
+    }
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setIsUploading(true)
+        try {
+            const res = await apiUpload.image(file)
+            if (user) {
+                setUser({ ...user, profileImage: res.url })
+            }
+        } catch (err) {
+            console.error('Upload failed:', err)
+            alert('Failed to upload image.')
+        } finally {
+            setIsUploading(false)
+        }
+    }
+
+    const handleRemoveImage = async () => {
+        try {
+            await usersApi.updateProfile({ profileImage: null })
+            if (user) {
+                setUser({ ...user, profileImage: undefined })
+            }
+        } catch (err) {
+            console.error('Remove failed:', err)
+            alert('Failed to remove image.')
         }
     }
 
@@ -78,10 +111,9 @@ export default function ProfilePage() {
                 <div className="px-5 pb-6 -mt-12 md:-mt-14 relative z-10">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                         <div className="flex flex-col md:flex-row items-center md:items-end gap-4 text-center md:text-left">
-                            {/* Smaller Avatar - Photo Edit Removed */}
-                            <div className="relative flex-shrink-0">
+                            <div className="relative flex-shrink-0 group">
                                 <div className="absolute -inset-1 bg-indigo-500/20 rounded-full blur-md" />
-                                <div className="relative bg-slate-950 p-1 rounded-full">
+                                <div className="relative bg-slate-950 p-1 rounded-full overflow-hidden">
                                     {user.profileImage ? (
                                         <img src={user.profileImage} alt={user.name} className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover shadow-lg border-2 border-slate-900" />
                                     ) : (
@@ -89,7 +121,38 @@ export default function ProfilePage() {
                                             {getInitials(user.name)}
                                         </div>
                                     )}
+                                    {isUploading && (
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-full">
+                                            <Loader2 className="w-6 h-6 text-white animate-spin" />
+                                        </div>
+                                    )}
                                 </div>
+                                
+                                <input 
+                                    type="file" 
+                                    id="profile-photo-input" 
+                                    className="hidden" 
+                                    accept="image/*" 
+                                    onChange={handleImageUpload} 
+                                />
+                                
+                                <button 
+                                    onClick={() => document.getElementById('profile-photo-input')?.click()}
+                                    className="absolute bottom-0 right-0 p-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full shadow-lg transition-all scale-90 md:scale-100 hover:scale-110 active:scale-95 z-20 border-2 border-slate-950"
+                                    title="Change Photo"
+                                >
+                                    <Camera className="w-4 h-4 md:w-5 h-5" />
+                                </button>
+                                
+                                {user.profileImage && (
+                                    <button 
+                                        onClick={handleRemoveImage}
+                                        className="absolute top-0 right-0 p-1.5 bg-red-500/80 hover:bg-red-500 text-white rounded-full shadow-lg transition-all scale-75 md:scale-90 hover:scale-100 active:scale-95 z-20 border-2 border-slate-950 opacity-0 group-hover:opacity-100"
+                                        title="Remove Photo"
+                                    >
+                                        <X className="w-3 h-3 md:w-4 h-4" />
+                                    </button>
+                                )}
                             </div>
                             
                             <div className="flex-1 pb-1">

@@ -51,6 +51,17 @@ const userSchema = new mongoose.Schema({
   // Gamification
   totalPoints: { type: Number, default: 0 },
   streak: { type: Number, default: 0 },
+  notificationSettings: {
+    connectionRequests: { type: Boolean, default: true },
+    newMessages: { type: Boolean, default: true },
+    jobAlerts: { type: Boolean, default: true },
+    upcomingSessions: { type: Boolean, default: true }
+  },
+  privacySettings: {
+    directoryVisibility: { type: Boolean, default: true },
+    calendarSync: { type: Boolean, default: true },
+    activeStatus: { type: Boolean, default: true }
+  },
   createdAt: { type: Date, default: Date.now }
 });
 

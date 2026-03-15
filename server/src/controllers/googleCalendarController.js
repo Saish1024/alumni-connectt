@@ -1,4 +1,22 @@
-const { google } = require('googleapis');
+let google;
+try {
+    const googleapis = require('googleapis');
+    google = googleapis.google;
+} catch (error) {
+    console.warn('googleapis not found in calendar controller.');
+    google = {
+        auth: {
+            OAuth2: class {
+                setCredentials() {}
+            }
+        },
+        calendar: () => ({
+            events: {
+                insert: () => { throw new Error('Google Calendar not available'); }
+            }
+        })
+    };
+}
 const User = require('../models/User');
 
 const oauth2Client = new google.auth.OAuth2(

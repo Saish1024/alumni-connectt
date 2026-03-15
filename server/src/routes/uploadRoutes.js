@@ -14,7 +14,7 @@ try {
     const cloudinary = require('cloudinary').v2;
     const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-    if (process.env.CLOUDINARY_CLOUD_NAME) {
+    if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
         cloudinary.config({
             cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
             api_key: process.env.CLOUDINARY_API_KEY,
@@ -25,30 +25,47 @@ try {
             cloudinary: cloudinary,
             params: {
                 folder: 'alumni_connect_profiles',
-                allowedFormats: ['jpeg', 'png', 'jpg'],
+                allowedFormats: ['jpeg', 'png', 'jpg', 'webp'],
             },
         });
         upload = multer({ storage: storage });
+        console.log('✅ Cloudinary storage initialized');
     } else {
-        upload = multer({ dest: 'uploads/' }); // fallback for local if no cloudinary
+        console.warn('⚠️ Cloudinary credentials missing, falling back to local storage');
+        const storage = multer.diskStorage({
+            destination: (req, file, cb) => {
+                const dir = 'uploads/';
+                cb(null, dir);
+            },
+            filename: (req, file, cb) => {
+                cb(null, `${Date.now()}-${file.originalname}`);
+            }
+        });
+        upload = multer({ storage });
     }
 } catch (error) {
+    console.error('❌ Cloudinary initialization error:', error.message);
     upload = multer({ dest: 'uploads/' });
 }
 
 // POST /api/upload/profile-image
 router.post('/profile-image', auth, upload.single('image'), async (req, res) => {
     try {
-        if (!process.env.CLOUDINARY_CLOUD_NAME) {
-            return res.status(400).json({ error: 'Cloudinary not configured in .env yet' });
-        }
-
         if (!req.file) {
             return res.status(400).json({ error: 'No image uploaded' });
         }
 
-        // URL provided by cloudinary storage
-        const imageUrl = req.file.path;
+        let imageUrl;
+        if (process.env.CLOUDINARY_CLOUD_NAME) {
+            // URL provided by cloudinary storage
+            imageUrl = req.file.path;
+        } else {
+            // Local storage URL - format it for the frontend
+            // Assuming the server runs on PORT or localhost:5000
+            const host = req.get('host');
+            const protocol = req.protocol;
+            imageUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+        }
 
         // Update user
         const user = req.user;

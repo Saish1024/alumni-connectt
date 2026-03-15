@@ -1,8 +1,20 @@
 "use client"
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { Play, Calendar, Clock, Timer, Star, Plus, Edit2, Trash2, Video, Loader2 } from 'lucide-react';
+import { Play, Calendar, Clock, Timer, Star, Plus, Edit2, Trash2, Video, Loader2, Sparkles } from 'lucide-react';
 import { events as apiEvents } from '@/lib/api';
+
+const EmptyState = ({ message }: { message: string }) => (
+    <div className="flex flex-col items-center justify-center py-20 px-4 text-center bg-white dark:bg-slate-800/20 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-500">
+        <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-6 shadow-sm">
+            <Sparkles className="w-8 h-8 text-indigo-500" />
+        </div>
+        <h3 className="text-xl font-[800] text-slate-900 dark:text-white mb-2">{message}</h3>
+        <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm">
+            Check back later for new mentoring opportunities or upcoming schedule updates.
+        </p>
+    </div>
+);
 
 export default function SessionsPage() {
     const { user } = useAuth();
@@ -293,74 +305,79 @@ export default function SessionsPage() {
                 )}
 
                 <div className="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 overflow-hidden shadow-sm">
-                    <table className="w-full text-left">
-                        <thead className="bg-slate-50 dark:bg-slate-900/30">
-                            <tr>
-                                <th className="px-6 py-4 text-xs font-[700] text-slate-500 uppercase tracking-wider">Student / Topic</th>
-                                <th className="px-6 py-4 text-xs font-[700] text-slate-500 uppercase tracking-wider">When</th>
-                                {tab !== 'requests' && <th className="px-6 py-4 text-xs font-[700] text-slate-500 uppercase tracking-wider">Meet Link</th>}
-                                <th className="px-6 py-4 text-xs font-[700] text-slate-500 uppercase tracking-wider text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
-                            {(tab === 'requests' ? pendingRequests : sessions.filter(s => {
-                                const currentStatus = getSessionStatus(s);
-                                return tab === 'upcoming' ? currentStatus !== 'completed' : currentStatus === 'completed';
-                            })).map(s => (
-                                <tr key={s._id} className="last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-all group">
-                                    <td className="px-6 py-4">
-                                        <div className="font-[600] text-slate-900 dark:text-white">
-                                            {s.attendees?.length > 0 ? (s.attendees[0]?.name || 'Unknown Student') : <span className="text-slate-400 italic">Available Slot</span>}
-                                        </div>
-                                        <div className="text-sm text-slate-500 dark:text-slate-400">{s.topic || s.title}</div>
-                                    </td>
-                                    <td className="px-6 py-4 text-sm font-[500] text-slate-700 dark:text-slate-300">
-                                        <div>{new Date(s.date).toLocaleDateString() !== 'Invalid Date' && s.date.includes('-') ? new Date(s.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : s.date}</div>
-                                        <div className="text-slate-400 text-xs font-[600] mt-0.5">
-                                            {s.time.includes(':') && s.time.length <= 5 ? new Date(`2000-01-01T${s.time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : s.time} ({s.duration})
-                                        </div>
-                                    </td>
-                                    {tab !== 'requests' && (
-                                        <td className="px-6 py-4">
-                                            {s.meetLink ? (
-                                                <a href={s.meetLink} target="_blank" className="text-xs text-indigo-600 dark:text-indigo-400 font-[700] hover:underline flex items-center gap-1.5 ring-1 ring-indigo-500/20 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-1 rounded-md w-fit">
-                                                    <Video className="w-3 h-3" /> Meet Link
-                                                </a>
-                                            ) : (
-                                                <span className="text-xs text-slate-400 italic">Not generated</span>
+                    {(() => {
+                        const filtered = (tab === 'requests' ? pendingRequests : sessions.filter(s => {
+                            const currentStatus = getSessionStatus(s);
+                            return tab === 'upcoming' ? currentStatus !== 'completed' : currentStatus === 'completed';
+                        }));
+
+                        if (filtered.length === 0) {
+                            return <EmptyState message={tab === 'requests' ? "No pending requests found" : `No ${tab} sessions found. Something will be posted soon...`} />;
+                        }
+
+                        return (
+                            <table className="w-full text-left">
+                                <thead className="bg-slate-50 dark:bg-slate-900/30">
+                                    <tr>
+                                        <th className="px-6 py-4 text-xs font-[700] text-slate-500 uppercase tracking-wider">Student / Topic</th>
+                                        <th className="px-6 py-4 text-xs font-[700] text-slate-500 uppercase tracking-wider">When</th>
+                                        {tab !== 'requests' && <th className="px-6 py-4 text-xs font-[700] text-slate-500 uppercase tracking-wider">Meet Link</th>}
+                                        <th className="px-6 py-4 text-xs font-[700] text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                    {filtered.map(s => (
+                                        <tr key={s._id} className="last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-all group">
+                                            <td className="px-6 py-4">
+                                                <div className="font-[600] text-slate-900 dark:text-white">
+                                                    {s.attendees?.length > 0 ? (s.attendees[0]?.name || 'Unknown Student') : <span className="text-slate-400 italic">Available Slot</span>}
+                                                </div>
+                                                <div className="text-sm text-slate-500 dark:text-slate-400">{s.topic || s.title}</div>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm font-[500] text-slate-700 dark:text-slate-300">
+                                                <div>{new Date(s.date).toLocaleDateString() !== 'Invalid Date' && s.date.includes('-') ? new Date(s.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : s.date}</div>
+                                                <div className="text-slate-400 text-xs font-[600] mt-0.5">
+                                                    {s.time.includes(':') && s.time.length <= 5 ? new Date(`2000-01-01T${s.time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : s.time} ({s.duration})
+                                                </div>
+                                            </td>
+                                            {tab !== 'requests' && (
+                                                <td className="px-6 py-4">
+                                                    {s.meetLink ? (
+                                                        <a href={s.meetLink} target="_blank" className="text-xs text-indigo-600 dark:text-indigo-400 font-[700] hover:underline flex items-center gap-1.5 ring-1 ring-indigo-500/20 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-1 rounded-md w-fit">
+                                                            <Video className="w-3 h-3" /> Meet Link
+                                                        </a>
+                                                    ) : (
+                                                        <span className="text-xs text-slate-400 italic">Not generated</span>
+                                                    )}
+                                                </td>
                                             )}
-                                        </td>
-                                    )}
-                                    <td className="px-6 py-4 text-right">
-                                        {tab === 'requests' ? (
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button
-                                                    onClick={() => handleAcceptRequest(s._id)}
-                                                    className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-[700] rounded-lg hover:bg-indigo-700 transition-all shadow-sm">
-                                                    Accept
-                                                </button>
-                                                <button
-                                                    onClick={() => handleRejectRequest(s._id)}
-                                                    className="px-3 py-1.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-[700] rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
-                                                    Reject
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"><Edit2 className="w-4 h-4 text-slate-400 hover:text-indigo-500" /></button>
-                                                <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"><Trash2 className="w-4 h-4 text-slate-400 hover:text-red-500" /></button>
-                                            </div>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                            {tab === 'requests' && pendingRequests.length === 0 && (
-                                <tr>
-                                    <td colSpan={3} className="px-6 py-12 text-center text-slate-400 italic">No pending requests</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                                            <td className="px-6 py-4 text-right">
+                                                {tab === 'requests' ? (
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button
+                                                            onClick={() => handleAcceptRequest(s._id)}
+                                                            className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-[700] rounded-lg hover:bg-indigo-700 transition-all shadow-sm">
+                                                            Accept
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleRejectRequest(s._id)}
+                                                            className="px-3 py-1.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-xs font-[700] rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                                                            Reject
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"><Edit2 className="w-4 h-4 text-slate-400 hover:text-indigo-500" /></button>
+                                                        <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"><Trash2 className="w-4 h-4 text-slate-400 hover:text-red-500" /></button>
+                                                    </div>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        );
+                    })()}
                 </div>
             </div>
         );
@@ -386,136 +403,150 @@ export default function SessionsPage() {
             </div>
 
             <div className="space-y-4">
-                {tab === 'available' ? availableSessions.map(s => (
-                    <div key={s._id} className="bg-white dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/50 hover:shadow-md transition-all group">
-                        <div className="flex items-start gap-4">
-                            {s.organizer?.profileImage ? (
-                                <img src={s.organizer.profileImage} alt={s.organizer.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0 ring-4 ring-slate-50 dark:ring-slate-900/50" />
-                            ) : (
-                                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-[800] text-xl flex-shrink-0">
-                                    {s.organizer?.name?.charAt(0) || '?'}
-                                </div>
-                            )}
-                            <div className="flex-1">
-                                <div className="flex items-start justify-between gap-3">
-                                    <div>
-                                        <h3 className="font-[700] text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{s.topic}</h3>
-                                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">with {s.organizer?.name}</p>
+                {tab === 'available' && (
+                    availableSessions.length === 0 ? (
+                        <EmptyState message="No available sessions yet. Something will be posted soon..." />
+                    ) : (
+                        availableSessions.map(s => (
+                            <div key={s._id} className="bg-white dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/50 hover:shadow-md transition-all group">
+                                <div className="flex items-start gap-4">
+                                    {s.organizer?.profileImage ? (
+                                        <img src={s.organizer.profileImage} alt={s.organizer.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0 ring-4 ring-slate-50 dark:ring-slate-900/50" />
+                                    ) : (
+                                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-[800] text-xl flex-shrink-0">
+                                            {s.organizer?.name?.charAt(0) || '?'}
+                                        </div>
+                                    )}
+                                    <div className="flex-1">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div>
+                                                <h3 className="font-[700] text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{s.topic}</h3>
+                                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">with {s.organizer?.name}</p>
+                                            </div>
+                                            <span className="px-3 py-1 rounded-full text-xs font-[700] flex-shrink-0 bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">
+                                                🗓️ Open Slot
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-slate-500 dark:text-slate-400">
+                                            <span className="flex items-center gap-1.5 font-[500]"><Calendar className="w-4 h-4 text-slate-400" /> {s.date.includes('-') ? new Date(s.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : s.date}</span>
+                                            <span className="flex items-center gap-1.5 font-[500]"><Clock className="w-4 h-4 text-slate-400" /> {s.time.includes(':') && s.time.length <= 5 ? new Date(`2000-01-01T${s.time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : s.time}</span>
+                                            <span className="flex items-center gap-1.5 font-[500]"><Timer className="w-4 h-4 text-slate-400" /> {s.duration}</span>
+                                        </div>
                                     </div>
-                                    <span className="px-3 py-1 rounded-full text-xs font-[700] flex-shrink-0 bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">
-                                        🗓️ Open Slot
-                                    </span>
                                 </div>
-                                <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-slate-500 dark:text-slate-400">
-                                    <span className="flex items-center gap-1.5 font-[500]"><Calendar className="w-4 h-4 text-slate-400" /> {s.date.includes('-') ? new Date(s.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : s.date}</span>
-                                    <span className="flex items-center gap-1.5 font-[500]"><Clock className="w-4 h-4 text-slate-400" /> {s.time.includes(':') && s.time.length <= 5 ? new Date(`2000-01-01T${s.time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : s.time}</span>
-                                    <span className="flex items-center gap-1.5 font-[500]"><Timer className="w-4 h-4 text-slate-400" /> {s.duration}</span>
+                                <div className="flex mt-4">
+                                    <button
+                                        onClick={() => handleBookSession(s._id)}
+                                        className="flex-1 py-3 text-sm font-[800] rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-indigo-500/20 hover:scale-[1.01] active:scale-95"
+                                    >
+                                        Book This Session
+                                    </button>
                                 </div>
                             </div>
-                        </div>
-                        <div className="flex mt-4">
-                            <button
-                                onClick={() => handleBookSession(s._id)}
-                                className="flex-1 py-3 text-sm font-[800] rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-indigo-500/20 hover:scale-[1.01] active:scale-95"
-                            >
-                                Book This Session
-                            </button>
-                        </div>
-                    </div>
-                )) : null}
+                        ))
+                    )
+                )}
 
-                {tab !== 'available' && myBookedSessions.filter(s => {
-                    const currentStatus = getSessionStatus(s);
-                    if (tab === 'pending') return s.status === 'pending';
-                    if (tab === 'upcoming') return currentStatus !== 'completed' && s.status !== 'pending';
-                    if (tab === 'completed') return currentStatus === 'completed';
-                    return false;
-                }).map(s => {
-                    const currentStatus = getSessionStatus(s);
-                    const isActive = currentStatus === 'live';
-                    return (
-                        <div key={s._id} className="bg-white dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/50 hover:shadow-md transition-all group">
-                            <div className="flex items-start gap-4">
-                                {s.organizer?.profileImage ? (
-                                    <img src={s.organizer.profileImage} alt={s.organizer.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0 ring-4 ring-slate-50 dark:ring-slate-900/50" />
-                                ) : (
-                                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-[800] text-xl flex-shrink-0">
-                                        {s.organizer?.name?.charAt(0) || '?'}
-                                    </div>
-                                )}
-                                <div className="flex-1">
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div>
-                                            <h3 className="font-[700] text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{s.topic}</h3>
-                                            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">with {s.organizer?.name}</p>
+                {tab !== 'available' && (() => {
+                    const filtered = myBookedSessions.filter(s => {
+                        const currentStatus = getSessionStatus(s);
+                        if (tab === 'pending') return s.status === 'pending';
+                        if (tab === 'upcoming') return currentStatus !== 'completed' && s.status !== 'pending';
+                        if (tab === 'completed') return currentStatus === 'completed';
+                        return false;
+                    });
+
+                    if (filtered.length === 0) {
+                        return <EmptyState message={`No ${tab} sessions found. Something will be posted soon...`} />;
+                    }
+
+                    return filtered.map(s => {
+                        const currentStatus = getSessionStatus(s);
+                        const isActive = currentStatus === 'live';
+                        return (
+                            <div key={s._id} className="bg-white dark:bg-slate-800/50 rounded-2xl p-5 border border-slate-200 dark:border-slate-700/50 hover:shadow-md transition-all group">
+                                <div className="flex items-start gap-4">
+                                    {s.organizer?.profileImage ? (
+                                        <img src={s.organizer.profileImage} alt={s.organizer.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0 ring-4 ring-slate-50 dark:ring-slate-900/50" />
+                                    ) : (
+                                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-[800] text-xl flex-shrink-0">
+                                            {s.organizer?.name?.charAt(0) || '?'}
                                         </div>
-                                        <span className={`px-3 py-1 rounded-full text-xs font-[700] flex-shrink-0 ${s.status === 'pending' ? 'bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' : tab === 'upcoming' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'}`}>
-                                            {s.status === 'pending' ? '⏳ Pending' : tab === 'upcoming' ? '📅 Upcoming' : '✅ Completed'}
-                                        </span>
-                                    </div>
-                                    <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-slate-500 dark:text-slate-400">
-                                        <span className="flex items-center gap-1.5 font-[500]"><Calendar className="w-4 h-4 text-slate-400" /> {s.date.includes('-') ? new Date(s.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : s.date}</span>
-                                        <span className="flex items-center gap-1.5 font-[500]"><Clock className="w-4 h-4 text-slate-400" /> {s.time.includes(':') && s.time.length <= 5 ? new Date(`2000-01-01T${s.time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : s.time}</span>
-                                        <span className="flex items-center gap-1.5 font-[500]"><Timer className="w-4 h-4 text-slate-400" /> {s.duration}</span>
-                                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-[800] uppercase tracking-wider ${s.paymentType === 'free' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'}`}>
-                                            {s.paymentType === 'paid' ? 'PAID' : 'FREE'}
-                                        </span>
-                                    </div>
-                                    {s.rating && (
-                                        <div className="flex items-center gap-1 mt-2">
-                                            {Array(5).fill(0).map((_, i) => (
-                                                <Star key={i} className={`w-3.5 h-3.5 ${i < (s as any).rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200 dark:text-slate-600'}`} />
-                                            ))}
-                                            <span className="text-[10px] text-slate-400 ml-1 font-[600] uppercase">Feedback Provided</span>
+                                    )}
+                                    <div className="flex-1">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div>
+                                                <h3 className="font-[700] text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{s.topic}</h3>
+                                                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">with {s.organizer?.name}</p>
+                                            </div>
+                                            <span className={`px-3 py-1 rounded-full text-xs font-[700] flex-shrink-0 ${s.status === 'pending' ? 'bg-amber-100 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' : tab === 'upcoming' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'}`}>
+                                                {s.status === 'pending' ? '⏳ Pending' : tab === 'upcoming' ? '📅 Upcoming' : '✅ Completed'}
+                                            </span>
                                         </div>
+                                        <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-slate-500 dark:text-slate-400">
+                                            <span className="flex items-center gap-1.5 font-[500]"><Calendar className="w-4 h-4 text-slate-400" /> {s.date.includes('-') ? new Date(s.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : s.date}</span>
+                                            <span className="flex items-center gap-1.5 font-[500]"><Clock className="w-4 h-4 text-slate-400" /> {s.time.includes(':') && s.time.length <= 5 ? new Date(`2000-01-01T${s.time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : s.time}</span>
+                                            <span className="flex items-center gap-1.5 font-[500]"><Timer className="w-4 h-4 text-slate-400" /> {s.duration}</span>
+                                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-[800] uppercase tracking-wider ${s.paymentType === 'free' ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' : 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'}`}>
+                                                {s.paymentType === 'paid' ? 'PAID' : 'FREE'}
+                                            </span>
+                                        </div>
+                                        {s.rating && (
+                                            <div className="flex items-center gap-1 mt-2">
+                                                {Array(5).fill(0).map((_, i) => (
+                                                    <Star key={i} className={`w-3.5 h-3.5 ${i < (s as any).rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200 dark:text-slate-600'}`} />
+                                                ))}
+                                                <span className="text-[10px] text-slate-400 ml-1 font-[600] uppercase">Feedback Provided</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="flex gap-3 mt-4">
+                                    {(tab as string) === 'completed' && (
+                                        <div className="flex-1">
+                                            {(s as any).ratings?.some((r: any) => r.studentId === (user as any)._id || r.studentId?._id === (user as any)._id) ? (
+                                                <div className="flex flex-col items-center justify-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
+                                                    <div className="flex gap-1 mb-1">
+                                                        {Array(5).fill(0).map((_, i) => {
+                                                            const userRating = (s as any).ratings.find((r: any) => r.studentId === (user as any)._id || r.studentId?._id === (user as any)._id)?.score;
+                                                            return <Star key={i} className={`w-3.5 h-3.5 ${i < userRating ? 'fill-amber-400 text-amber-400' : 'text-slate-200 dark:text-slate-600'}`} />;
+                                                        })}
+                                                    </div>
+                                                    <span className="text-[10px] text-slate-400 font-[700] uppercase tracking-tighter">Feedback Submitted</span>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    onClick={() => setRatingModal({ open: true, sessionId: s._id, score: 5, feedback: '' })}
+                                                    className="w-full py-3 bg-white dark:bg-slate-700 text-slate-700 dark:text-white border-2 border-slate-200 dark:border-slate-600 text-sm font-[800] rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition-all flex items-center justify-center gap-2"
+                                                >
+                                                    <Star className="w-4 h-4 text-amber-500" /> Give Feedback
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+                                    {(tab as string) === 'upcoming' && s.meetLink && (
+                                        <button
+                                            onClick={() => isActive && handleJoinSession(s)}
+                                            disabled={!isActive}
+                                            className={`flex-1 py-3 text-sm font-[800] rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-indigo-500/20 hover:scale-[1.01] active:scale-95' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed border border-slate-200 dark:border-slate-700 shadow-none'}`}
+                                        >
+                                            {isActive ? (
+                                                <><div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" /> Join Live Session</>
+                                            ) : (
+                                                <>Active at {s.time}</>
+                                            )}
+                                        </button>
+                                    )}
+                                    {tab !== 'completed' && (
+                                        <button className="px-6 py-3 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm font-[700] rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+                                            Details
+                                        </button>
                                     )}
                                 </div>
                             </div>
-                            <div className="flex gap-3 mt-4">
-                                {(tab as string) === 'completed' && (
-                                    <div className="flex-1">
-                                        {(s as any).ratings?.some((r: any) => r.studentId === (user as any)._id || r.studentId?._id === (user as any)._id) ? (
-                                            <div className="flex flex-col items-center justify-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
-                                                <div className="flex gap-1 mb-1">
-                                                    {Array(5).fill(0).map((_, i) => {
-                                                        const userRating = (s as any).ratings.find((r: any) => r.studentId === (user as any)._id || r.studentId?._id === (user as any)._id)?.score;
-                                                        return <Star key={i} className={`w-3.5 h-3.5 ${i < userRating ? 'fill-amber-400 text-amber-400' : 'text-slate-200 dark:text-slate-600'}`} />;
-                                                    })}
-                                                </div>
-                                                <span className="text-[10px] text-slate-400 font-[700] uppercase tracking-tighter">Feedback Submitted</span>
-                                            </div>
-                                        ) : (
-                                            <button
-                                                onClick={() => setRatingModal({ open: true, sessionId: s._id, score: 5, feedback: '' })}
-                                                className="w-full py-3 bg-white dark:bg-slate-700 text-slate-700 dark:text-white border-2 border-slate-200 dark:border-slate-600 text-sm font-[800] rounded-xl hover:bg-slate-50 dark:hover:bg-slate-600 transition-all flex items-center justify-center gap-2"
-                                            >
-                                                <Star className="w-4 h-4 text-amber-500" /> Give Feedback
-                                            </button>
-                                        )}
-                                    </div>
-                                )}
-                                {(tab as string) === 'upcoming' && s.meetLink && (
-                                    <button
-                                        onClick={() => isActive && handleJoinSession(s)}
-                                        disabled={!isActive}
-                                        className={`flex-1 py-3 text-sm font-[800] rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 ${isActive ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-indigo-500/20 hover:scale-[1.01] active:scale-95' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed border border-slate-200 dark:border-slate-700 shadow-none'}`}
-                                    >
-                                        {isActive ? (
-                                            <><div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" /> Join Live Session</>
-                                        ) : (
-                                            <>Active at {s.time}</>
-                                        )}
-                                    </button>
-                                )}
-                                {tab !== 'completed' && (
-                                    <button className="px-6 py-3 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm font-[700] rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
-                                        Details
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    );
-                })}
+                        );
+                    });
+                })()}
             </div>
 
             {/* Rating Modal */}

@@ -5,7 +5,7 @@ import { useTheme } from 'next-themes';
 import {
     Users, BookOpen, Award, Briefcase, MessageCircle, Star,
     ArrowRight, Check, Sparkles, TrendingUp, Globe, Shield,
-    Zap, Heart, Menu, X, Sun, Moon, Play, ChevronRight,
+    Zap, Heart, Menu, X, Sun, Moon, Play,
     GraduationCap, Video, Trophy, FileText, Code2, HandHeart,
     Linkedin, Twitter, Github, Instagram, Mail, MapPin, Phone,
 } from 'lucide-react';
@@ -155,7 +155,7 @@ export default function Landing() {
 
                         {/* Desktop Nav */}
                         <div className="hidden md:flex items-center gap-8">
-                            {['Features', 'How it Works', 'Success Stories', 'Pricing'].map(item => (
+                            {['Features', 'How it Works', 'Success Stories'].map(item => (
                                 <a key={item} href={`#${item.toLowerCase().replace(/ /g, '-')}`}
                                     className="text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors text-sm font-[500]">
                                     {item}
@@ -293,15 +293,12 @@ export default function Landing() {
                     </div>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {features.map(({ icon: Icon, title, desc, color }) => (
-                            <div key={title} className="bg-white dark:bg-slate-800/50 rounded-2xl p-8 border border-slate-200 dark:border-slate-700/50 hover:shadow-xl hover:-translate-y-1 transition-all group cursor-pointer">
+                            <div key={title} className="bg-white dark:bg-slate-800/50 rounded-2xl p-8 border border-slate-200 dark:border-slate-700/50 hover:shadow-xl hover:-translate-y-1 transition-all group">
                                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
                                     <Icon className="w-7 h-7 text-white" />
                                 </div>
                                 <h3 className="font-[700] text-slate-900 dark:text-white mb-3">{title}</h3>
                                 <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm">{desc}</p>
-                                <div className="mt-4 flex items-center gap-1 text-indigo-600 dark:text-indigo-400 text-sm font-[600] opacity-0 group-hover:opacity-100 transition-opacity">
-                                    Learn more <ChevronRight className="w-4 h-4" />
-                                </div>
                             </div>
                         ))}
                     </div>
@@ -436,7 +433,7 @@ export default function Landing() {
                             </div>
                         </div>
                         {[
-                            { title: 'Platform', links: ['Features', 'For Students', 'For Alumni', 'For Faculty', 'Pricing'] },
+                            { title: 'Platform', links: ['Features', 'For Students', 'For Alumni', 'For Faculty'] },
                             { title: 'Company', links: ['About Us', 'Blog', 'Careers', 'Press', 'Contact'] },
                             { title: 'Support', links: ['Help Center', 'Community', 'Privacy Policy', 'Terms of Use', 'Cookie Policy'] },
                         ].map(({ title, links }) => (

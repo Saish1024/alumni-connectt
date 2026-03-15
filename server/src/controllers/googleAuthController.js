@@ -1,4 +1,19 @@
-const { google } = require('googleapis');
+let google;
+try {
+    const googleapis = require('googleapis');
+    google = googleapis.google;
+} catch (error) {
+    console.warn('googleapis not found, social auth features will be disabled.');
+    // Mock google object to prevent crash
+    google = {
+        auth: {
+            OAuth2: class {
+                generateAuthUrl() { return '#'; }
+                getToken() { throw new Error('Google Auth not available'); }
+            }
+        }
+    };
+}
 const User = require('../models/User');
 
 const oauth2Client = new google.auth.OAuth2(

@@ -68,7 +68,7 @@ export default function DashboardLayoutWrapper({
             { icon: Users, label: 'Mentors', href: '/dashboard/mentors' },
             { icon: Briefcase, label: 'Job Portal', href: '/dashboard/jobs' },
             { icon: BookOpen, label: 'Quizzes / Tests', href: '/dashboard/tests' },
-            { icon: MessageCircle, label: 'My sessions', href: '/dashboard/sessions', badge: 3 },
+            { icon: MessageCircle, label: 'My sessions', href: '/dashboard/sessions' },
             { icon: FileText, label: 'Resume Review', href: '/dashboard/resumes' },
             { icon: Calendar, label: 'Events', href: '/dashboard/events' },
             { icon: Star, label: 'Leaderboard', href: '/dashboard/leaderboard' },
@@ -97,7 +97,7 @@ export default function DashboardLayoutWrapper({
         admin: [
             { icon: Home, label: 'Platform Overview', href: '/dashboard' },
             { icon: Users, label: 'User Management', href: '/dashboard/users' },
-            { icon: Target, label: 'Registrations', href: '/dashboard/registrations', badge: 8 },
+            { icon: Target, label: 'Registrations', href: '/dashboard/registrations' },
             { icon: Briefcase, label: 'Payments', href: '/dashboard/payments' },
             { icon: Calendar, label: 'Events', href: '/dashboard/events' },
             { icon: Star, label: 'Revenue Analytics', href: '/dashboard/revenue' },
