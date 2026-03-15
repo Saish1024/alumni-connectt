@@ -85,6 +85,7 @@ const getEvents = async (req, res) => {
         const filter = type ? { type } : {};
         const events = await Event.find(filter)
             .populate('organizer', 'name email profileImage')
+            .populate('requestedBy', 'name email profileImage')
             .populate('attendees', 'name email profileImage')
             .populate('attendance.studentId', 'name email profileImage')
             .sort({ createdAt: -1 });

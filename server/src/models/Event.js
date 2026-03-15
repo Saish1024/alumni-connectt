@@ -21,6 +21,7 @@ const eventSchema = new mongoose.Schema({
     meetLink: { type: String },
     image: { type: String },
     organizer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    requestedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     attendees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     attendance: [{
         studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

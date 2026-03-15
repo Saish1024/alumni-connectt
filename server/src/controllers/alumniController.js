@@ -43,6 +43,7 @@ const acceptSessionRequest = async (req, res) => {
             type: 'session',
             category: 'Mentoring',
             organizer: alumniId,
+            requestedBy: request.faculty._id, // Track who requested this
             meetLink,
             status: 'upcoming'
         });

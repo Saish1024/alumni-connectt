@@ -188,7 +188,7 @@ const getStudentStats = async (req, res) => {
         const upcomingSessions = await Event.find({
             attendees: studentId,
             status: 'upcoming'
-        }).populate('organizer', 'name profileImage').sort({ date: 1, time: 1 }).limit(2).lean();
+        }).populate('organizer', 'name profileImage').populate('requestedBy', 'name').sort({ date: 1, time: 1 }).limit(2).lean();
 
         res.status(200).json({
             topStats: {
@@ -219,6 +219,7 @@ const getStudentStats = async (req, res) => {
             upcomingSessions: upcomingSessions.map(s => ({
                 id: s._id,
                 mentor: s.organizer?.name || 'Mentor',
+                requestedBy: s.requestedBy?.name,
                 topic: s.title,
                 date: s.date,
                 time: s.time,

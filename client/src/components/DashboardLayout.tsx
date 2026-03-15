@@ -4,7 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { useAuth } from '@/context/AuthContext';
 import {
-    GraduationCap, Bell, Search, Sun, Moon, Menu, X, ChevronRight,
+    GraduationCap, Bell, Sun, Moon, Menu, X, ChevronRight,
     LogOut, Settings, User, ChevronDown,
 } from 'lucide-react';
 
@@ -35,7 +35,7 @@ export default function DashboardLayout({
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [notifOpen, setNotifOpen] = useState(false);
     const [profileOpen, setProfileOpen] = useState(false);
-    const [searchVal, setSearchVal] = useState('');
+    const [profileOpen, setProfileOpen] = useState(false);
 
     const currentTheme = theme === 'system' ? systemTheme : theme;
     const isDark = currentTheme === 'dark';
@@ -160,15 +160,6 @@ export default function DashboardLayout({
                         <Menu className="w-5 h-5" />
                     </button>
 
-                    {/* Search */}
-                    <div className="flex-1 max-w-md relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input
-                            value={searchVal} onChange={e => setSearchVal(e.target.value)}
-                            placeholder="Search mentors, jobs, events..."
-                            className="w-full pl-9 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border border-transparent dark:border-slate-700 rounded-xl text-sm text-slate-700 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 transition-all"
-                        />
-                    </div>
 
                     <div className="flex items-center gap-2 ml-auto">
                         {/* Theme toggle */}

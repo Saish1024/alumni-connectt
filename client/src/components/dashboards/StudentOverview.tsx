@@ -275,7 +275,11 @@ export default function StudentOverview() {
                                 )}
                                 <div className="flex-1 min-w-0">
                                     <div className="font-[600] text-slate-900 dark:text-white text-sm truncate">{s.topic}</div>
-                                    <div className="text-xs text-slate-500 dark:text-slate-400">with {s.mentor} · {s.date} at {s.time}</div>
+                                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                                        with {s.mentor} 
+                                        {s.requestedBy && <span className="text-emerald-500 dark:text-emerald-400"> (Requested by {s.requestedBy})</span>}
+                                        · {s.date} at {s.time}
+                                    </div>
                                 </div>
                                 <button className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-[700] rounded-xl hover:scale-105 transition-all shadow-md shadow-indigo-500/20 flex items-center gap-1.5 flex-shrink-0">
                                     <Play className="w-3 h-3 fill-white" /> Join

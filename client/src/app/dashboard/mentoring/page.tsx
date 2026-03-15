@@ -130,10 +130,20 @@ export default function FacultyMentoringPage() {
                                         <div className="flex items-start justify-between">
                                             <div>
                                                 <h3 className="text-lg font-[700] text-slate-900 dark:text-white">{s.topic || s.title}</h3>
-                                                <div className="flex items-center gap-2 mt-1">
-                                                    <span className="text-sm font-[600] text-indigo-600 dark:text-indigo-400">{s.organizer?.name}</span>
-                                                    <span className="text-slate-300">|</span>
-                                                    <span className="text-sm text-slate-500">Mentor</span>
+                                                <div className="flex flex-wrap items-center gap-y-1 gap-x-3 mt-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm font-[600] text-indigo-600 dark:text-indigo-400">{s.organizer?.name}</span>
+                                                        <span className="text-xs text-slate-400 font-[500]">(Mentor)</span>
+                                                    </div>
+                                                    {s.requestedBy && (
+                                                        <>
+                                                            <span className="text-slate-300 hidden sm:inline">|</span>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-sm font-[600] text-emerald-600 dark:text-emerald-400">{s.requestedBy.name}</span>
+                                                                <span className="text-xs text-slate-400 font-[500]">(Requester)</span>
+                                                            </div>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
                                             {s.meetLink && tab === 'live' && (

@@ -176,8 +176,57 @@ exports.downloadReportByType = async (req, res) => {
                 currentY += 35;
             });
         }
-        else {
-            doc.text('Data aggregation for this report type is currently under maintenance.');
+        else if (type === 'mentoring-summary') {
+            const sessions = await Event.find({ type: 'session' })
+                .populate('organizer', 'name')
+                .populate('requestedBy', 'name')
+                .populate('attendees', 'name')
+                .sort({ date: -1 });
+
+            doc.fontSize(16).fillColor('#111827').text('Mentoring Sessions Summary', { underline: true });
+            doc.moveDown();
+
+            const startX = 50;
+            let currentY = doc.y;
+            doc.fontSize(10).fillColor('#374151').font('Helvetica-Bold');
+            doc.text('Topic', startX, currentY);
+            doc.text('Mentor (Alumni)', startX + 150, currentY);
+            doc.text('Requester (Faculty)', startX + 280, currentY);
+            doc.text('Students', startX + 410, currentY);
+            doc.text('Status', startX + 480, currentY);
+            
+            doc.moveTo(startX, currentY + 15).lineTo(550, currentY + 15).strokeColor('#e5e7eb').stroke();
+            currentY += 25;
+            doc.font('Helvetica');
+
+            for (let session of sessions) {
+                // Topic & Date info
+                doc.fontSize(9).fillColor('#111827').text(session.title || session.topic || 'N/A', startX, currentY, { width: 140 });
+                doc.fillColor('#6b7280').fontSize(8).text(`${session.date} ${session.time || ''}`, startX, currentY + 12);
+                
+                // Mentor
+                doc.fontSize(9).fillColor('#4b5563');
+                doc.text(session.organizer?.name || 'Unknown', startX + 150, currentY);
+                
+                // Requester
+                doc.text(session.requestedBy?.name || 'Self-Organized', startX + 280, currentY);
+                
+                // Student Count
+                doc.text((session.attendees?.length || 0).toString(), startX + 410, currentY);
+                
+                // Status
+                const statusColor = session.status === 'completed' ? '#10b981' : (session.status === 'upcoming' ? '#3b82f6' : '#f59e0b');
+                doc.fillColor(statusColor).text(session.status?.toUpperCase() || 'PENDING', startX + 480, currentY);
+
+                doc.moveTo(startX, currentY + 30).lineTo(550, currentY + 30).strokeColor('#f3f4f6').stroke();
+                currentY += 40;
+
+                if (currentY > 700) {
+                    doc.addPage();
+                    currentY = 50;
+                    // Re-draw header on new page if needed (simplified here)
+                }
+            }
         }
 
         doc.end();

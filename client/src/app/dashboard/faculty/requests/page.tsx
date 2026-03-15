@@ -113,27 +113,38 @@ export default function FacultyRequestsPage() {
                                 <h3 className="text-lg font-[700] text-slate-900 dark:text-white mb-2 group-hover:text-indigo-500 transition-colors">
                                     {req.topic}
                                 </h3>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-3 mb-6">
-                                    {req.description}
-                                </p>
-
-                                {req.status === 'accepted' && req.acceptingAlumni && (
+                                <div className="space-y-3">
+                                    {/* Faculty Requester */}
                                     <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700/50">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white font-[700]">
-                                                {req.acceptingAlumni.name.charAt(0)}
+                                            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-[700] text-xs">
+                                                {req.faculty?.name?.charAt(0) || 'F'}
                                             </div>
                                             <div className="flex-1">
-                                                <p className="text-[10px] text-slate-400 uppercase font-[700]">Accepted by</p>
-                                                <p className="text-sm font-[600] text-slate-900 dark:text-white">{req.acceptingAlumni.name}</p>
+                                                <p className="text-[10px] text-slate-400 uppercase font-[700]">Requested by</p>
+                                                <p className="text-xs font-[600] text-slate-900 dark:text-white">{req.faculty?.name || 'Faculty'}</p>
                                             </div>
                                         </div>
-                                        <div className="mt-3 flex items-center gap-2 text-xs text-indigo-600 dark:text-indigo-400 font-[500]">
-                                            <Calendar className="w-3.5 h-3.5" />
-                                            Live on: {new Date(req.scheduledDate).toLocaleDateString()}
-                                        </div>
                                     </div>
-                                )}
+
+                                    {req.status === 'accepted' && req.acceptingAlumni && (
+                                        <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-xl border border-indigo-100/50 dark:border-indigo-800/30">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-[700] text-xs shadow-sm">
+                                                    {req.acceptingAlumni.name.charAt(0)}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p className="text-[10px] text-indigo-400 dark:text-indigo-300 uppercase font-[700]">Accepted by</p>
+                                                    <p className="text-xs font-[600] text-slate-900 dark:text-white">{req.acceptingAlumni.name}</p>
+                                                </div>
+                                            </div>
+                                            <div className="mt-3 flex items-center gap-2 text-xs text-indigo-600 dark:text-indigo-400 font-[700]">
+                                                <Calendar className="w-3.5 h-3.5" />
+                                                Live on: {new Date(req.scheduledDate).toLocaleDateString()}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
 
                                 {req.status === 'pending' && (
                                     <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 font-[500] py-2">

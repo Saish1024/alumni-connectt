@@ -26,6 +26,7 @@ exports.getMySessionRequests = async (req, res) => {
     try {
         const facultyId = req.user.id;
         const requests = await SessionRequest.find({ faculty: facultyId })
+            .populate('faculty', 'name email profileImage')
             .populate('acceptingAlumni', 'name email profileImage')
             .sort({ createdAt: -1 });
         res.json(requests);
