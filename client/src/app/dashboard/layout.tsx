@@ -81,7 +81,6 @@ export default function DashboardLayoutWrapper({
             {icon: FileText, label: 'Resume Reviews', href: '/dashboard/resumes'},
             {icon: Briefcase, label: 'Post Job/Referral', href: '/dashboard/jobs'},
             {icon: MessageCircle, label: 'Opportunities', href: '/dashboard/alumni/opportunities'},
-            {icon: Target, label: 'Stats & Reputation', href: '/dashboard/stats'},
             {icon: Users, label: 'Donations', href: '/dashboard/donations'},
             {icon: Settings, label: 'Mentoring Setup', href: '/dashboard/setup'},
         ],
