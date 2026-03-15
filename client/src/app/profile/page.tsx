@@ -6,6 +6,7 @@ import {
     MapPin, Briefcase, GraduationCap, Linkedin, Edit3, Camera,
     Users, Mail, ExternalLink, BookOpen, Loader2, X, Check, Star, Network, Zap, Globe, Key
 } from 'lucide-react'
+import Link from 'next/link'
 
 export default function ProfilePage() {
     const [isEditing, setIsEditing] = useState(false)
@@ -311,9 +312,11 @@ export default function ProfilePage() {
                     <div className="bg-gradient-to-br from-indigo-950/50 to-slate-950 rounded-[1.5rem] p-5 border border-indigo-500/10">
                         <h4 className="font-[900] text-sm mb-1.5 text-indigo-100">Operation Center</h4>
                         <p className="text-[10px] text-slate-500 leading-normal mb-4 font-medium">Coordinate mentor connections and protocol optimizations.</p>
-                        <button className="w-full py-2 bg-indigo-600/80 hover:bg-indigo-600 text-white rounded-lg text-[9px] font-[900] uppercase tracking-wider transition-all shadow-lg shadow-indigo-500/5">
-                            Open Dashboard
-                        </button>
+                        <Link href="/dashboard" className="block w-full">
+                            <button className="w-full py-2 bg-indigo-600/80 hover:bg-indigo-600 text-white rounded-lg text-[9px] font-[900] uppercase tracking-wider transition-all shadow-lg shadow-indigo-500/5">
+                                Open Dashboard
+                            </button>
+                        </Link>
                     </div>
                 </div>
             </div>

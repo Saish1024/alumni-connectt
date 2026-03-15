@@ -4,7 +4,7 @@ import { Card } from '@/components/Card'
 import { Button } from '@/components/Button'
 import { Input } from '@/components/Input'
 import { useAuth } from '@/context/AuthContext'
-import { User, Lock, Bell, Shield, LogOut, Save, Camera, ChevronRight, Loader2 } from 'lucide-react'
+import { User as UserIcon, Lock, Bell, Shield, LogOut, Save, Camera, ChevronRight, Loader2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { upload as apiUpload, users as apiUsers } from '@/lib/api'
 
@@ -53,7 +53,7 @@ export default function SettingsPage() {
     }, [user])
 
     const tabs = [
-        { id: 'profile', label: 'Profile', icon: User, color: 'text-indigo-500' },
+        { id: 'profile', label: 'Profile', icon: UserIcon, color: 'text-indigo-500' },
         { id: 'security', label: 'Security', icon: Lock, color: 'text-blue-500' },
         { id: 'notifications', label: 'Notifications', icon: Bell, color: 'text-purple-500' },
     ]
@@ -338,26 +338,27 @@ export default function SettingsPage() {
                             <Card className="border-slate-200 dark:border-slate-800 space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
                                 <h2 className="text-xl font-[800] text-slate-900 dark:text-white">Notifications</h2>
                                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                                    {[
+                                    { [
                                         { id: 'connectionRequests', label: 'Connection Requests', desc: 'When a student wants to connect for mentorship' },
                                         { id: 'newMessages', label: 'New Messages', desc: 'Get notified when you receive a direct message' },
                                         { id: 'jobAlerts', label: 'Job Alert', desc: 'Personalized job postings matching your preferences' },
                                         { id: 'upcomingSessions', label: 'Events & Sessions', desc: 'Reminders for your upcoming mentoring sessions' },
                                     ].map(item => (
                                         <div key={item.id} className="flex items-center justify-between py-6 group">
-                                            <div>
+                                            <label htmlFor={`toggle-${item.id}`} className="cursor-pointer">
                                                 <p className="font-[700] text-slate-900 dark:text-white text-sm">{item.label}</p>
                                                 <p className="text-xs text-slate-400 mt-1 font-[500]">{item.desc}</p>
-                                            </div>
+                                            </label>
                                             <div className="relative w-12 h-6 flex-shrink-0 cursor-pointer">
                                                 <input 
+                                                    id={`toggle-${item.id}`}
                                                     type="checkbox" 
                                                     checked={(notifications as any)[item.id]} 
                                                     onChange={e => setNotifications({ ...notifications, [item.id]: e.target.checked })}
                                                     className="sr-only peer" 
                                                 />
-                                                <div className="w-full h-full bg-slate-200 dark:bg-slate-700 rounded-full peer peer-checked:bg-indigo-600 transition-all duration-300" />
-                                                <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-6" />
+                                                <label htmlFor={`toggle-${item.id}`} className="block w-full h-full bg-slate-200 dark:bg-slate-700 rounded-full peer peer-checked:bg-indigo-600 transition-all duration-300 cursor-pointer" />
+                                                <div className="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-all duration-300 peer-checked:translate-x-6 pointer-events-none" />
                                             </div>
                                         </div>
                                     ))}
