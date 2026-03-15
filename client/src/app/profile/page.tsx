@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
-import { users as usersApi, upload as apiUpload } from '@/lib/api'
+import { users as usersApi, upload as apiUpload, alumni as alumniApi, faculty as facultyApi } from '@/lib/api'
 import {
     MapPin, Briefcase, GraduationCap, Linkedin, Edit3, Camera,
     Users, Mail, ExternalLink, BookOpen, Loader2, X, Check, Star, Network, Zap, Globe, Key
@@ -13,6 +13,8 @@ export default function ProfilePage() {
     const [saving, setSaving] = useState(false)
     const [isUploading, setIsUploading] = useState(false)
     const { user, setUser } = useAuth()
+    const [stats, setStats] = useState<any>(null)
+    const [statsLoading, setStatsLoading] = useState(false)
 
     // Form state
     const [form, setForm] = useState({
@@ -38,8 +40,42 @@ export default function ProfilePage() {
                 linkedin: user.linkedin || '',
                 skills: (user.skills || []).join(', ')
             })
+            fetchStats()
         }
     }, [user, isEditing])
+
+    const fetchStats = async () => {
+        if (!user) return
+        setStatsLoading(true)
+        try {
+            if (user.role === 'alumni') {
+                const res = await alumniApi.getStats()
+                setStats({
+                    signals: res.topStats.studentsHelped,
+                    events: res.topStats.sessionsDone,
+                    impact: res.topStats.avgRating
+                })
+            } else if (user.role === 'faculty') {
+                const res = await facultyApi.getStats()
+                setStats({
+                    signals: res.activeStudentsCount || 0,
+                    events: res.sessionsThisMonthCount || 0,
+                    impact: (res.avgQuizScore / 20) || 0 // Normalize to 5.0 scale
+                })
+            } else if (user.role === 'student') {
+                const res = await usersApi.getStudentStats()
+                setStats({
+                    signals: res.topStats.quizzesTaken,
+                    events: res.topStats.sessionsBooked,
+                    impact: Math.min(5, (res.topStats.totalPoints / 1000) + 1) // Aesthetic impact score
+                })
+            }
+        } catch (err) {
+            console.error('Failed to fetch telemetry stats:', err)
+        } finally {
+            setStatsLoading(false)
+        }
+    }
 
     const handleSave = async () => {
         setSaving(true)
@@ -288,21 +324,60 @@ export default function ProfilePage() {
 
                 <div className="space-y-5">
                     {/* Analytics Module */}
-                    <div className="bg-slate-900/30 rounded-[1.5rem] p-5 border border-slate-800">
-                        <h3 className="text-[9px] font-[900] text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                            <div className="w-1 h-1 bg-indigo-500 rounded-full animate-pulse" /> Telemetry
+                    <div className="bg-slate-900/30 backdrop-blur-md rounded-[2rem] p-6 border border-slate-800/50 shadow-2xl shadow-indigo-500/5">
+                        <h3 className="text-[10px] font-[900] text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                            <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(99,102,241,0.8)]" /> 
+                            System Telemetry
                         </h3>
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                             {[
-                                { label: 'Signals', value: '284', icon: Users },
-                                { label: 'Events', value: '15', icon: Network },
-                                { label: 'Impact', value: '4.9', icon: Star }
+                                { 
+                                    label: 'Signals', 
+                                    value: statsLoading ? '...' : (stats?.signals ?? '0'), 
+                                    icon: Users,
+                                    color: 'indigo',
+                                    glow: 'shadow-indigo-500/20',
+                                    bg: 'bg-indigo-500/10',
+                                    text: 'text-indigo-400'
+                                },
+                                { 
+                                    label: 'Events', 
+                                    value: statsLoading ? '...' : (stats?.events ?? '0'), 
+                                    icon: Network,
+                                    color: 'emerald',
+                                    glow: 'shadow-emerald-500/20',
+                                    bg: 'bg-emerald-500/10',
+                                    text: 'text-emerald-400'
+                                },
+                                { 
+                                    label: 'Impact', 
+                                    value: statsLoading ? '...' : (stats?.impact ?? '0.0'), 
+                                    icon: Star,
+                                    color: 'amber',
+                                    glow: 'shadow-amber-500/20',
+                                    bg: 'bg-amber-500/10',
+                                    text: 'text-amber-400',
+                                    animate: 'animate-pulse'
+                                }
                             ].map(stat => (
-                                <div key={stat.label} className="flex items-center justify-between p-2.5 bg-slate-950/20 rounded-lg border border-slate-800/30">
-                                    <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase">
-                                        <stat.icon className="w-3.5 h-3.5" /> {stat.label}
+                                <div 
+                                    key={stat.label} 
+                                    className={`group flex items-center justify-between p-4 bg-slate-950/40 rounded-2xl border border-slate-800/50 hover:border-${stat.color}-500/50 hover:scale-[1.02] hover:shadow-xl ${stat.glow} transition-all duration-300 cursor-default`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-10 h-10 ${stat.bg} ${stat.text} rounded-xl flex items-center justify-center border border-${stat.color}-500/20 group-hover:scale-110 transition-transform`}>
+                                            <stat.icon className={`w-5 h-5 ${stat.animate || ''}`} />
+                                        </div>
+                                        <div>
+                                            <div className="text-[10px] font-black text-slate-500 uppercase tracking-wider">{stat.label}</div>
+                                            <div className="text-xs font-semibold text-slate-400 group-hover:text-slate-200 transition-colors">Active Protocol</div>
+                                        </div>
                                     </div>
-                                    <span className="text-base font-[900] text-white">{stat.value}</span>
+                                    <div className="text-right">
+                                        <span className={`text-2xl font-[900] bg-gradient-to-br from-white via-white to-slate-500 bg-clip-text text-transparent group-hover:from-${stat.color}-400 group-hover:to-white transition-all`}>
+                                            {stat.value}
+                                        </span>
+                                    </div>
                                 </div>
                             ))}
                         </div>

@@ -47,7 +47,7 @@ export default function CompetitionsPage() {
         setSubmitting(true);
         try {
             const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('alumni_token');
             const res = await fetch(`${baseUrl}/competitions`, {
                 method: 'POST',
                 headers: {
