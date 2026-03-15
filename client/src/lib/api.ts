@@ -160,6 +160,7 @@ export const alumni = {
 export const faculty = {
     getStats: () => request<any>('/faculty/stats'),
     fetchSessionRequests: () => request<any[]>('/faculty/requests'),
+    getStudentPerformance: () => request<any[]>('/faculty/student-performance'),
     createSessionRequest: (topic: string, description: string) =>
         request<any>('/faculty/requests', {
             method: 'POST',

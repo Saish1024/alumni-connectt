@@ -127,10 +127,10 @@ export default function LeaderboardPage() {
 
             {/* Full Leaderboard */}
             <div className="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 overflow-hidden shadow-sm">
-                <div className="overflow-x-auto">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b border-slate-200 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/30">
+                <div className="overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
+                    <table className="w-full border-collapse">
+                        <thead className="sticky top-0 z-10">
+                            <tr className="border-b border-slate-200 dark:border-slate-700/50 bg-slate-50/90 dark:bg-slate-800 shadow-sm">
                                 <th className="text-left px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rank</th>
                                 <th className="text-left px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Student</th>
                                 <th className="text-right px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Points</th>

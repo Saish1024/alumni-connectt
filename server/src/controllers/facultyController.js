@@ -167,3 +167,50 @@ exports.getDashboardStats = async (req, res) => {
         res.status(500).json({ error: 'Server error while fetching dashboard stats' });
     }
 };
+exports.getAllStudentPerformance = async (req, res) => {
+    try {
+        const students = await User.find({ role: 'student' })
+            .select('name email createdAt batchYear profileImage')
+            .sort({ createdAt: -1 })
+            .lean();
+
+        const performanceData = await Promise.all(students.map(async (student) => {
+            // 1. Sessions Attended
+            const sessionsAttended = await Event.countDocuments({
+                type: 'session',
+                attendees: student._id
+            });
+
+            // 2. Average Quiz Score
+            const quizStats = await QuizAttempt.aggregate([
+                { $match: { studentId: student._id } },
+                {
+                    $group: {
+                        _id: null,
+                        avgScore: { 
+                            $avg: { 
+                                $min: [
+                                    1, 
+                                    { $divide: ["$score", { $cond: [{ $eq: ["$totalQuestions", 0] }, 1, "$totalQuestions"] }] }
+                                ]
+                            } 
+                        }
+                    }
+                }
+            ]);
+
+            const avgQuizScore = quizStats.length > 0 ? Math.round(quizStats[0].avgScore * 100) : 0;
+
+            return {
+                ...student,
+                sessionsAttended,
+                avgQuizScore
+            };
+        }));
+
+        res.json(performanceData);
+    } catch (error) {
+        console.error('Error fetching all student performance:', error);
+        res.status(500).json({ error: 'Server error while fetching student performance' });
+    }
+};

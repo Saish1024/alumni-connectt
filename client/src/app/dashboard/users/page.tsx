@@ -126,18 +126,18 @@ export default function UserManagementPage() {
                 </div>
             ) : (
                 <div className="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 overflow-hidden shadow-sm">
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-900/30">
-                                    <th className="text-left px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase">User</th>
-                                    <th className="text-left px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase">Role</th>
-                                    <th className="text-left px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase">Details</th>
-                                    <th className="text-left px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase">Joined</th>
-                                    <th className="text-right px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase">Actions</th>
+                    <div className="overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
+                        <table className="w-full border-collapse">
+                            <thead className="sticky top-0 z-10">
+                                <tr className="border-b border-slate-200 dark:border-slate-700/50 bg-slate-50 shadow-sm dark:bg-slate-900">
+                                    <th className="text-left px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase tracking-wider">User</th>
+                                    <th className="text-left px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Role</th>
+                                    <th className="text-left px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Details</th>
+                                    <th className="text-left px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Joined</th>
+                                    <th className="text-right px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/30">
                                 {filtered.length === 0 ? (
                                     <tr>
                                         <td colSpan={5} className="text-center py-16 text-slate-400 text-sm">No users found.</td>

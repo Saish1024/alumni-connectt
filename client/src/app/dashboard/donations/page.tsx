@@ -112,13 +112,62 @@ export default function DonationsPage() {
                         <div className="text-3xl font-[900]">₹{totalGiven.toLocaleString('en-IN')}</div>
                         <p className="text-white/80 text-sm mt-1">Across {history.length} attempts · Thank you for your impact! 🙏</p>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-2xl">
-                            💝
-                        </div>
-                    </div>
                 </div>
             </div>
+            
+            {/* Official Payment Info Section */}
+            {tab === 'campaigns' && platformConfig.upiId && (
+                <div className="bg-white dark:bg-slate-800/80 rounded-2xl border border-indigo-200 dark:border-indigo-500/30 p-6 shadow-sm animate-in slide-in-from-top-4 duration-500">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-10 h-10 rounded-xl bg-indigo-600/10 flex items-center justify-center text-indigo-600">
+                            <IndianRupee className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h3 className="font-[800] text-slate-900 dark:text-white">Official Payment Information</h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">Verified platform details for all direct contributions</p>
+                        </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-3">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">ADMIN UPI ID</p>
+                            <div className="flex items-center gap-2">
+                                <div className="flex-grow bg-slate-50 dark:bg-slate-900/50 p-3.5 rounded-xl border border-slate-100 dark:border-slate-700 font-mono text-xs text-indigo-600 dark:text-indigo-400 shadow-inner overflow-hidden text-ellipsis">
+                                    {platformConfig.upiId}
+                                </div>
+                                <button 
+                                    onClick={() => {
+                                        navigator.clipboard.writeText(platformConfig.upiId);
+                                        setCopied(true);
+                                        setTimeout(() => setCopied(false), 2000);
+                                    }}
+                                    className="p-3.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-indigo-300 transition-all group shrink-0">
+                                    {copied ? <CheckCircle2 className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />}
+                                </button>
+                            </div>
+                        </div>
+
+                        {platformConfig.bankDetails?.accountNo && (
+                            <div className="space-y-3">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">BANK TRANSFER DETAILS</p>
+                                <div className="grid grid-cols-2 gap-x-4 gap-y-2 bg-slate-50 dark:bg-slate-900/50 p-3.5 rounded-xl border border-slate-100 dark:border-slate-700 text-[11px] shadow-inner font-[500]">
+                                    <div className="text-slate-400 uppercase tracking-tighter">Bank</div>
+                                    <div className="text-slate-900 dark:text-white font-bold text-right">{platformConfig.bankDetails.bankName}</div>
+                                    <div className="text-slate-400 uppercase tracking-tighter">A/C No</div>
+                                    <div className="text-slate-900 dark:text-white font-bold text-right">{platformConfig.bankDetails.accountNo}</div>
+                                    <div className="text-slate-400 uppercase tracking-tighter">IFSC</div>
+                                    <div className="text-slate-900 dark:text-white font-bold text-right">{platformConfig.bankDetails.ifscCode}</div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    
+                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/50 flex items-center gap-2 text-[10px] text-amber-600 dark:text-amber-500 font-bold px-1 uppercase tracking-wider">
+                        <TrendingUp className="w-3 h-3" />
+                        After making a payment, please record your transaction ID in the donation form to verify your contribution.
+                    </div>
+                </div>
+            )}
 
             {tab === 'campaigns' ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">

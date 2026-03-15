@@ -1,4 +1,5 @@
 const QuizAttempt = require('../models/QuizAttempt');
+const User = require('../models/User');
 
 exports.submitQuizAttempt = async (req, res) => {
     try {
@@ -14,7 +15,45 @@ exports.submitQuizAttempt = async (req, res) => {
         });
 
         await attempt.save();
-        res.status(201).json({ message: 'Quiz attempt saved successfully', attempt });
+
+        // Sync points and streak for the student
+        const user = await User.findById(req.user._id);
+        if (user) {
+            // Update total points
+            user.totalPoints = (user.totalPoints || 0) + score;
+
+            // Handle Streak
+            const lastAttempt = await QuizAttempt.findOne({ 
+                studentId: req.user._id, 
+                _id: { $ne: attempt._id } 
+            }).sort({ createdAt: -1 });
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (lastAttempt) {
+                const lastDate = new Date(lastAttempt.createdAt);
+                lastDate.setHours(0, 0, 0, 0);
+
+                const diffDays = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
+
+                if (diffDays === 1) {
+                    // Quiz taken yesterday, increment streak
+                    user.streak = (user.streak || 0) + 1;
+                } else if (diffDays > 1) {
+                    // Gap in quizzes, reset to 1
+                    user.streak = 1;
+                }
+                // If diffDays === 0, already taken today, streak remains same
+            } else {
+                // First quiz ever
+                user.streak = 1;
+            }
+
+            await user.save();
+        }
+
+        res.status(201).json({ message: 'Quiz attempt saved and points synchronized', attempt });
     } catch (error) {
         console.error('Error saving quiz attempt:', error);
         res.status(500).json({ error: 'Server error while saving quiz attempt' });

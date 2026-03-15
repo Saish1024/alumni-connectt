@@ -20,6 +20,7 @@ router.get('/', auth, getUsers); // Alumni directory - list all approved users
 // Protected
 router.get('/pending', auth, checkRole(['admin']), getPendingUsers);
 router.get('/stats', auth, getStudentStats);
+router.get('/leaderboard', auth, getLeaderboard);
 router.get('/:id', auth, getUserById);
 router.put('/profile', auth, updateProfile);
 router.put('/:id', auth, checkRole(['admin']), adminUpdateUser);
