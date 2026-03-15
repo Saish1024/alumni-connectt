@@ -58,6 +58,12 @@ export default function SignupPage() {
     });
 
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+    const [yearSearch, setYearSearch] = useState('');
+    const [showYearDropdown, setShowYearDropdown] = useState(false);
+
+    const currentYear = new Date().getFullYear();
+    const alumniYears = Array.from({ length: currentYear - 1950 + 1 }, (_, i) => (currentYear - i).toString());
+    const filteredYears = alumniYears.filter(y => y.includes(yearSearch));
 
     const validate = () => {
         const errs: Record<string, string> = {};
@@ -308,15 +314,71 @@ export default function SignupPage() {
                                             <label className="block text-sm font-[600] text-white/80 mb-2">
                                                 {selectedRole === 'alumni' ? 'Grad Year' : 'Current Year'}
                                             </label>
-                                            <select
-                                                required value={form.year} onChange={e => setForm({ ...form, year: e.target.value })}
-                                                className="w-full bg-white/10 border border-white/20 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]">
-                                                <option value="" className="bg-slate-900 border-none">Select</option>
-                                                {selectedRole === 'student'
-                                                    ? ['1st Year', '2nd Year', '3rd Year', '4th Year'].map(y => <option key={y} value={y} className="bg-slate-900">{y}</option>)
-                                                    : ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024'].map(y => <option key={y} value={y} className="bg-slate-900">{y}</option>)
-                                                }
-                                            </select>
+                                            {selectedRole === 'student' ? (
+                                                <select
+                                                    required 
+                                                    value={form.year} 
+                                                    onChange={e => setForm({ ...form, year: e.target.value })}
+                                                    className="w-full bg-white/10 border border-white/20 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
+                                                >
+                                                    <option value="" className="bg-slate-900 border-none">Select</option>
+                                                    {['1st Year', '2nd Year', '3rd Year', '4th Year'].map(y => (
+                                                        <option key={y} value={y} className="bg-slate-900">{y}</option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <div className="relative">
+                                                    <div className="relative">
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Search year..."
+                                                            value={form.year || yearSearch}
+                                                            onFocus={() => {
+                                                                setShowYearDropdown(true);
+                                                                if (form.year) {
+                                                                    setYearSearch(form.year);
+                                                                    setForm({ ...form, year: '' });
+                                                                }
+                                                            }}
+                                                            onChange={(e) => {
+                                                                setYearSearch(e.target.value);
+                                                                setShowYearDropdown(true);
+                                                            }}
+                                                            className="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
+                                                        />
+                                                        <button 
+                                                            type="button"
+                                                            onClick={() => setShowYearDropdown(!showYearDropdown)}
+                                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70"
+                                                        >
+                                                            <Users className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+
+                                                    {showYearDropdown && (
+                                                        <div className="absolute z-50 mt-2 w-full max-h-60 overflow-y-auto bg-slate-900 border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl scrollbar-thin scrollbar-thumb-white/10">
+                                                            {filteredYears.length > 0 ? (
+                                                                filteredYears.map(y => (
+                                                                    <button
+                                                                        key={y}
+                                                                        type="button"
+                                                                        className="w-full px-4 py-3 text-left text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 last:border-none"
+                                                                        onClick={() => {
+                                                                            setForm({ ...form, year: y });
+                                                                            setYearSearch(y);
+                                                                            setShowYearDropdown(false);
+                                                                        }}
+                                                                    >
+                                                                        {y}
+                                                                    </button>
+                                                                ))
+                                                            ) : (
+                                                                <div className="px-4 py-3 text-sm text-white/40 italic">No years found</div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
                                         </>
                                     )}
                                 </div>
