@@ -22,7 +22,7 @@ exports.downloadReportByType = async (req, res) => {
         doc.moveDown(2);
 
         if (type === 'student-performance') {
-            const students = await User.find({ role: 'student' }).select('name email major batchYear');
+            const students = await User.find({ role: 'student' }).select('name email industry batchYear');
             doc.fontSize(16).fillColor('#111827').text('Student Performance Overview', { underline: true });
             doc.moveDown();
 

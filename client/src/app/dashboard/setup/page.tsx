@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Save, Clock, BookOpen, IndianRupee, CheckCircle2, Loader2, AlertCircle, Plus, Trash2 } from 'lucide-react';
+import { Save, Clock, BookOpen, IndianRupee, CheckCircle2, Loader2, AlertCircle, Plus, Trash2, Globe, Calendar as CalendarIcon } from 'lucide-react';
 import { alumni as apiAlumni } from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
 
@@ -149,6 +149,37 @@ export default function MentoringSetupPage() {
                     <span className="text-sm font-[600]">{message.text}</span>
                 </div>
             )}
+
+            {/* Google Calendar Section */}
+            <div className="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full -mr-16 -mt-16 blur-3xl" />
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-indigo-500 mb-1">
+                            <CalendarIcon className="w-5 h-5" />
+                            <h3 className="text-lg font-[800]">Google Calendar Integration</h3>
+                        </div>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 max-w-lg">
+                            Connect your Google Calendar to automatically generate <b>real Google Meet links</b> for mentoring sessions. This is required to accept any session requests from faculty.
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-3 min-w-[200px]">
+                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${user?.googleTokens?.access_token ? 'bg-green-100 dark:bg-green-900/20 text-green-600' : 'bg-amber-100 dark:bg-amber-900/20 text-amber-600'}`}>
+                            <div className={`w-1.5 h-1.5 rounded-full ${user?.googleTokens?.access_token ? 'bg-green-500' : 'bg-amber-500 animate-pulse'}`} />
+                            {user?.googleTokens?.access_token ? 'Calendar Connected' : 'Not Connected'}
+                        </div>
+                        
+                        <a 
+                            href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/auth/google?userId=${user?._id}`}
+                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-xs transition-all shadow-md ${user?.googleTokens?.access_token ? 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200' : 'bg-indigo-600 text-white hover:bg-indigo-500 hover:shadow-indigo-500/20 hover:scale-[1.02]'}`}
+                        >
+                            <Globe className="w-4 h-4" />
+                            {user?.googleTokens?.access_token ? 'Re-connect Calendar' : 'Connect Google Calendar'}
+                        </a>
+                    </div>
+                </div>
+            </div>
 
             <div className="grid md:grid-cols-2 gap-8">
                 {/* Left Column: Pricing & Expertise */}

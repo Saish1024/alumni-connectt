@@ -3,6 +3,7 @@ const User = require('../models/User');
 const ResumeReview = require('../models/ResumeReview');
 const SessionRequest = require('../models/SessionRequest');
 const mongoose = require('mongoose');
+const googleCalendar = require('./googleCalendarController');
 
 const getAvailableSessionRequests = async (req, res) => {
     try {
@@ -25,12 +26,34 @@ const acceptSessionRequest = async (req, res) => {
         if (!request) return res.status(404).json({ error: 'Session request not found' });
         if (request.status !== 'pending') return res.status(400).json({ error: 'Session request already accepted or cancelled' });
 
-        // Generate mock link for now (matching eventController logic if no tokens)
-        const meetLink = `https://meet.google.com/session-${Math.random().toString(36).substring(2, 10)}`;
+        // Generate real Google Meet link - STRICT ENFORCEMENT
+        let meetLink;
+        const acceptingUser = await User.findById(alumniId);
+        
+        if (!acceptingUser.googleTokens || !acceptingUser.googleTokens.access_token) {
+            return res.status(400).json({ 
+                error: 'Google Calendar not connected. Please connect your Google account in Mentoring Setup to accept session requests.' 
+            });
+        }
+
+        const sDate = scheduledDate ? new Date(scheduledDate) : new Date(Date.now() + 86400000);
+        const dateStr = sDate.toISOString().split('T')[0];
+
+        try {
+            meetLink = await googleCalendar.createMeeting(alumniId, {
+                topic: request.topic,
+                date: dateStr,
+                time: "10:00",
+                duration: 60
+            });
+        } catch (err) {
+            console.error('Google Meet generation failed:', err);
+            return res.status(500).json({ error: 'Failed to generate Google Meet link. Please try again or re-connect your account.' });
+        }
 
         request.status = 'accepted';
         request.acceptingAlumni = alumniId;
-        request.scheduledDate = scheduledDate || new Date(Date.now() + 86400000); // Default to tomorrow
+        request.scheduledDate = sDate; 
         request.meetingLink = meetLink;
         await request.save();
 

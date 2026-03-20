@@ -131,7 +131,7 @@ export default function AdminOverview() {
                                     <div className="w-2.5 h-2.5 rounded-full" style={{ background: r.color }} />
                                     <span className="text-slate-600 dark:text-slate-400 font-[500]">{r.name}</span>
                                 </div>
-                                <span className="font-[700] text-slate-900 dark:text-white">{r.value}%</span>
+                                <span className="font-[700] text-slate-900 dark:text-white">{r.count}</span>
                             </div>
                         ))}
                     </div>

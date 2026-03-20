@@ -46,7 +46,7 @@ export default function AlumniOverview() {
     const displayName = user?.name || 'Alumni Mentor';
     const roleStr = user?.jobTitle ? `${user.jobTitle} ${user.company ? `@ ${user.company}` : ''}` : 'Professional Mentor';
     const batchYear = user?.batchYear || '';
-    const major = user?.major || user?.department || '';
+    const major = user?.industry || user?.major || user?.department || 'Branch Not Specified';
     const institution = user?.institution || 'IIT Delhi';
 
     if (loading) {

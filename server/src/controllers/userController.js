@@ -98,8 +98,20 @@ const deleteUser = async (req, res) => {
 // PUT /api/users/:id - update any user (Admin only)
 const adminUpdateUser = async (req, res) => {
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true }).select('-password');
-        res.status(200).json(user);
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        const updates = req.body;
+        
+        // Handle password separately to ensure it's hashed if changed
+        if (updates.password === '') delete updates.password;
+
+        Object.keys(updates).forEach(key => {
+            user[key] = updates[key];
+        });
+
+        await user.save();
+        res.status(200).json({ message: 'User updated successfully', user });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

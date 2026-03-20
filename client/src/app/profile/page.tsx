@@ -24,6 +24,7 @@ export default function ProfilePage() {
         currentCompany: '',
         location: '',
         batchYear: '',
+        industry: '',
         linkedin: '',
         skills: '' 
     })
@@ -37,6 +38,7 @@ export default function ProfilePage() {
                 currentCompany: user.currentCompany || '',
                 location: user.location || '',
                 batchYear: user.batchYear || '',
+                industry: user.industry || '',
                 linkedin: user.linkedin || '',
                 skills: (user.skills || []).join(', ')
             })
@@ -249,6 +251,7 @@ export default function ProfilePage() {
                         {[
                             { label: 'Location', value: form.location, icon: MapPin, key: 'location', display: user.location || 'Not set' },
                             { label: 'Timeline', value: form.batchYear, icon: Key, key: 'batchYear', display: `Class of ${user.batchYear || 'N/A'}` },
+                            { label: 'Branch', value: form.industry, icon: GraduationCap, key: 'industry', display: user.industry || 'Not set' },
                             { label: 'Link', value: form.linkedin, icon: Linkedin, key: 'linkedin', display: user.linkedin ? 'Connected' : 'Not linked' },
                             { label: 'Contact', value: user.email, icon: Mail, readonly: true }
                         ].map((item, idx) => (

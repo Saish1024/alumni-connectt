@@ -13,6 +13,7 @@ interface User {
     jobTitle?: string
     batchYear?: string
     major?: string
+    industry?: string
     department?: string
     institution?: string
     location?: string
@@ -36,6 +37,13 @@ interface User {
     resumeReviewPrice?: number
     mentoringTopics?: string[]
     availability?: Record<string, string[]>
+    googleTokens?: {
+        access_token: string
+        refresh_token: string
+        scope: string
+        token_type: string
+        expiry_date: number
+    }
     createdAt?: string
 }
 

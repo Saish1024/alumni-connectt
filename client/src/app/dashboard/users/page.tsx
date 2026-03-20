@@ -18,8 +18,17 @@ export default function UserManagementPage() {
     const [editData, setEditData] = useState({
         name: '',
         email: '',
+        phoneNumber: '',
         role: '',
         password: '',
+        batchYear: '',
+        company: '',
+        jobTitle: '',
+        industry: '',
+        location: '',
+        bio: '',
+        linkedin: '',
+        isApproved: true,
     });
     const [updateLoading, setUpdateLoading] = useState(false);
 
@@ -65,10 +74,19 @@ export default function UserManagementPage() {
     const openEditModal = (user: any) => {
         setSelectedUser(user);
         setEditData({
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            password: '', // Empty by default, only resets if filled
+            name: user.name || '',
+            email: user.email || '',
+            phoneNumber: user.phoneNumber || '',
+            role: user.role || 'student',
+            password: '', 
+            batchYear: user.batchYear || '',
+            company: user.company || '',
+            jobTitle: user.jobTitle || '',
+            industry: user.industry || '',
+            location: user.location || '',
+            bio: user.bio || '',
+            linkedin: user.linkedin || '',
+            isApproved: user.isApproved ?? true,
         });
         setIsEditModalOpen(true);
     };
@@ -216,49 +234,135 @@ export default function UserManagementPage() {
                                 </button>
                             </div>
 
-                            <div className="p-8 space-y-6">
-                                <div className="grid grid-cols-1 gap-6">
-                                    <Input
-                                        label="Full Name"
-                                        value={editData.name}
-                                        onChange={e => setEditData({ ...editData, name: e.target.value })}
-                                        placeholder="Full Name"
-                                    />
-                                    <Input
-                                        label="Email Address"
-                                        type="email"
-                                        value={editData.email}
-                                        onChange={e => setEditData({ ...editData, email: e.target.value })}
-                                        placeholder="Email Address"
-                                    />
-
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 ml-1">Account Role</label>
-                                        <select
-                                            value={editData.role}
-                                            onChange={e => setEditData({ ...editData, role: e.target.value })}
-                                            className="w-full h-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-                                        >
-                                            <option value="student">Student</option>
-                                            <option value="alumni">Alumni</option>
-                                            <option value="faculty">Faculty</option>
-                                            <option value="admin">Administrator</option>
-                                        </select>
-                                    </div>
-
-                                    <div className="pt-2">
-                                        <div className="flex items-center gap-2 mb-3 ml-1">
-                                            <Key className="w-3.5 h-3.5 text-amber-500" />
-                                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Reset Password</label>
-                                        </div>
+                            <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                                {/* Account Basics */}
+                                <div className="space-y-4">
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Account Basics</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <Input
-                                            type="password"
-                                            value={editData.password}
-                                            onChange={e => setEditData({ ...editData, password: e.target.value })}
-                                            placeholder="Leave blank to keep current password"
+                                            label="Full Name"
+                                            value={editData.name}
+                                            onChange={e => setEditData({ ...editData, name: e.target.value })}
+                                            placeholder="Sai Gosavi"
                                         />
-                                        <p className="text-[10px] text-slate-400 mt-2 px-1 leading-relaxed">Admin password reset is immediate. New passwords must be at least 8 characters for security.</p>
+                                        <Input
+                                            label="Email Address"
+                                            type="email"
+                                            value={editData.email}
+                                            onChange={e => setEditData({ ...editData, email: e.target.value })}
+                                            placeholder="saishgosavi10@gmail.com"
+                                        />
                                     </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <Input
+                                            label="Phone Number"
+                                            value={editData.phoneNumber}
+                                            onChange={e => setEditData({ ...editData, phoneNumber: e.target.value })}
+                                            placeholder="+91 XXXXX XXXXX"
+                                        />
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 ml-1">Account Role</label>
+                                            <select
+                                                value={editData.role}
+                                                onChange={e => setEditData({ ...editData, role: e.target.value })}
+                                                className="w-full h-12 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                                            >
+                                                <option value="student">Student</option>
+                                                <option value="alumni">Alumni</option>
+                                                <option value="faculty">Faculty</option>
+                                                <option value="admin">Administrator</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Professional Info */}
+                                <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Academic & Professional</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <Input
+                                            label="Batch Year / Graduation"
+                                            value={editData.batchYear}
+                                            onChange={e => setEditData({ ...editData, batchYear: e.target.value })}
+                                            placeholder="2024"
+                                        />
+                                        <Input
+                                            label="Industry / Branch"
+                                            value={editData.industry}
+                                            onChange={e => setEditData({ ...editData, industry: e.target.value })}
+                                            placeholder="Electronics & Computer Science"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <Input
+                                            label="Company / Institution"
+                                            value={editData.company}
+                                            onChange={e => setEditData({ ...editData, company: e.target.value })}
+                                            placeholder="Google / KIT's College"
+                                        />
+                                        <Input
+                                            label="Job Title"
+                                            value={editData.jobTitle}
+                                            onChange={e => setEditData({ ...editData, jobTitle: e.target.value })}
+                                            placeholder="Software Engineer"
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <Input
+                                            label="Location"
+                                            value={editData.location}
+                                            onChange={e => setEditData({ ...editData, location: e.target.value })}
+                                            placeholder="Kolkata, India"
+                                        />
+                                        <Input
+                                            label="LinkedIn URL"
+                                            value={editData.linkedin}
+                                            onChange={e => setEditData({ ...editData, linkedin: e.target.value })}
+                                            placeholder="https://linkedin.com/in/..."
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Extra Details */}
+                                <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Additional Profile Info</h4>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 ml-1">Short Bio</label>
+                                        <textarea
+                                            value={editData.bio}
+                                            onChange={e => setEditData({ ...editData, bio: e.target.value })}
+                                            placeholder="Briefly describe the user's role and background..."
+                                            className="w-full min-h-[100px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                                        />
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+                                        <div>
+                                            <div className="text-sm font-bold text-slate-900 dark:text-white">Account Status</div>
+                                            <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-tight">Only approved users can access full features</div>
+                                        </div>
+                                        <button 
+                                            onClick={() => setEditData({ ...editData, isApproved: !editData.isApproved })}
+                                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ring-offset-2 focus:ring-2 focus:ring-indigo-500/20 ${editData.isApproved ? 'bg-indigo-600' : 'bg-slate-300'}`}
+                                        >
+                                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${editData.isApproved ? 'translate-x-6' : 'translate-x-1'}`} />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Password Reset */}
+                                <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                                    <div className="flex items-center gap-2 mb-3 ml-1">
+                                        <Key className="w-3.5 h-3.5 text-amber-500" />
+                                        <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Reset Password</label>
+                                    </div>
+                                    <Input
+                                        type="password"
+                                        value={editData.password}
+                                        onChange={e => setEditData({ ...editData, password: e.target.value })}
+                                        placeholder="Leave blank to keep current password"
+                                    />
+                                    <p className="text-[10px] text-slate-400 mt-2 px-1 leading-relaxed italic">Changes to account credentials take effect immediately after saving.</p>
                                 </div>
                             </div>
 

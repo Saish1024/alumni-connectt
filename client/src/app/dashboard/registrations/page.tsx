@@ -96,6 +96,7 @@ export default function RegistrationsPage() {
                                 <div className="flex flex-wrap gap-3 mt-3 text-xs text-slate-500 dark:text-slate-400">
                                     {r.company && <span className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-700 rounded-lg font-[500]">🏢 {r.company}</span>}
                                     <span className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-700 rounded-lg font-[500]">🎓 {r.batchYear || 'N/A'}</span>
+                                    {r.industry && <span className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-700 rounded-lg font-[500]">📚 {r.industry}</span>}
                                     {r.linkedin && (
                                         <a href={r.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg font-[500] hover:bg-blue-100 transition-colors">
                                             <Globe className="w-3.5 h-3.5" /> LinkedIn

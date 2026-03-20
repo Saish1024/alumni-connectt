@@ -58,7 +58,7 @@ export default function StudentPerformancePage() {
                             <thead className="sticky top-0 z-10">
                                 <tr className="border-b border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-900 shadow-sm text-left">
                                     <th className="px-6 py-4 text-xs font-[800] text-slate-500 uppercase tracking-wider">Student</th>
-                                    <th className="px-6 py-4 text-xs font-[800] text-slate-500 uppercase tracking-wider">Year</th>
+                                    <th className="px-6 py-4 text-xs font-[800] text-slate-500 uppercase tracking-wider">Branch/Year</th>
                                     <th className="px-6 py-4 text-xs font-[800] text-slate-400 uppercase tracking-wider">Sessions</th>
                                     <th className="px-6 py-4 text-xs font-[800] text-slate-400 uppercase tracking-wider">Avg Score</th>
                                     <th className="px-6 py-4 text-xs font-[800] text-slate-500 uppercase tracking-wider text-right">Status</th>
@@ -87,7 +87,10 @@ export default function StudentPerformancePage() {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300 font-medium">{s.batchYear || 'N/A'}</td>
+                                        <td className="px-6 py-4">
+                                            <div className="text-sm text-slate-900 dark:text-white font-semibold">{s.industry || s.branch || 'N/A'}</div>
+                                            <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{s.batchYear || 'N/A'} Batch</div>
+                                        </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-1.5">
                                                 <div className="px-2.5 py-1 bg-blue-50 dark:bg-blue-900/10 text-blue-600 dark:text-blue-400 rounded-lg text-xs font-[800]">
@@ -140,7 +143,8 @@ export default function StudentPerformancePage() {
                             <div className="mb-8">
                                 <h3 className="text-2xl font-[900] text-slate-900 dark:text-white leading-tight">{selectedStudent.name}</h3>
                                 <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">{selectedStudent.email}</p>
-                                <div className="mt-2 flex gap-2">
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    <span className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-[10px] font-[800] text-slate-500 uppercase tracking-widest">{selectedStudent.industry || selectedStudent.branch}</span>
                                     <span className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-[10px] font-[800] text-slate-500 uppercase tracking-widest">{selectedStudent.batchYear} Batch</span>
                                     <span className="px-2.5 py-1 bg-green-500/10 rounded-lg text-[10px] font-[800] text-green-500 uppercase tracking-widest">Active Status</span>
                                 </div>

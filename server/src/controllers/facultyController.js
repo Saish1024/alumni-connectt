@@ -136,7 +136,7 @@ exports.getDashboardStats = async (req, res) => {
                 $project: {
                     id: "$_id",
                     name: "$studentInfo.name",
-                    branch: "$studentInfo.major",
+                    branch: "$studentInfo.industry",
                     year: "$studentInfo.batchYear",
                     avgScore: { $round: [{ $multiply: ["$avgScore", 100] }, 0] }
                 }

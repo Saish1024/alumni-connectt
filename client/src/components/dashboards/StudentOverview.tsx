@@ -39,8 +39,8 @@ export default function StudentOverview() {
     }, []);
 
     const displayName = user?.name || 'User';
-    const major = user?.major || 'Information Technology';
-    const batchYear = user?.batchYear || '2024';
+    const major = user?.industry || user?.major || 'Branch Not Specified';
+    const batchYear = user?.batchYear || 'N/A';
 
     if (loading && !stats) {
         return (

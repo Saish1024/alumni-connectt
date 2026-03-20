@@ -1,5 +1,6 @@
 "use client"
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { alumni } from '@/lib/api';
 import { 
     Zap, Calendar, User, Clock, 
@@ -9,6 +10,7 @@ import {
 import { toast } from 'sonner';
 
 export default function AlumniOpportunitiesPage() {
+    const router = useRouter();
     const [opportunities, setOpportunities] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isAccepting, setIsAccepting] = useState<string | null>(null);
@@ -39,8 +41,14 @@ export default function AlumniOpportunitiesPage() {
             await alumni.acceptSessionRequest(requestId, tomorrow.toISOString());
             toast.success('Awesome! Session scheduled. Check your calendar.');
             loadOpportunities();
-        } catch (err) {
-            toast.error('Failed to accept request');
+        } catch (err: any) {
+            const errorMsg = err.response?.data?.error || err.message || 'Failed to accept request';
+            toast.error(errorMsg, {
+                action: errorMsg.includes('Google') ? {
+                    label: 'Connect Now',
+                    onClick: () => router.push('/dashboard/setup')
+                } : undefined
+            });
         } finally {
             setIsAccepting(null);
         }
