@@ -8,7 +8,6 @@ const {
     acceptSession,
     rejectSession,
     trackAttendance,
-    trackAttendance,
     submitRating,
     deleteEvent
 } = require('../controllers/eventController');
