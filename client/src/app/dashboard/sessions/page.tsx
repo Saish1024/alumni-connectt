@@ -194,6 +194,21 @@ export default function SessionsPage() {
         }
     };
 
+    const handleDeleteSession = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this session? This action cannot be undone.')) return;
+        setLoading(true);
+        try {
+            await apiEvents.delete(id);
+            alert('Session deleted successfully.');
+            fetchSessions();
+        } catch (err: any) {
+            console.error('Failed to delete session:', err);
+            alert(err.message || 'Failed to delete session');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     if (loading && sessions.length === 0 && myBookedSessions.length === 0) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
@@ -368,7 +383,11 @@ export default function SessionsPage() {
                                                 ) : (
                                                     <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"><Edit2 className="w-4 h-4 text-slate-400 hover:text-indigo-500" /></button>
-                                                        <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"><Trash2 className="w-4 h-4 text-slate-400 hover:text-red-500" /></button>
+                                                        <button 
+                                                            onClick={() => handleDeleteSession(s._id)}
+                                                            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">
+                                                            <Trash2 className="w-4 h-4 text-slate-400 hover:text-red-500" />
+                                                        </button>
                                                     </div>
                                                 )}
                                             </td>

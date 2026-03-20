@@ -211,6 +211,9 @@ export const events = {
             method: 'POST',
             body: JSON.stringify({ score, feedback }),
         }),
+
+    delete: (id: string) =>
+        request<any>(`/events/${id}`, { method: 'DELETE' }),
 };
 
 // ─── Posts / Feed ─────────────────────────────────────────────────────────────

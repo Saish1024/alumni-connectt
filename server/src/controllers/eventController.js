@@ -265,4 +265,21 @@ const submitRating = async (req, res) => {
     }
 };
 
-module.exports = { createEvent, getEvents, registerForEvent, requestSession, acceptSession, rejectSession, trackAttendance, submitRating };
+const deleteEvent = async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.id);
+        if (!event) return res.status(404).json({ error: 'Session not found' });
+
+        // Verify the user deleting is the organizer (alumni) or an admin
+        if (event.organizer.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Unauthorized to delete this session' });
+        }
+
+        await Event.findByIdAndDelete(req.params.id);
+        res.status(200).json({ message: 'Session deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+module.exports = { createEvent, getEvents, registerForEvent, requestSession, acceptSession, rejectSession, trackAttendance, submitRating, deleteEvent };
