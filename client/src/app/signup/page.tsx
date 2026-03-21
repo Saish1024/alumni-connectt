@@ -53,7 +53,7 @@ export default function SignupPage() {
 
     const [form, setForm] = useState({
         firstName: '', lastName: '', email: '', password: '', confirmPassword: '',
-        institution: '', department: '', year: '', phoneNumber: '', linkedin: '', company: '', jobTitle: '', major: '',
+        institution: '', year: '', phoneNumber: '', linkedin: '', company: '', jobTitle: '',
         agree: false,
     });
 
@@ -73,15 +73,21 @@ export default function SignupPage() {
         if (form.password !== form.confirmPassword) errs.confirmPassword = 'Passwords do not match';
         
         // Validation for different roles
-        if (selectedRole === 'student' || selectedRole === 'alumni') {
-            if (!form.year) errs.year = 'Year is required';
-        }
         if (!form.phoneNumber.trim()) errs.phoneNumber = 'Phone number is required';
-        if (selectedRole === 'alumni') {
-            if (!form.linkedin) errs.linkedin = 'LinkedIn link is required';
+        if (!form.institution) errs.institution = 'Department/Major is required';
+
+        if (selectedRole === 'student' || selectedRole === 'alumni') {
+            if (!form.year) errs.year = 'Graduation/Current year is required';
         }
+
+        if (selectedRole === 'alumni') {
+            if (!form.company.trim()) errs.company = 'Company is required';
+            if (!form.jobTitle.trim()) errs.jobTitle = 'Job title is required';
+            if (!form.linkedin.trim()) errs.linkedin = 'LinkedIn link is required';
+        }
+
         if (selectedRole === 'faculty') {
-            if (!form.jobTitle) errs.jobTitle = 'Designation is required';
+            if (!form.jobTitle.trim()) errs.jobTitle = 'Designation is required';
         }
 
         setValidationErrors(errs);
@@ -257,18 +263,20 @@ export default function SignupPage() {
                                         <div>
                                             <label className="block text-sm font-[600] text-white/80 mb-2">Company</label>
                                             <input
-                                                value={form.company} onChange={e => setForm({ ...form, company: e.target.value })}
+                                                required value={form.company} onChange={e => setForm({ ...form, company: e.target.value })}
                                                 placeholder="Google"
                                                 className="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
                                             />
+                                            {validationErrors.company && <p className="text-xs text-red-400 mt-1 ml-1">{validationErrors.company}</p>}
                                         </div>
                                         <div>
                                             <label className="block text-sm font-[600] text-white/80 mb-2">Job Title</label>
                                             <input
-                                                value={form.jobTitle} onChange={e => setForm({ ...form, jobTitle: e.target.value })}
+                                                required value={form.jobTitle} onChange={e => setForm({ ...form, jobTitle: e.target.value })}
                                                 placeholder="Senior Engineer"
                                                 className="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
                                             />
+                                            {validationErrors.jobTitle && <p className="text-xs text-red-400 mt-1 ml-1">{validationErrors.jobTitle}</p>}
                                         </div>
                                     </div>
                                     <div>
@@ -278,6 +286,7 @@ export default function SignupPage() {
                                             placeholder="https://linkedin.com/in/username"
                                             className="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
                                         />
+                                        {validationErrors.linkedin && <p className="text-xs text-red-400 mt-1 ml-1">{validationErrors.linkedin}</p>}
                                     </div>
                                 </div>
                             )}
@@ -315,69 +324,75 @@ export default function SignupPage() {
                                                 {selectedRole === 'alumni' ? 'Grad Year' : 'Current Year'}
                                             </label>
                                             {selectedRole === 'student' ? (
-                                                <select
-                                                    required 
-                                                    value={form.year} 
-                                                    onChange={e => setForm({ ...form, year: e.target.value })}
-                                                    className="w-full bg-white/10 border border-white/20 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
-                                                >
-                                                    <option value="" className="bg-slate-900 border-none">Select</option>
-                                                    {['1st Year', '2nd Year', '3rd Year', '4th Year'].map(y => (
-                                                        <option key={y} value={y} className="bg-slate-900">{y}</option>
-                                                    ))}
-                                                </select>
+                                                <>
+                                                    <select
+                                                        required 
+                                                        value={form.year} 
+                                                        onChange={e => setForm({ ...form, year: e.target.value })}
+                                                        className="w-full bg-white/10 border border-white/20 text-white rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
+                                                    >
+                                                        <option value="" className="bg-slate-900 border-none">Select</option>
+                                                        {['1st Year', '2nd Year', '3rd Year', '4th Year'].map(y => (
+                                                            <option key={y} value={y} className="bg-slate-900">{y}</option>
+                                                        ))}
+                                                    </select>
+                                                    {validationErrors.year && <p className="text-xs text-red-400 mt-1 ml-1">{validationErrors.year}</p>}
+                                                </>
                                             ) : (
-                                                <div className="relative">
+                                                <>
                                                     <div className="relative">
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Search year..."
-                                                            value={form.year || yearSearch}
-                                                            onFocus={() => {
-                                                                setShowYearDropdown(true);
-                                                                if (form.year) {
-                                                                    setYearSearch(form.year);
-                                                                    setForm({ ...form, year: '' });
-                                                                }
-                                                            }}
-                                                            onChange={(e) => {
-                                                                setYearSearch(e.target.value);
-                                                                setShowYearDropdown(true);
-                                                            }}
-                                                            className="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
-                                                        />
-                                                        <button 
-                                                            type="button"
-                                                            onClick={() => setShowYearDropdown(!showYearDropdown)}
-                                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70"
-                                                        >
-                                                            <Users className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-
-                                                    {showYearDropdown && (
-                                                        <div className="absolute z-50 mt-2 w-full max-h-60 overflow-y-auto bg-slate-900 border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl scrollbar-thin scrollbar-thumb-white/10">
-                                                            {filteredYears.length > 0 ? (
-                                                                filteredYears.map(y => (
-                                                                    <button
-                                                                        key={y}
-                                                                        type="button"
-                                                                        className="w-full px-4 py-3 text-left text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 last:border-none"
-                                                                        onClick={() => {
-                                                                            setForm({ ...form, year: y });
-                                                                            setYearSearch(y);
-                                                                            setShowYearDropdown(false);
-                                                                        }}
-                                                                    >
-                                                                        {y}
-                                                                    </button>
-                                                                ))
-                                                            ) : (
-                                                                <div className="px-4 py-3 text-sm text-white/40 italic">No years found</div>
-                                                            )}
+                                                        <div className="relative">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Search year..."
+                                                                value={form.year || yearSearch}
+                                                                onFocus={() => {
+                                                                    setShowYearDropdown(true);
+                                                                    if (form.year) {
+                                                                        setYearSearch(form.year);
+                                                                        setForm({ ...form, year: '' });
+                                                                    }
+                                                                }}
+                                                                onChange={(e) => {
+                                                                    setYearSearch(e.target.value);
+                                                                    setShowYearDropdown(true);
+                                                                }}
+                                                                className="w-full bg-white/10 border border-white/20 text-white placeholder-white/40 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all font-[400]"
+                                                            />
+                                                            <button 
+                                                                type="button"
+                                                                onClick={() => setShowYearDropdown(!showYearDropdown)}
+                                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70"
+                                                            >
+                                                                <Users className="w-4 h-4" />
+                                                            </button>
                                                         </div>
-                                                    )}
-                                                </div>
+
+                                                        {showYearDropdown && (
+                                                            <div className="absolute z-50 mt-2 w-full max-h-60 overflow-y-auto bg-slate-900 border border-white/10 rounded-xl shadow-2xl backdrop-blur-xl scrollbar-thin scrollbar-thumb-white/10">
+                                                                {filteredYears.length > 0 ? (
+                                                                    filteredYears.map(y => (
+                                                                        <button
+                                                                            key={y}
+                                                                            type="button"
+                                                                            className="w-full px-4 py-3 text-left text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors border-b border-white/5 last:border-none"
+                                                                            onClick={() => {
+                                                                                setForm({ ...form, year: y });
+                                                                                setYearSearch(y);
+                                                                                setShowYearDropdown(false);
+                                                                            }}
+                                                                        >
+                                                                            {y}
+                                                                        </button>
+                                                                    ))
+                                                                ) : (
+                                                                    <div className="px-4 py-3 text-sm text-white/40 italic">No years found</div>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    {validationErrors.year && <p className="text-xs text-red-400 mt-1 ml-1">{validationErrors.year}</p>}
+                                                </>
                                             )}
                                         </>
                                     )}

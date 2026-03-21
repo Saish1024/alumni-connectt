@@ -21,6 +21,7 @@ const register = async (req, res) => {
             password,
             role,
             batchYear,
+            phoneNumber,
             company,
             jobTitle,
             industry,

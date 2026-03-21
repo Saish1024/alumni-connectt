@@ -29,6 +29,7 @@ export default function UserManagementPage() {
         bio: '',
         linkedin: '',
         isApproved: true,
+        skills: '',
     });
     const [updateLoading, setUpdateLoading] = useState(false);
 
@@ -87,6 +88,7 @@ export default function UserManagementPage() {
             bio: user.bio || '',
             linkedin: user.linkedin || '',
             isApproved: user.isApproved ?? true,
+            skills: user.skills ? (Array.isArray(user.skills) ? user.skills.join(', ') : user.skills) : '',
         });
         setIsEditModalOpen(true);
     };
@@ -97,6 +99,13 @@ export default function UserManagementPage() {
         try {
             const updatePayload: any = { ...editData };
             if (!updatePayload.password) delete updatePayload.password;
+            
+            // Convert skills back to array
+            if (updatePayload.skills) {
+                updatePayload.skills = updatePayload.skills.split(',').map((s: string) => s.trim()).filter(Boolean);
+            } else {
+                updatePayload.skills = [];
+            }
 
             await apiUsers.updateByAdmin(selectedUser._id, updatePayload);
             setIsEditModalOpen(false);
@@ -182,8 +191,8 @@ export default function UserManagementPage() {
                                         </td>
                                         <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300 font-[500]">
                                             {u.role === 'alumni' ? `${u.company || 'N/A'} · ${u.batchYear || ''}` :
-                                                u.role === 'student' ? u.batchYear || 'Current Student' :
-                                                    u.department || 'Staff'}
+                                                u.role === 'student' ? `${u.industry || 'General'} · ${u.batchYear || ''}` :
+                                                    u.industry || 'Staff'}
                                         </td>
                                         <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 font-[500]">
                                             {new Date(u.createdAt).toLocaleDateString()}
@@ -287,7 +296,7 @@ export default function UserManagementPage() {
                                             placeholder="2024"
                                         />
                                         <Input
-                                            label="Industry / Branch"
+                                            label="Major / Branch / Department"
                                             value={editData.industry}
                                             onChange={e => setEditData({ ...editData, industry: e.target.value })}
                                             placeholder="Electronics & Computer Science"
@@ -319,6 +328,14 @@ export default function UserManagementPage() {
                                             value={editData.linkedin}
                                             onChange={e => setEditData({ ...editData, linkedin: e.target.value })}
                                             placeholder="https://linkedin.com/in/..."
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-1 gap-4">
+                                        <Input
+                                            label="Key Skills (Comma separated)"
+                                            value={editData.skills}
+                                            onChange={e => setEditData({ ...editData, skills: e.target.value })}
+                                            placeholder="React, Node.js, Python..."
                                         />
                                     </div>
                                 </div>
