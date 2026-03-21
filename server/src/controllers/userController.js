@@ -102,6 +102,7 @@ const adminUpdateUser = async (req, res) => {
         if (!user) return res.status(404).json({ error: 'User not found' });
 
         const updates = req.body;
+        console.log(`[DEBUG] adminUpdateUser: Updating user ${user.name} (${user._id}) with data:`, JSON.stringify(updates, null, 2));
         
         // Handle password separately to ensure it's hashed if changed
         if (updates.password === '') delete updates.password;

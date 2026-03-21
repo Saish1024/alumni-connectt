@@ -191,14 +191,14 @@ export default function FacultyAlumniDirectory() {
                                             <span className="text-slate-700 dark:text-slate-300 font-black whitespace-nowrap select-all tracking-tight">{person.email}</span>
                                         </div>
                                     </div>
-                                    {person.phoneNumber && (
-                                        <div className="flex items-center justify-between text-[11px] p-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors overflow-hidden">
-                                            <span className="text-slate-400 font-bold flex items-center gap-1.5 flex-shrink-0 mr-4"><Phone className="w-3 h-3" /> PHONE</span>
-                                            <div className="flex-1 overflow-x-auto scrollbar-hide text-right">
-                                                <span className="text-slate-700 dark:text-slate-300 font-black whitespace-nowrap select-all tracking-tight">{person.phoneNumber}</span>
-                                            </div>
+                                    <div className="flex items-center justify-between text-[11px] p-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors overflow-hidden">
+                                        <span className="text-slate-400 font-bold flex items-center gap-1.5 flex-shrink-0 mr-4"><Phone className="w-3 h-3" /> PHONE</span>
+                                        <div className="flex-1 overflow-x-auto scrollbar-hide text-right">
+                                            <span className="text-slate-700 dark:text-slate-300 font-black whitespace-nowrap select-all tracking-tight">
+                                                {person.phoneNumber || <span className="text-slate-400 font-medium italic">Not Provided</span>}
+                                            </span>
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
 
                                 <div className="mt-6 flex items-center gap-2">

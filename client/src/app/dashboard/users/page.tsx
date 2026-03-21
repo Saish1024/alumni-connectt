@@ -159,6 +159,7 @@ export default function UserManagementPage() {
                                 <tr className="border-b border-slate-200 dark:border-slate-700/50 bg-slate-50 shadow-sm dark:bg-slate-900">
                                     <th className="text-left px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase tracking-wider">User</th>
                                     <th className="text-left px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Role</th>
+                                    <th className="text-left px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mobile</th>
                                     <th className="text-left px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Details</th>
                                     <th className="text-left px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Joined</th>
                                     <th className="text-right px-6 py-4 text-xs font-[700] text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
@@ -167,7 +168,7 @@ export default function UserManagementPage() {
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-700/30">
                                 {filtered.length === 0 ? (
                                     <tr>
-                                        <td colSpan={5} className="text-center py-16 text-slate-400 text-sm">No users found.</td>
+                                        <td colSpan={6} className="text-center py-16 text-slate-400 text-sm">No users found.</td>
                                     </tr>
                                 ) : filtered.map(u => (
                                     <tr key={u._id} className="border-b border-slate-100 dark:border-slate-700/30 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-all group">
@@ -188,6 +189,9 @@ export default function UserManagementPage() {
                                                     u.role === 'faculty' ? 'bg-green-100 dark:bg-green-900/20 text-green-600' :
                                                         'bg-orange-100 dark:bg-orange-900/20 text-orange-600 shadow-sm'
                                                 }`}>{u.role}</span>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm font-[600] text-slate-600 dark:text-slate-200">
+                                            {u.phoneNumber || <span className="text-slate-400 font-[400] italic text-xs">Not Provided</span>}
                                         </td>
                                         <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300 font-[500]">
                                             {u.role === 'alumni' ? `${u.company || 'N/A'} · ${u.batchYear || ''}` :
