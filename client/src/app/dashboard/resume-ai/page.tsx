@@ -63,30 +63,30 @@ export default function ResumeAIPage() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 min-h-screen">
             {/* Background Decorative Elements */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
                 <div className="absolute top-[10%] right-[10%] w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[120px]" />
                 <div className="absolute bottom-[20%] left-[5%] w-[300px] h-[300px] bg-violet-500/10 rounded-full blur-[100px]" />
             </div>
 
-            <div className="relative z-10 space-y-10">
+            <div className="relative z-10 space-y-6">
                 {/* Header Section */}
                 <motion.div 
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="flex flex-col md:flex-row md:items-center justify-between gap-6"
                 >
-                    <div className="space-y-2">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-full border border-slate-200 dark:border-slate-800 text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest leading-none">
-                            <Zap className="w-3 h-3 fill-current" />
+                    <div className="space-y-1">
+                        <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-full border border-slate-200 dark:border-slate-800 text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest leading-none">
+                            <Zap className="w-2.5 h-2.5 fill-current" />
                             AI Powered Analysis
                         </div>
-                        <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+                        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
                             Resume <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">Intelligence</span>
                         </h1>
-                        <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl font-medium">
-                            Optimize your profile for modern hiring standards with algorithmic feedback.
+                        <p className="text-sm text-slate-500 dark:text-slate-400 max-w-2xl font-bold">
+                            Advanced algorithmic feedback for modern hiring.
                         </p>
                     </div>
                 </motion.div>
