@@ -6,11 +6,11 @@ const axios = require('axios');
  */
 class AIService {
     constructor() {
-        this.apiKey = process.env.GROK_API_KEY;
-        this.baseUrl = 'https://api.x.ai/v1';
+        this.apiKey = process.env.GROQ_API_KEY;
+        this.baseUrl = 'https://api.groq.com/openai/v1';
         
-        if (!this.apiKey) {
-            console.warn('[AI Service] GROK_API_KEY is missing in .env. AI features will fail.');
+        if (!this.apiKey || this.apiKey === 'your_groq_api_key') {
+            console.warn('[AI Service] GROQ_API_KEY is missing or invalid in .env. AI features will fail.');
         }
     }
 
@@ -26,22 +26,22 @@ class AIService {
             Job Description:
             ${jobDescription || 'Not provided'}
             
-            Please provide a structured response in JSON format (do not include Markdown blocks) with the following fields:
-            1. placementReadinessScore: A number from 0 to 100.
-            2. feedback: A detailed string with overall advice.
-            3. suggestions: An array of strings with specific improvements.
-            4. matchDetails: A string explaining how well it matches the JD.
-            5. keyStrengths: An array of strings highlighting strong points.
-            6. missingKeywords: An array of strings highlighting keywords or skills to add.
+            Return ONLY a valid JSON object with these fields:
+            - placementReadinessScore: (number 0-100)
+            - feedback: (string summary)
+            - suggestions: (array of strings)
+            - matchDetails: (string)
+            - keyStrengths: (array of strings)
+            - missingKeywords: (array of strings)
             `;
 
             const response = await axios.post(`${this.baseUrl}/chat/completions`, {
-                model: 'grok-1', // or appropriate model name
+                model: 'llama-3.1-8b-instant',
                 messages: [
-                    { role: 'system', content: 'You are a professional AI Placement Coach.' },
+                    { role: 'system', content: 'You are a professional AI Placement Coach. Respond only in pure JSON.' },
                     { role: 'user', content: prompt }
                 ],
-                temperature: 0.7,
+                temperature: 0.1, // Lower temperature for more consistent JSON
                 response_format: { type: 'json_object' }
             }, {
                 headers: {
@@ -50,19 +50,20 @@ class AIService {
                 }
             });
 
-            return JSON.parse(response.data.choices[0].message.content);
+            const content = response.data.choices[0].message.content;
+            return JSON.parse(content);
         } catch (error) {
             console.error('[AI Service] Resume analysis error:', error.response?.data || error.message);
-            throw new Error('AI Resume Analysis failed.');
+            throw new Error('AI Resume Analysis failed. Please check your GROQ_API_KEY.');
         }
     }
 
     async getChatResponse(messages) {
         try {
             const response = await axios.post(`${this.baseUrl}/chat/completions`, {
-                model: 'grok-1',
+                model: 'llama-3.1-8b-instant',
                 messages: [
-                    { role: 'system', content: 'You are an AI Placement Coach. Your goal is to help students prepare for interviews, improve their resumes, and build confidence for their careers. Be encouraging, professional, and practical.' },
+                    { role: 'system', content: 'You are an AI Placement Coach. Your goal is to help students prepare for interviews, improve their resumes, and build confidence. Be encouraging and practical.' },
                     ...messages
                 ],
                 temperature: 0.7
@@ -76,7 +77,7 @@ class AIService {
             return response.data.choices[0].message.content;
         } catch (error) {
             console.error('[AI Service] Chat error:', error.response?.data || error.message);
-            throw new Error('AI Chat response failed.');
+            throw new Error('AI Chat response failed. Please check your GROQ_API_KEY.');
         }
     }
 }

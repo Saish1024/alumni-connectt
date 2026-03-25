@@ -141,12 +141,13 @@ export default function ResumeAIPage() {
                             )}
                         </button>
 
-                        {error && (
                             <div className="mt-4 p-3 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 text-sm rounded-lg flex items-start gap-2 border border-red-100 dark:border-red-500/20">
                                 <AlertCircle className="w-5 h-5 shrink-0" />
-                                {error}
+                                <div>
+                                    <p className="font-bold">Analysis failed</p>
+                                    <p className="text-xs opacity-80">{error}. Please ensure the GROQ_API_KEY is correctly set in the backend.</p>
+                                </div>
                             </div>
-                        ) }
                     </div>
                 </div>
 

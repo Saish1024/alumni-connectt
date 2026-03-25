@@ -48,7 +48,7 @@ export default function AICoachPage() {
         } catch (err: any) {
             setMessages([...newMessages, { 
                 role: 'assistant', 
-                content: "I'm sorry, I encountered an error connecting to Grok AI. Please make sure your API key is correctly configured in the backend." 
+                content: "I'm sorry, I encountered an error connecting to the AI service. Please make sure your API key is correctly configured in the backend environment." 
             }]);
         } finally {
             setIsLoading(false);
@@ -74,7 +74,7 @@ export default function AICoachPage() {
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                             AI Placement Coach
                             <span className="text-[10px] font-black uppercase tracking-widest bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">
-                                Grok Powered
+                                AI POWERED
                             </span>
                         </h1>
                         <p className="text-sm text-slate-500 dark:text-slate-400">Available 24/7 for your career preparation</p>
@@ -185,7 +185,7 @@ export default function AICoachPage() {
                     </div>
                     <div className="mt-2 flex items-center justify-center gap-1.5 text-[10px] text-slate-400">
                         <Sparkles className="w-3 h-3 text-indigo-400" />
-                        Powered by X.AI Grok-1
+                        AI Powered by Groq
                     </div>
                 </div>
             </div>
