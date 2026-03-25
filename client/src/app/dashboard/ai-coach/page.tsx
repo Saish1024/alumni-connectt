@@ -203,28 +203,28 @@ export default function AICoachPage() {
 
             {/* Sidebar info Area (XL Only) */}
             <div className="hidden xl:flex w-80 flex-col gap-6 relative z-10 h-full">
-                {/* Coaching Modes Card - Now Internally Scrollable */}
-                <div className="flex-1 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[2.5rem] text-white shadow-2xl relative flex flex-col overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/20 hover:scrollbar-thumb-white/40">
-                    <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none sticky top-0">
-                        <MessageSquare className="w-32 h-32 rotate-12" />
+                {/* Coaching Modes Card - Compact to fit */}
+                <div className="flex-initial bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[2.5rem] text-white shadow-2xl relative flex flex-col overflow-hidden">
+                    <div className="absolute top-0 right-0 p-6 opacity-10 pointer-events-none">
+                        <MessageSquare className="w-24 h-24 rotate-12" />
                     </div>
-                    <div className="p-8 pb-4 relative z-10 shrink-0 sticky top-0 bg-indigo-600/10 backdrop-blur-sm">
-                        <h3 className="text-xl font-black italic tracking-tight">Coaching Modes</h3>
-                        <p className="text-xs text-indigo-100/80 leading-relaxed font-bold mt-1 uppercase tracking-wider">Select a focus area</p>
+                    <div className="p-6 pb-3 relative z-10 shrink-0">
+                        <h3 className="text-lg font-black italic tracking-tight">Coaching Modes</h3>
+                        <p className="text-[10px] text-indigo-100/80 leading-relaxed font-bold uppercase tracking-wider">Select a focus area</p>
                     </div>
-                    <div className="px-8 pb-8 space-y-3 relative z-10">
-                        <div className="grid grid-cols-1 gap-3">
+                    <div className="px-6 pb-6 space-y-2 relative z-10 transition-all">
+                        <div className="grid grid-cols-1 gap-2">
                             {quickActions.map((action, i) => (
                                 <button 
                                     key={i}
                                     onClick={() => setInput(action.label + " help")}
                                     className="w-full p-4 bg-white/10 hover:bg-white/20 rounded-2xl border border-white/10 transition-all flex items-center gap-4 group text-left outline-none"
                                 >
-                                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                                    <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                                         {action.icon}
                                     </div>
-                                    <span className="text-sm font-bold tracking-tight leading-none pt-0.5">{action.label}</span>
-                                    <ChevronRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-all" />
+                                    <span className="text-xs font-bold tracking-tight leading-none pt-0.5">{action.label}</span>
+                                    <ChevronRight className="w-3.5 h-3.5 ml-auto opacity-0 group-hover:opacity-100 transition-all" />
                                 </button>
                             ))}
                         </div>
@@ -232,21 +232,22 @@ export default function AICoachPage() {
                 </div>
 
                 {/* Live Tips Card - Fixed at bottom */}
-                <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-2xl rounded-[2.5rem] border border-white/20 dark:border-slate-800 p-8 shadow-xl flex flex-col max-h-[40%] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-indigo-500/20 hover:scrollbar-thumb-indigo-500/40">
-                    <h3 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
-                        <Zap className="w-5 h-5 text-indigo-500" />
+                {/* Live Tips Card - Compact to fit */}
+                <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-2xl rounded-[2.5rem] border border-white/20 dark:border-slate-800 p-6 shadow-xl flex flex-col overflow-hidden">
+                    <h3 className="text-md font-black text-slate-800 dark:text-white flex items-center gap-2 mb-3">
+                        <Zap className="w-4 h-4 text-indigo-500" />
                         Live Tips
                     </h3>
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         {[
                             "Try asking for a mock technical interview for specific roles.",
                             "Ask the coach to analyze your weaknesses based on common questions.",
                             "Get tips on negotiating your first salary package.",
                             "Need coding advice? Ask for DS/Algo pattern explanations."
                         ].map((tip, i) => (
-                            <div key={i} className="flex gap-4 group">
-                                <div className="text-xs font-black text-slate-300 dark:text-slate-700 leading-none pt-1">0{i+1}</div>
-                                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed group-hover:text-slate-900 dark:group-hover:text-white transition-colors cursor-default">
+                            <div key={i} className="flex gap-3 group">
+                                <div className="text-[10px] font-black text-slate-300 dark:text-slate-700 leading-none pt-1">0{i+1}</div>
+                                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold leading-tight group-hover:text-slate-900 dark:group-hover:text-white transition-colors cursor-default">
                                     {tip}
                                 </p>
                             </div>
