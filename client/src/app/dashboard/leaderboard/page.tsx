@@ -3,9 +3,11 @@ import { useEffect, useState, useRef } from 'react';
 import { Flame, Loader2, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { users as apiUsers } from '@/lib/api';
+import { useRouter } from 'next/navigation';
 
 export default function LeaderboardPage() {
     const { user: currentUser } = useAuth();
+    const router = useRouter();
     const [period, setPeriod] = useState<'weekly' | 'monthly'>('weekly');
     const [leaderboard, setLeaderboard] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -28,6 +30,12 @@ export default function LeaderboardPage() {
             setIsSyncing(false);
         }
     };
+
+    useEffect(() => {
+        if (currentUser?.role === 'student') {
+            router.replace('/dashboard');
+        }
+    }, [currentUser, router]);
 
     useEffect(() => {
         fetchLeaderboard();

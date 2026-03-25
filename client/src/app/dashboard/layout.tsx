@@ -71,7 +71,6 @@ export default function DashboardLayoutWrapper({
             { icon: MessageCircle, label: 'My sessions', href: '/dashboard/sessions' },
             { icon: FileText, label: 'Resume Review', href: '/dashboard/resumes' },
             { icon: Calendar, label: 'Events', href: '/dashboard/events' },
-            { icon: Star, label: 'Leaderboard', href: '/dashboard/leaderboard' },
             { icon: Sparkles, label: 'Resume AI', href: '/dashboard/resume-ai' },
             { icon: MessageSquare, label: 'AI Coach', href: '/dashboard/ai-coach' },
         ],
