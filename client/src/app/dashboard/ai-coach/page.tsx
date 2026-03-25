@@ -76,22 +76,22 @@ export default function AICoachPage() {
             {/* Main Chat Area */}
             <div className="flex-1 flex flex-col glass-card min-w-0 h-full relative z-10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-2xl rounded-[3rem] border border-white/20 dark:border-slate-800 shadow-2xl overflow-hidden">
                 {/* Chat Header */}
-                <div className="px-8 py-6 border-b border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between bg-white/20 dark:bg-slate-900/20">
+                <div className="px-6 py-4 border-b border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between bg-white/20 dark:bg-slate-900/20">
                     <div className="flex items-center gap-4">
                         <div className="relative">
-                            <div className="w-14 h-14 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-indigo-600/30">
-                                <Bot className="w-8 h-8 text-white" />
+                            <div className="w-12 h-12 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-indigo-600/30">
+                                <Bot className="w-6 h-6 text-white" />
                             </div>
                             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-4 border-white dark:border-slate-900 rounded-full" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-2">
+                            <h1 className="text-xl font-black text-slate-800 dark:text-white flex items-center gap-2">
                                 Placement Engine
-                                <span className="text-[10px] font-black tracking-widest bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                <span className="text-[9px] font-black tracking-widest bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
                                     LIVE
                                 </span>
                             </h1>
-                            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mt-1">Ready for consultation</p>
+                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mt-1">Ready for consultation</p>
                         </div>
                     </div>
                     <button 
@@ -164,7 +164,7 @@ export default function AICoachPage() {
                 </div>
 
                 {/* Input Area */}
-                <div className="p-8 bg-white/20 dark:bg-slate-900/20 border-t border-slate-200/50 dark:border-slate-800/50 backdrop-blur-xl">
+                <div className="p-4 px-6 bg-white/20 dark:bg-slate-900/20 border-t border-slate-200/50 dark:border-slate-800/50 backdrop-blur-xl">
                     <div className="max-w-4xl mx-auto relative group">
                         <textarea
                             value={input}
@@ -176,27 +176,27 @@ export default function AICoachPage() {
                                 }
                             }}
                             placeholder="Consult the Placement Engine..."
-                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] px-8 py-5 pr-16 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-2xl min-h-[64px] max-h-40 resize-none placeholder:text-slate-400 font-medium text-base scrollbar-hide"
+                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-[2rem] px-6 py-4 pr-16 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-2xl min-h-[56px] max-h-32 resize-none placeholder:text-slate-400 font-medium text-sm scrollbar-hide"
                             rows={1}
                         />
                         <button
                             onClick={handleSend}
                             disabled={!input.trim() || isLoading}
                             className={`
-                                absolute right-3 top-1/2 -translate-y-1/2 p-4 rounded-[1.75rem] transition-all duration-300
+                                absolute right-2 top-1/2 -translate-y-1/2 p-3 rounded-[1.5rem] transition-all duration-300
                                 ${!input.trim() || isLoading 
                                     ? 'text-slate-300' 
                                     : 'text-white bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-600/30 hover:scale-105 active:scale-95'}
                             `}
                         >
-                            <Send className="w-6 h-6" />
+                            <Send className="w-5 h-5" />
                         </button>
                     </div>
-                    <div className="mt-4 flex items-center justify-center gap-3 text-[10px] uppercase font-black tracking-[0.2em] text-slate-400">
-                        <span className="w-8 h-[1px] bg-slate-200 dark:bg-slate-800" />
-                        <Sparkles className="w-3 h-3 text-indigo-400 animate-pulse" />
+                    <div className="mt-2 flex items-center justify-center gap-3 text-[9px] uppercase font-black tracking-[0.2em] text-slate-400">
+                        <span className="w-6 h-[1px] bg-slate-200 dark:bg-slate-800" />
+                        <Sparkles className="w-2.5 h-2.5 text-indigo-400 animate-pulse" />
                         Neural Intelligence Active
-                        <span className="w-8 h-[1px] bg-slate-200 dark:bg-slate-800" />
+                        <span className="w-6 h-[1px] bg-slate-200 dark:bg-slate-800" />
                     </div>
                 </div>
             </div>
