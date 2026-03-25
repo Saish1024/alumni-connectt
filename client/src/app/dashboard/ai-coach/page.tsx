@@ -2,9 +2,12 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { ai } from '@/lib/api';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
     Send, Bot, User, Loader2, Sparkles, 
-    MessageSquare, RefreshCcw, Quote, ChevronRight
+    RefreshCcw, ChevronRight, Zap, 
+    MessageSquare, Quote, BrainCircuit,
+    ShieldCheck, GraduationCap
 } from 'lucide-react';
 
 interface Message {
@@ -16,7 +19,7 @@ export default function AICoachPage() {
     const [messages, setMessages] = useState<Message[]>([
         { 
             role: 'assistant', 
-            content: "Hello! I'm your AI Placement Coach powered by Grok AI. I can help you with mock interviews, career advice, or specific questions about your industry. What's on your mind today?" 
+            content: "Hello! I'm your AI Placement Coach. I'm here to help you ace your interviews, polish your resume, and navigate your career path. What can we work on today?" 
         }
     ]);
     const [input, setInput] = useState('');
@@ -48,115 +51,116 @@ export default function AICoachPage() {
         } catch (err: any) {
             setMessages([...newMessages, { 
                 role: 'assistant', 
-                content: "I'm sorry, I encountered an error connecting to the AI service. Please make sure your API key is correctly configured in the backend environment." 
+                content: "I encountered an issue connecting to the engine. Please ensure your configuration is correct." 
             }]);
         } finally {
             setIsLoading(false);
         }
     };
 
-    const suggestedTopics = [
-        "How do I explain a gap in my resume?",
-        "Mock interview for a React Developer role",
-        "Tips for answering 'What are your weaknesses?'",
-        "Best way to negotiate salary as a fresher"
+    const quickActions = [
+        { icon: <Quote className="w-4 h-4" />, label: "Mock Interview", color: "indigo" },
+        { icon: <ShieldCheck className="w-4 h-4" />, label: "Resume Review", color: "emerald" },
+        { icon: <GraduationCap className="w-4 h-4" />, label: "Career Path", color: "amber" },
+        { icon: <BrainCircuit className="w-4 h-4" />, label: "DS & Algo Tips", color: "violet" }
     ];
 
     return (
-        <div className="max-w-4xl mx-auto h-[calc(100vh-12rem)] flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-600/20">
-                        <Bot className="w-7 h-7 text-white" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            AI Placement Coach
-                            <span className="text-[10px] font-black uppercase tracking-widest bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">
-                                AI POWERED
-                            </span>
-                        </h1>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Available 24/7 for your career preparation</p>
-                    </div>
-                </div>
-                <button 
-                    onClick={() => setMessages([messages[0]])}
-                    className="p-3 text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
-                    title="Clear Chat"
-                >
-                    <RefreshCcw className="w-5 h-5" />
-                </button>
+        <div className="max-w-7xl mx-auto h-[calc(100vh-10rem)] flex flex-col xl:flex-row gap-8 animate-in fade-in duration-1000">
+            {/* Background Effects */}
+            <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+                <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-[120px]" />
+                <div className="absolute bottom-[10%] right-[0%] w-[500px] h-[500px] bg-violet-500/5 rounded-full blur-[100px]" />
             </div>
 
-            {/* Chat Container */}
-            <div className="flex-1 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col overflow-hidden relative">
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#4f46e5_1px,transparent_1px)] [background-size:24px_24px]"></div>
+            {/* Main Chat Area */}
+            <div className="flex-1 flex flex-col glass-card min-w-0 h-full relative z-10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-2xl rounded-[3rem] border border-white/20 dark:border-slate-800 shadow-2xl overflow-hidden">
+                {/* Chat Header */}
+                <div className="px-8 py-6 border-b border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between bg-white/20 dark:bg-slate-900/20">
+                    <div className="flex items-center gap-4">
+                        <div className="relative">
+                            <div className="w-14 h-14 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-[1.25rem] flex items-center justify-center shadow-lg shadow-indigo-600/30">
+                                <Bot className="w-8 h-8 text-white" />
+                            </div>
+                            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-emerald-500 border-4 border-white dark:border-slate-900 rounded-full" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-2">
+                                Placement Engine
+                                <span className="text-[10px] font-black tracking-widest bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                    LIVE
+                                </span>
+                            </h1>
+                            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mt-1">Ready for consultation</p>
+                        </div>
+                    </div>
+                    <button 
+                        onClick={() => setMessages([messages[0]])}
+                        className="p-3 text-slate-400 hover:text-indigo-500 hover:bg-white/50 dark:hover:bg-slate-800/50 rounded-2xl transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-800 shadow-sm"
+                    >
+                        <RefreshCcw className="w-5 h-5" />
+                    </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-6 space-y-6 relative z-10 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
-                    {messages.map((msg, i) => (
-                        <div 
-                            key={i} 
-                            className={`flex items-start gap-4 transition-all duration-300 ${msg.role === 'user' ? 'flex-row-reverse animate-in slide-in-from-right-4' : 'animate-in slide-in-from-left-4'}`}
-                        >
-                            <div className={`
-                                w-8 h-8 rounded-full flex items-center justify-center shrink-0 border
-                                ${msg.role === 'user' 
-                                    ? 'bg-indigo-100 border-indigo-200 dark:bg-indigo-900/30 dark:border-indigo-800 text-indigo-600' 
-                                    : 'bg-white border-slate-200 dark:bg-slate-950 dark:border-slate-800 text-indigo-500'}
-                            `}>
-                                {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-                            </div>
-                            <div className={`
-                                max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm
-                                ${msg.role === 'user' 
-                                    ? 'bg-indigo-600 text-white rounded-tr-none' 
-                                    : 'bg-slate-50 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 rounded-tl-none border border-slate-200/50 dark:border-slate-700/50'}
-                            `}>
-                                {msg.content}
-                            </div>
-                        </div>
-                    ))}
+                {/* Messages Container */}
+                <div className="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-hide flex flex-col">
+                    <AnimatePresence initial={false}>
+                        {messages.map((msg, i) => (
+                            <motion.div 
+                                key={i}
+                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                transition={{ duration: 0.4, ease: "easeOut" }}
+                                className={`flex items-start gap-4 ${msg.role === 'user' ? 'flex-row-reverse self-end w-full' : 'self-start w-full'}`}
+                            >
+                                <div className={`
+                                    w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border-2 transition-transform duration-500 hover:rotate-6
+                                    ${msg.role === 'user' 
+                                        ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg shadow-indigo-600/20' 
+                                        : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-indigo-500'}
+                                `}>
+                                    {msg.role === 'user' ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
+                                </div>
+                                <div className={`
+                                    max-w-[75%] px-6 py-4 rounded-[2rem] text-[15px] leading-relaxed relative
+                                    ${msg.role === 'user' 
+                                        ? 'bg-indigo-600 text-white rounded-tr-none shadow-xl shadow-indigo-600/10' 
+                                        : 'bg-white/80 dark:bg-slate-800/80 backdrop-blur-md text-slate-700 dark:text-slate-200 rounded-tl-none border border-white/20 dark:border-slate-700/50 shadow-sm whitespace-pre-wrap'}
+                                `}>
+                                    {msg.content}
+                                    {msg.role === 'assistant' && (
+                                        <div className="absolute top-0 left-0 -translate-x-1 -translate-y-1 opacity-10">
+                                            <Zap className="w-12 h-12 rotate-[-15deg] fill-current" />
+                                        </div>
+                                    )}
+                                </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
                     {isLoading && (
-                        <div className="flex items-start gap-4 animate-pulse">
-                            <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center border border-slate-200 dark:border-slate-700">
-                                <Bot className="w-4 h-4 text-slate-400" />
+                        <motion.div 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex items-start gap-4"
+                        >
+                            <div className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 flex items-center justify-center">
+                                <Bot className="w-5 h-5 text-indigo-500 animate-pulse" />
                             </div>
-                            <div className="bg-slate-50 dark:bg-slate-800/80 px-4 py-3 rounded-2xl rounded-tl-none border border-slate-200/50 dark:border-slate-700/50">
-                                <span className="flex gap-1">
-                                    <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                                    <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                                    <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce"></span>
-                                </span>
+                            <div className="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm px-6 py-4 rounded-[2rem] rounded-tl-none border border-white/20 dark:border-slate-700/50">
+                                <div className="flex gap-1.5">
+                                    <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                                    <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                                    <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
+                                </div>
                             </div>
-                        </div>
+                        </motion.div>
                     )}
                     <div ref={messagesEndRef} />
                 </div>
 
                 {/* Input Area */}
-                <div className="p-4 bg-slate-50/80 dark:bg-slate-950/50 border-t border-slate-200 dark:border-slate-800 relative z-10 backdrop-blur-md">
-                    {messages.length === 1 && (
-                        <div className="mb-4">
-                            <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-2 px-2">Common Topics</p>
-                            <div className="flex flex-wrap gap-2">
-                                {suggestedTopics.map((topic, i) => (
-                                    <button 
-                                        key={i}
-                                        onClick={() => setInput(topic)}
-                                        className="text-xs px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-600 dark:text-slate-400 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all flex items-center gap-2 group"
-                                    >
-                                        {topic}
-                                        <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                    <div className="relative group">
+                <div className="p-8 bg-white/20 dark:bg-slate-900/20 border-t border-slate-200/50 dark:border-slate-800/50 backdrop-blur-xl">
+                    <div className="max-w-4xl mx-auto relative group">
                         <textarea
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
@@ -166,26 +170,76 @@ export default function AICoachPage() {
                                     handleSend();
                                 }
                             }}
-                            placeholder="Ask the AI Placement Coach..."
-                            className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl px-5 py-4 pr-14 outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all shadow-sm min-h-[56px] max-h-32 resize-none placeholder:text-slate-400"
+                            placeholder="Consult the Placement Engine..."
+                            className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-[2.5rem] px-8 py-5 pr-16 outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-2xl min-h-[64px] max-h-40 resize-none placeholder:text-slate-400 font-medium text-base scrollbar-hide"
                             rows={1}
                         />
                         <button
                             onClick={handleSend}
                             disabled={!input.trim() || isLoading}
                             className={`
-                                absolute right-2 top-1/2 -translate-y-1/2 p-2.5 rounded-xl transition-all
+                                absolute right-3 top-1/2 -translate-y-1/2 p-4 rounded-[1.75rem] transition-all duration-300
                                 ${!input.trim() || isLoading 
                                     ? 'text-slate-300' 
-                                    : 'text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-600/20 active:scale-95'}
+                                    : 'text-white bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-600/30 hover:scale-105 active:scale-95'}
                             `}
                         >
-                            <Send className="w-5 h-5" />
+                            <Send className="w-6 h-6" />
                         </button>
                     </div>
-                    <div className="mt-2 flex items-center justify-center gap-1.5 text-[10px] text-slate-400">
-                        <Sparkles className="w-3 h-3 text-indigo-400" />
-                        AI Powered by Groq
+                    <div className="mt-4 flex items-center justify-center gap-3 text-[10px] uppercase font-black tracking-[0.2em] text-slate-400">
+                        <span className="w-8 h-[1px] bg-slate-200 dark:bg-slate-800" />
+                        <Sparkles className="w-3 h-3 text-indigo-400 animate-pulse" />
+                        Neural Intelligence Active
+                        <span className="w-8 h-[1px] bg-slate-200 dark:bg-slate-800" />
+                    </div>
+                </div>
+            </div>
+
+            {/* Sidebar info Area (XL Only) */}
+            <div className="hidden xl:flex w-80 flex-col gap-6 relative z-10 h-full">
+                <div className="p-8 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[2.5rem] text-white shadow-2xl space-y-6 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8 opacity-10">
+                        <MessageSquare className="w-32 h-32 rotate-12" />
+                    </div>
+                    <div className="relative z-10 space-y-4">
+                        <h3 className="text-xl font-black">Coaching Modes</h3>
+                        <p className="text-sm text-indigo-100/80 leading-relaxed font-medium">Select a direct focus for your AI session today.</p>
+                        <div className="grid grid-cols-1 gap-3">
+                            {quickActions.map((action, i) => (
+                                <button 
+                                    key={i}
+                                    onClick={() => setInput(action.label + " help")}
+                                    className="p-4 bg-white/10 hover:bg-white/20 rounded-2xl border border-white/10 transition-all flex items-center gap-4 group text-left"
+                                >
+                                    <div className="p-2 bg-white/20 rounded-xl group-hover:scale-110 transition-transform">{action.icon}</div>
+                                    <span className="text-sm font-bold tracking-tight">{action.label}</span>
+                                    <ChevronRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-all" />
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex-1 p-8 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
+                    <h3 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
+                        <Zap className="w-5 h-5 text-indigo-500" />
+                        Live Tips
+                    </h3>
+                    <div className="space-y-4">
+                        {[
+                            "Try asking for a mock technical interview for specific roles.",
+                            "Ask the coach to analyze your weaknesses based on common questions.",
+                            "Get tips on negotiating your first salary package.",
+                            "Need coding advice? Ask for DS/Algo pattern explanations."
+                        ].map((tip, i) => (
+                            <div key={i} className="flex gap-4 group">
+                                <div className="text-xs font-black text-slate-300 dark:text-slate-700 leading-none pt-1">0{i+1}</div>
+                                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed group-hover:text-slate-900 dark:group-hover:text-white transition-colors cursor-default">
+                                    {tip}
+                                </p>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
