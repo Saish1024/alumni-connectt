@@ -202,8 +202,9 @@ export default function AICoachPage() {
             </div>
 
             {/* Sidebar info Area (XL Only) */}
-            <div className="hidden xl:flex w-80 flex-col gap-6 relative z-10 h-full overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
-                <div className="p-8 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[2.5rem] text-white shadow-2xl space-y-6 relative overflow-hidden">
+            <div className="hidden xl:flex w-80 flex-col gap-6 relative z-10 h-full">
+                <div className="flex-1 overflow-y-auto pr-2 flex flex-col gap-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+                    <div className="p-8 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[2.5rem] text-white shadow-2xl space-y-6 relative shrink-0">
                     <div className="absolute top-0 right-0 p-8 opacity-10">
                         <MessageSquare className="w-32 h-32 rotate-12" />
                     </div>
@@ -228,7 +229,7 @@ export default function AICoachPage() {
                     </div>
                 </div>
 
-                <div className="flex-1 p-8 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
+                <div className="p-8 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl space-y-6 shrink-0">
                     <h3 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
                         <Zap className="w-5 h-5 text-indigo-500" />
                         Live Tips
@@ -248,6 +249,7 @@ export default function AICoachPage() {
                             </div>
                         ))}
                     </div>
+                </div>
                 </div>
             </div>
         </div>
