@@ -2,7 +2,7 @@
 import DashboardLayout from '@/components/DashboardLayout';
 import { useAuth } from '@/context/AuthContext';
 import {
-    Home, Users, Briefcase, BookOpen, MessageCircle, Star, Target, Calendar, Settings, Trophy, FileText
+    Home, Users, Briefcase, BookOpen, MessageCircle, Star, Target, Calendar, Settings, Trophy, FileText, Bot, Sparkles, MessageSquare
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -72,7 +72,8 @@ export default function DashboardLayoutWrapper({
             { icon: FileText, label: 'Resume Review', href: '/dashboard/resumes' },
             { icon: Calendar, label: 'Events', href: '/dashboard/events' },
             { icon: Star, label: 'Leaderboard', href: '/dashboard/leaderboard' },
-            { icon: Users, label: 'Community', href: '/dashboard/community' },
+            { icon: Sparkles, label: 'Resume AI', href: '/dashboard/resume-ai' },
+            { icon: MessageSquare, label: 'AI Coach', href: '/dashboard/ai-coach' },
         ],
         alumni: [
             { icon: Home, label: 'Overview', href: '/dashboard' },

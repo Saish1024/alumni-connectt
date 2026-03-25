@@ -293,6 +293,22 @@ export const notifications = {
     delete: (id: string) => request<any>(`/notifications/${id}`, { method: 'DELETE' }),
 };
 
+// ─── AI Features ──────────────────────────────────────────────────────────────
+export const ai = {
+    analyzeResume: (formData: FormData) =>
+        fetch(`${BASE_URL}/ai/resume-analyze`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${getToken()}` },
+            body: formData,
+        }).then(res => res.json()),
+
+    chat: (messages: any[]) =>
+        request<any>('/ai/chat', {
+            method: 'POST',
+            body: JSON.stringify({ messages }),
+        }),
+};
+
 // ─── Health ───────────────────────────────────────────────────────────────────
 
 export const health = {
