@@ -203,14 +203,16 @@ export default function AICoachPage() {
 
             {/* Sidebar info Area (XL Only) */}
             <div className="hidden xl:flex w-80 flex-col gap-6 relative z-10 h-full">
-                <div className="flex-1 overflow-y-auto pr-2 flex flex-col gap-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
-                    <div className="p-8 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[2.5rem] text-white shadow-2xl space-y-6 relative shrink-0">
-                    <div className="absolute top-0 right-0 p-8 opacity-10">
+                {/* Coaching Modes Card - Now Internally Scrollable */}
+                <div className="flex-1 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden flex flex-col">
+                    <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                         <MessageSquare className="w-32 h-32 rotate-12" />
                     </div>
-                    <div className="relative z-10 space-y-4">
-                        <h3 className="text-xl font-black">Coaching Modes</h3>
-                        <p className="text-sm text-indigo-100/80 leading-relaxed font-medium">Select a direct focus for your AI session today.</p>
+                    <div className="p-8 pb-4 relative z-10 shrink-0">
+                        <h3 className="text-xl font-black italic tracking-tight">Coaching Modes</h3>
+                        <p className="text-xs text-indigo-100/80 leading-relaxed font-bold mt-1 uppercase tracking-wider">Select a focus area</p>
+                    </div>
+                    <div className="flex-1 overflow-y-auto px-8 pb-8 space-y-3 scrollbar-thin scrollbar-thumb-white/20 hover:scrollbar-thumb-white/40">
                         <div className="grid grid-cols-1 gap-3">
                             {quickActions.map((action, i) => (
                                 <button 
@@ -229,6 +231,7 @@ export default function AICoachPage() {
                     </div>
                 </div>
 
+                {/* Live Tips Card - Fixed at bottom */}
                 <div className="p-8 bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl space-y-6 shrink-0">
                     <h3 className="text-lg font-black text-slate-800 dark:text-white flex items-center gap-2">
                         <Zap className="w-5 h-5 text-indigo-500" />
@@ -249,7 +252,6 @@ export default function AICoachPage() {
                             </div>
                         ))}
                     </div>
-                </div>
                 </div>
             </div>
         </div>
