@@ -103,7 +103,7 @@ export default function AICoachPage() {
                 </div>
 
                 {/* Messages Container */}
-                <div className="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-hide flex flex-col">
+                <div className="flex-1 overflow-y-auto p-8 space-y-8 flex flex-col scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
                     <AnimatePresence initial={false}>
                         {messages.map((msg, i) => (
                             <motion.div 
@@ -202,7 +202,7 @@ export default function AICoachPage() {
             </div>
 
             {/* Sidebar info Area (XL Only) */}
-            <div className="hidden xl:flex w-80 flex-col gap-6 relative z-10 h-full">
+            <div className="hidden xl:flex w-80 flex-col gap-6 relative z-10 h-full overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
                 <div className="p-8 bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[2.5rem] text-white shadow-2xl space-y-6 relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-8 opacity-10">
                         <MessageSquare className="w-32 h-32 rotate-12" />
