@@ -53,37 +53,33 @@ export default function StudentPerformancePage() {
                 </div>
             ) : (
                 <div className="bg-white dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 overflow-hidden shadow-sm">
-                    <div className="overflow-x-auto max-h-[600px] overflow-y-auto custom-scrollbar">
+                    <div className="overflow-x-auto max-h-[640px] overflow-y-auto custom-scrollbar">
                         <table className="w-full border-collapse">
                             <thead className="sticky top-0 z-10">
                                 <tr className="border-b border-slate-200 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-900 shadow-sm text-left">
                                     <th className="px-6 py-4 text-xs font-[800] text-slate-500 uppercase tracking-wider">Student</th>
-                                    <th className="px-6 py-4 text-xs font-[800] text-slate-500 uppercase tracking-wider">Branch/Year</th>
-                                    <th className="px-6 py-4 text-xs font-[800] text-slate-400 uppercase tracking-wider">Sessions</th>
-                                    <th className="px-6 py-4 text-xs font-[800] text-slate-400 uppercase tracking-wider">Avg Score</th>
-                                    <th className="px-6 py-4 text-xs font-[800] text-slate-500 uppercase tracking-wider text-right">Status</th>
+                                    <th className="px-6 py-4 text-xs font-[800] text-slate-500 uppercase tracking-wider">Branch / Year</th>
+                                    <th className="px-6 py-4 text-xs font-[800] text-slate-500 uppercase tracking-wider">Tests Taken</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-700/30">
                                 {filtered.map(s => (
-                                    <tr 
-                                        key={s._id} 
+                                    <tr
+                                        key={s._id}
                                         onClick={() => setSelectedStudent(s)}
                                         className="group border-b border-slate-100 dark:border-slate-700/30 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-all cursor-pointer"
                                     >
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="relative">
-                                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-[900] text-sm shadow-md group-hover:scale-105 transition-transform">
-                                                        {s.name?.charAt(0) || '?'}
-                                                    </div>
-                                                    <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-slate-900 border-2 border-white dark:border-slate-800 flex items-center justify-center">
-                                                        <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                                    </div>
+                                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-[900] text-sm shadow-md group-hover:scale-105 transition-transform">
+                                                    {s.name?.charAt(0) || '?'}
                                                 </div>
                                                 <div>
                                                     <div className="font-[700] text-sm text-slate-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">{s.name}</div>
-                                                    <div className="text-[10px] text-slate-400 dark:text-slate-500 font-medium truncate max-w-[150px]">{s.email}</div>
+                                                    <div className="text-[10px] text-slate-400 font-medium truncate max-w-[180px]">{s.email}</div>
+                                                    {(s.phone || s.mobile || s.phoneNumber) && (
+                                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold">{s.phone || s.mobile || s.phoneNumber}</div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </td>
@@ -92,29 +88,12 @@ export default function StudentPerformancePage() {
                                             <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{s.batchYear || 'N/A'} Batch</div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center gap-1.5">
-                                                <div className="px-2.5 py-1 bg-blue-50 dark:bg-blue-900/10 text-blue-600 dark:text-blue-400 rounded-lg text-xs font-[800]">
-                                                    {s.sessionsAttended}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
-                                                <div className="text-sm font-[800] text-slate-700 dark:text-slate-200">{s.avgQuizScore}%</div>
-                                                <div className="flex-1 min-w-[60px] h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                                                    <div 
-                                                        className={`h-full rounded-full transition-all duration-1000 ${
-                                                            s.avgQuizScore >= 75 ? 'bg-green-500' : s.avgQuizScore >= 50 ? 'bg-amber-500' : 'bg-red-500'
-                                                        }`}
-                                                        style={{ width: `${s.avgQuizScore}%` }}
-                                                    />
+                                                <div className="w-9 h-9 rounded-xl bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400 font-[900] text-sm">
+                                                    {s.quizzesTaken ?? s.totalQuizzes ?? 0}
                                                 </div>
+                                                <span className="text-xs text-slate-400 font-medium">quizzes</span>
                                             </div>
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-[800] bg-green-100 dark:bg-green-900/20 text-green-600 uppercase tracking-tight">
-                                                Active
-                                            </span>
                                         </td>
                                     </tr>
                                 ))}
