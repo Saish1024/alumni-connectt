@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Calendar, Code2, Briefcase, Trophy, ChevronRight, Zap, Star, Play, Flame, Loader2, RefreshCw, Linkedin } from 'lucide-react';
+import { Calendar, Code2, Briefcase, Trophy, ChevronRight, Zap, Star, Play, Flame, Loader2, RefreshCw, Linkedin, Users } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { users as apiUsers } from '@/lib/api';
 
@@ -52,7 +52,7 @@ export default function StudentOverview() {
     }
 
     const { topStats, activityData, topicData, aiMentors, upcomingSessions } = stats || {
-        topStats: { sessionsBooked: 0, monthlySessions: 0, quizzesTaken: 0, weeklyQuizzes: 0, jobsApplied: 0, interviewCount: 0, totalPoints: 0, streak: 0, rank: 0 },
+        topStats: { sessionsBooked: 0, monthlySessions: 0, quizzesTaken: 0, weeklyQuizzes: 0, jobsApplied: 0, interviewCount: 0, totalPoints: 0, streak: 0, rank: 0, alumniCount: 0 },
         activityData: [],
         topicData: [],
         aiMentors: [],
@@ -115,7 +115,7 @@ export default function StudentOverview() {
                     { label: 'Sessions Booked', value: topStats.sessionsBooked, change: `+${topStats.monthlySessions} this month`, icon: Calendar, color: 'from-blue-500 to-cyan-600', bg: 'bg-blue-50 dark:bg-blue-900/10' },
                     { label: 'Quizzes Taken', value: topStats.quizzesTaken, change: `+${topStats.weeklyQuizzes} this week`, icon: Code2, color: 'from-purple-500 to-violet-600', bg: 'bg-purple-50 dark:bg-purple-900/10' },
                     { label: 'Jobs Applied', value: topStats.jobsApplied, change: `${topStats.interviewCount} interviews`, icon: Briefcase, color: 'from-green-500 to-emerald-600', bg: 'bg-green-50 dark:bg-green-900/10' },
-                    { label: 'Total Points', value: topStats.totalPoints.toLocaleString(), change: `Rank #${topStats.rank}`, icon: Trophy, color: 'from-amber-500 to-orange-600', bg: 'bg-amber-50 dark:bg-amber-900/10' },
+                    { label: 'Alumni on Platform', value: topStats.alumniCount || 0, change: `Ready to mentor you`, icon: Users, color: 'from-amber-500 to-orange-600', bg: 'bg-amber-50 dark:bg-amber-900/10' },
                 ].map(({ label, value, change, icon: Icon, color, bg }) => (
                     <div key={label} className={`${bg} rounded-2xl p-5 border border-slate-200 dark:border-slate-700/50 hover:shadow-md transition-all`}>
                         <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center mb-3 shadow-md`}>
@@ -130,32 +130,38 @@ export default function StudentOverview() {
 
             {/* Charts Row */}
             <div className="grid lg:grid-cols-3 gap-6">
-                {/* Activity chart */}
+                {/* Upcoming Sessions - Moved up */}
                 <div className="lg:col-span-2 bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-[700] text-slate-900 dark:text-white">Weekly Activity</h3>
-                        <span className="text-xs text-slate-500 bg-slate-100 dark:bg-slate-700/50 px-3 py-1 rounded-full font-[500]">Last 7 Days</span>
+                        <h3 className="font-[700] text-slate-900 dark:text-white">Upcoming Sessions</h3>
+                        <button onClick={() => router.push('/dashboard/sessions')} className="text-xs text-indigo-600 dark:text-indigo-400 font-[600] hover:underline">View Schedule</button>
                     </div>
-                    {activityData.length > 0 ? (
-                        <ResponsiveContainer width="100%" height={180}>
-                            <AreaChart data={activityData}>
-                                <defs>
-                                    <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="opacity-50 dark:opacity-20" />
-                                <XAxis dataKey="day" tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                                <YAxis tick={{ fontSize: 12, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                                <Tooltip contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '12px', color: '#fff' }} />
-                                <Area key="score" type="monotone" dataKey="score" stroke="#6366f1" strokeWidth={2.5} fill="url(#scoreGrad)" name="Avg Score %" />
-                                <Area key="quizzes" type="monotone" dataKey="quizzes" stroke="#8b5cf6" strokeWidth={2} fill="url(#scoreGrad)" name="Quizzes" />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    ) : (
-                        <div className="h-[180px] flex items-center justify-center text-slate-400 italic text-sm">No activity recorded this week</div>
-                    )}
+                    <div className="space-y-3">
+                        {upcomingSessions.length > 0 ? (
+                            upcomingSessions.slice(0, 3).map((s: any) => (
+                                <div key={s.id} className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-700/30 rounded-xl">
+                                    {s.img ? (
+                                        <img src={s.img} alt={s.mentor} className="w-10 h-10 rounded-xl object-cover" />
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-xl bg-slate-200 flex items-center justify-center text-slate-600 font-bold">
+                                            {s.mentor.charAt(0)}
+                                        </div>
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="font-[600] text-slate-900 dark:text-white text-sm truncate">{s.topic}</div>
+                                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                                            with {s.mentor} · {s.date} at {s.time}
+                                        </div>
+                                    </div>
+                                    <button className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-[700] rounded-xl hover:scale-105 transition-all shadow-md shadow-indigo-500/20 flex items-center gap-1.5 flex-shrink-0">
+                                        <Play className="w-3 h-3 fill-white" /> Join
+                                    </button>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="h-32 flex items-center justify-center text-slate-400 italic text-sm bg-slate-50 dark:bg-slate-700/30 rounded-xl">No upcoming sessions booked</div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Topic breakdown */}
@@ -256,41 +262,6 @@ export default function StudentOverview() {
                     </div>
                 </div>
             )}
-
-            {/* Upcoming Sessions */}
-            <div className="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700/50">
-                <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-[700] text-slate-900 dark:text-white">Upcoming Sessions</h3>
-                </div>
-                <div className="space-y-3">
-                    {upcomingSessions.length > 0 ? (
-                        upcomingSessions.map((s: any) => (
-                            <div key={s.id} className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-700/30 rounded-xl">
-                                {s.img ? (
-                                    <img src={s.img} alt={s.mentor} className="w-10 h-10 rounded-xl object-cover" />
-                                ) : (
-                                    <div className="w-10 h-10 rounded-xl bg-slate-200 flex items-center justify-center text-slate-600 font-bold">
-                                        {s.mentor.charAt(0)}
-                                    </div>
-                                )}
-                                <div className="flex-1 min-w-0">
-                                    <div className="font-[600] text-slate-900 dark:text-white text-sm truncate">{s.topic}</div>
-                                    <div className="text-xs text-slate-500 dark:text-slate-400">
-                                        with {s.mentor} 
-                                        {s.requestedBy && <span className="text-emerald-500 dark:text-emerald-400"> (Requested by {s.requestedBy})</span>}
-                                        · {s.date} at {s.time}
-                                    </div>
-                                </div>
-                                <button className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-[700] rounded-xl hover:scale-105 transition-all shadow-md shadow-indigo-500/20 flex items-center gap-1.5 flex-shrink-0">
-                                    <Play className="w-3 h-3 fill-white" /> Join
-                                </button>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="h-20 flex items-center justify-center text-slate-400 italic text-sm">No upcoming sessions booked</div>
-                    )}
-                </div>
-            </div>
         </div>
     );
 }

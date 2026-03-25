@@ -151,6 +151,9 @@ const getStudentStats = async (req, res) => {
         // Rank calculation
         const rank = await User.countDocuments({ totalPoints: { $gt: totalPoints } }) + 1;
 
+        // Total Alumni Count for social proof
+        const alumniCount = await User.countDocuments({ role: 'alumni', isApproved: true });
+
         // 2. Weekly Activity (Last 7 Days)
         const activityData = [];
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -213,7 +216,8 @@ const getStudentStats = async (req, res) => {
                 interviewCount,
                 totalPoints,
                 streak,
-                rank
+                rank,
+                alumniCount
             },
             activityData,
             topicData,
