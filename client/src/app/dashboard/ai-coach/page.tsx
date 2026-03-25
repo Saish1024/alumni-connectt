@@ -66,7 +66,7 @@ export default function AICoachPage() {
     ];
 
     return (
-        <div className="max-w-7xl mx-auto h-[calc(100vh-10rem)] flex flex-col xl:flex-row gap-8 animate-in fade-in duration-1000">
+        <div className="max-w-full px-4 sm:px-10 h-[calc(100vh-6rem)] flex flex-col xl:flex-row gap-8 animate-in fade-in duration-1000">
             {/* Background Effects */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
                 <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-[120px]" />
@@ -127,7 +127,12 @@ export default function AICoachPage() {
                                         ? 'bg-indigo-600 text-white rounded-tr-none shadow-xl shadow-indigo-600/10' 
                                         : 'bg-white/80 dark:bg-slate-800/80 backdrop-blur-md text-slate-700 dark:text-slate-200 rounded-tl-none border border-white/20 dark:border-slate-700/50 shadow-sm whitespace-pre-wrap'}
                                 `}>
-                                    {msg.content}
+                                    {msg.content.split(/(\*\*.*?\*\*)/g).map((part, index) => {
+                                        if (part.startsWith('**') && part.endsWith('**')) {
+                                            return <strong key={index} className="font-black text-slate-900 dark:text-white underline decoration-indigo-500/30 underline-offset-2">{part.slice(2, -2)}</strong>;
+                                        }
+                                        return part;
+                                    })}
                                     {msg.role === 'assistant' && (
                                         <div className="absolute top-0 left-0 -translate-x-1 -translate-y-1 opacity-10">
                                             <Zap className="w-12 h-12 rotate-[-15deg] fill-current" />
@@ -210,10 +215,12 @@ export default function AICoachPage() {
                                 <button 
                                     key={i}
                                     onClick={() => setInput(action.label + " help")}
-                                    className="p-4 bg-white/10 hover:bg-white/20 rounded-2xl border border-white/10 transition-all flex items-center gap-4 group text-left"
+                                    className="w-full p-4 bg-white/10 hover:bg-white/20 rounded-2xl border border-white/10 transition-all flex items-center gap-4 group text-left outline-none"
                                 >
-                                    <div className="p-2 bg-white/20 rounded-xl group-hover:scale-110 transition-transform">{action.icon}</div>
-                                    <span className="text-sm font-bold tracking-tight">{action.label}</span>
+                                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                                        {action.icon}
+                                    </div>
+                                    <span className="text-sm font-bold tracking-tight leading-none pt-0.5">{action.label}</span>
                                     <ChevronRight className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-all" />
                                 </button>
                             ))}
