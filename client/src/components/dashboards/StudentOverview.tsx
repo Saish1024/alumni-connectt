@@ -17,7 +17,7 @@ export default function StudentOverview() {
     const fetchData = async (isPoll = false) => {
         if (!isPoll) setLoading(true);
         else setIsSyncing(true);
-        
+
         try {
             const data = await apiUsers.getStudentStats();
             setStats(data);
@@ -66,8 +66,8 @@ export default function StudentOverview() {
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2 px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
                         <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                         </span>
                         <span className="text-[10px] font-[800] text-green-600 dark:text-green-400 uppercase tracking-wider">Live System</span>
                     </div>
@@ -76,33 +76,39 @@ export default function StudentOverview() {
                     </span>
                 </div>
                 {isSyncing && (
-                   <div className="flex items-center gap-2 text-indigo-500 animate-in fade-in slide-in-from-right-2">
+                    <div className="flex items-center gap-2 text-indigo-500 animate-in fade-in slide-in-from-right-2">
                         <RefreshCw className="w-3 h-3 animate-spin" />
                         <span className="text-[10px] font-bold uppercase tracking-tight">Syncing Live Data...</span>
-                   </div>
+                    </div>
                 )}
             </div>
 
             {/* Welcome banner */}
-            <div className="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl p-6 text-white shadow-xl">
+            <div className="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-[2rem] p-8 sm:p-10 text-white shadow-xl">
                 <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.3'%3E%3Ccircle cx='15' cy='15' r='2'/%3E%3C/g%3E%3C/svg%3E\")" }} />
-                <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <div className="text-white/80 text-sm font-[500] mb-1">Welcome back 👋</div>
-                        <h2 className="text-3xl font-[800]">{displayName}</h2>
-                        <p className="text-white/90 text-sm mt-1">
-                            {major} · Batch {batchYear}
-                        </p>
-                        <div className="flex items-center gap-2 mt-3">
-                            <Flame className="w-4 h-4 text-orange-300 animate-pulse" />
-                            <span className="text-sm font-[600] text-orange-200">{topStats.streak}-day learning streak!</span>
+                <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                    <div className="space-y-1">
+                        <div className="text-white/80 text-sm font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+                            <span className="w-8 h-[1px] bg-white/30" />
+                            Welcome back 👋
                         </div>
+                        <h2 className="text-4xl font-black tracking-tight">{displayName}</h2>
+                        <p className="text-indigo-100 text-lg font-medium opacity-90">
+                            {major} <span className="mx-2 text-white/30">|</span> Batch {batchYear}
+                        </p>
                     </div>
-                    <div className="flex gap-3">
-                        <button onClick={() => router.push('/dashboard/mentors')} className="px-5 py-2.5 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-sm font-[600] hover:bg-white/30 transition-all">
+                    <div className="flex gap-4 shrink-0">
+                        <button
+                            onClick={() => router.push('/dashboard/mentors')}
+                            className="px-6 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-sm font-bold hover:bg-white/20 transition-all active:scale-95 flex items-center gap-2"
+                        >
                             Find Mentor
+                            <ChevronRight className="w-4 h-4" />
                         </button>
-                        <button onClick={() => router.push('/dashboard/tests')} className="px-5 py-2.5 bg-white text-indigo-600 rounded-xl text-sm font-[700] hover:scale-105 transition-all shadow-lg">
+                        <button
+                            onClick={() => router.push('/dashboard/tests')}
+                            className="px-8 py-3 bg-white text-indigo-600 rounded-2xl text-sm font-black hover:shadow-2xl hover:shadow-white/20 transition-all active:scale-95 shadow-lg"
+                        >
                             Start Quiz
                         </button>
                     </div>
@@ -112,7 +118,7 @@ export default function StudentOverview() {
             {/* Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                    { label: 'Sessions Booked', value: topStats.sessionsBooked, change: `+${topStats.monthlySessions} this month`, icon: Calendar, color: 'from-blue-500 to-cyan-600', bg: 'bg-blue-50 dark:bg-blue-900/10' },
+                    { label: 'Sessions Joined', value: topStats.sessionsBooked, change: `+${topStats.monthlySessions} this month`, icon: Calendar, color: 'from-blue-500 to-cyan-600', bg: 'bg-blue-50 dark:bg-blue-900/10' },
                     { label: 'Quizzes Taken', value: topStats.quizzesTaken, change: `+${topStats.weeklyQuizzes} this week`, icon: Code2, color: 'from-purple-500 to-violet-600', bg: 'bg-purple-50 dark:bg-purple-900/10' },
                     { label: 'Jobs Applied', value: topStats.jobsApplied, change: `${topStats.interviewCount} interviews`, icon: Briefcase, color: 'from-green-500 to-emerald-600', bg: 'bg-green-50 dark:bg-green-900/10' },
                     { label: 'Alumni on Platform', value: topStats.alumniCount || 0, change: `Ready to mentor you`, icon: Users, color: 'from-amber-500 to-orange-600', bg: 'bg-amber-50 dark:bg-amber-900/10' },
@@ -241,22 +247,22 @@ export default function StudentOverview() {
                                         {m.free ? 'Free' : `₹${m.price}`}
                                     </span>
                                 </div>
-                                    <div className="flex gap-2">
-                                        <button onClick={() => router.push('/dashboard/mentors')} className="flex-1 mt-3 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-[700] rounded-xl hover:scale-[1.02] transition-all shadow-md shadow-indigo-500/20 text-center">
-                                            Book Session
-                                        </button>
-                                        {m.linkedin && (
-                                            <a
-                                                href={m.linkedin}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="mt-3 p-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded-xl hover:bg-[#0077b5] hover:text-white dark:hover:bg-[#0077b5] dark:hover:text-white transition-all flex items-center justify-center group/ln"
-                                                title="Connect on LinkedIn"
-                                            >
-                                                <Linkedin className="w-4 h-4" />
-                                            </a>
-                                        )}
-                                    </div>
+                                <div className="flex gap-2">
+                                    <button onClick={() => router.push('/dashboard/mentors')} className="flex-1 mt-3 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-xs font-[700] rounded-xl hover:scale-[1.02] transition-all shadow-md shadow-indigo-500/20 text-center">
+                                        Book Session
+                                    </button>
+                                    {m.linkedin && (
+                                        <a
+                                            href={m.linkedin}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="mt-3 p-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded-xl hover:bg-[#0077b5] hover:text-white dark:hover:bg-[#0077b5] dark:hover:text-white transition-all flex items-center justify-center group/ln"
+                                            title="Connect on LinkedIn"
+                                        >
+                                            <Linkedin className="w-4 h-4" />
+                                        </a>
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>
