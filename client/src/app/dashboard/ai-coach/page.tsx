@@ -66,7 +66,7 @@ export default function AICoachPage() {
     ];
 
     return (
-        <div className="max-w-full px-4 sm:px-10 h-[calc(100vh-6rem)] flex flex-col xl:flex-row gap-8 animate-in fade-in duration-1000">
+        <div className="max-w-full px-4 sm:px-10 h-[calc(100dvh-5rem)] sm:h-[calc(100vh-6rem)] flex flex-col xl:flex-row gap-8 animate-in fade-in duration-1000">
             {/* Background Effects */}
             <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
                 <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-indigo-500/5 rounded-full blur-[120px]" />
@@ -103,7 +103,7 @@ export default function AICoachPage() {
                 </div>
 
                 {/* Messages Container */}
-                <div className="flex-1 overflow-y-auto p-8 space-y-8 flex flex-col scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-4 sm:space-y-8 flex flex-col scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800">
                     <AnimatePresence initial={false}>
                         {messages.map((msg, i) => (
                             <motion.div 
@@ -111,7 +111,7 @@ export default function AICoachPage() {
                                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 transition={{ duration: 0.4, ease: "easeOut" }}
-                                className={`flex items-start gap-4 ${msg.role === 'user' ? 'flex-row-reverse self-end w-full' : 'self-start w-full'}`}
+                                className={`flex items-start gap-2 sm:gap-4 ${msg.role === 'user' ? 'flex-row-reverse self-end w-full' : 'self-start w-full'}`}
                             >
                                 <div className={`
                                     w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 border-2 transition-transform duration-500 hover:rotate-6
@@ -122,7 +122,7 @@ export default function AICoachPage() {
                                     {msg.role === 'user' ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
                                 </div>
                                 <div className={`
-                                    max-w-[75%] px-6 py-4 rounded-[2rem] text-[15px] leading-relaxed relative
+                                    max-w-[85%] sm:max-w-[75%] px-4 py-3 sm:px-6 sm:py-4 rounded-[2rem] text-[14px] sm:text-[15px] leading-relaxed relative
                                     ${msg.role === 'user' 
                                         ? 'bg-indigo-600 text-white rounded-tr-none shadow-xl shadow-indigo-600/10' 
                                         : 'bg-white/80 dark:bg-slate-800/80 backdrop-blur-md text-slate-700 dark:text-slate-200 rounded-tl-none border border-white/20 dark:border-slate-700/50 shadow-sm whitespace-pre-wrap'}

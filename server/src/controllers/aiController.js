@@ -14,12 +14,14 @@ exports.analyzeResume = async (req, res) => {
         const dataBuffer = fs.readFileSync(req.file.path);
         const data = await pdf(dataBuffer);
         const resumeText = data.text;
+        console.log(`[Resume AI] Extracted ${resumeText.length} characters from ${req.file.originalname}`);
 
         // Clean up uploaded file
         fs.unlinkSync(req.file.path);
 
         if (!resumeText || resumeText.trim().length < 50) {
-            return res.status(400).json({ error: 'Could not extract enough text from the resume. Please ensure it is a valid PDF.' });
+            console.warn('[Resume AI] Text extraction failed or too short.');
+            return res.status(400).json({ error: 'Could not extract enough text from the resume. Please ensure it is a valid PDF (not just an image/scan).' });
         }
 
         // Call AI Service
